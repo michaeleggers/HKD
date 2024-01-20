@@ -93,27 +93,7 @@ int main(int argc, char** argv)
     else {
         SDL_Log("vsync enabled\n");
     }
-
-    // Setup Window icon
-
-    Uint32 rmask = 0x000000ff;
-    Uint32 gmask = 0x0000ff00;
-    Uint32 bmask = 0x00ff0000;
-    Uint32 amask = 0xff000000;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int shift = 0;
-    rmask = 0xff000000 >> shift;
-    gmask = 0x00ff0000 >> shift;
-    bmask = 0x0000ff00 >> shift;
-    amask = 0x000000ff >> shift;
-#else // little endian, like x86
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
-    amask = 0xff000000;
-#endif
-
-
+    
     // Setup Imgui
 
     IMGUI_CHECKVERSION();
@@ -144,11 +124,13 @@ int main(int argc, char** argv)
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
             if (event.type == SDL_QUIT) {
                 shouldClose = true;
             }
         }
-
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -163,6 +145,7 @@ int main(int argc, char** argv)
 
         // Draw stuff
 
+        ImGui::Render();
 
         // Second pass
 
@@ -175,7 +158,7 @@ int main(int argc, char** argv)
         //finalBatch.Bind();
         //glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
 
-        ImGui::Render();
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         SDL_GL_SwapWindow(window);
