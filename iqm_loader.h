@@ -1,6 +1,9 @@
 #ifndef _IQM_LOADER_H_
 #define _IQM_LOADER_H_
 
+#include <string>
+#include <vector>
+
 #include <stdint.h>
 
 #define GLM_FORCE_RADIANS
@@ -47,8 +50,8 @@ struct IQMVertex {
 //       Maybe move them out of here later or something.
 
 struct Mesh {
-    char* material;
-    IQMVertex* vertices;
+    std::string material;
+    std::vector<IQMVertex> vertices;
     uint32_t firstTri, numTris;
 };
 
@@ -66,7 +69,7 @@ struct Anim {
 };
 
 struct IQMData {
-    Mesh* meshes;
+    std::vector<Mesh> meshes;
     glm::mat4 bindPoses;
     glm::mat4 invBindPoses;
     Pose* poses;
@@ -84,26 +87,26 @@ struct IQMVertArray {
 };
 
 enum IQMVertArrayType {
-    POSITION,
-    TEXCOORD,
-    NORMAL,
-    TANGENT,
-    BLENDINDIXES,
-    BLENDWEIGHTS,
-    COLOR,
+    IQM_POSITION,
+    IQM_TEXCOORD,
+    IQM_NORMAL,
+    IQM_TANGENT,
+    IQM_BLENDINDIXES,
+    IQM_BLENDWEIGHTS,
+    IQM_COLOR,
 
-    CUSTOM = 0x10
+    IQM_CUSTOM = 0x10
 };
 
 enum IQMVertArrayFormat {
-    BYTE,
-    UBYTE,
-    USHORT,
-    INT,
-    UINT,
-    HALF,
-    FLOAT,
-    DOUBLE
+    IQM_BYTE,
+    IQM_UBYTE,
+    IQM_USHORT,
+    IQM_INT,
+    IQM_UINT,
+    IQM_HALF,
+    IQM_FLOAT,
+    IQM_DOUBLE
 };
 
 struct IQMTri {
@@ -134,5 +137,6 @@ struct IQMAnim {
 
 
 IQMData LoadIQM(const char* file);
+void    UnloadIQM(IQMData* iqmData);
 
 #endif
