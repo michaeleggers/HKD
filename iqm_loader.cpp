@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+#define GLM_FORCE_RADIANS
+#include "dependencies/glm/glm.hpp"
+#include "dependencies/glm/ext.hpp"
+#include "dependencies/glm/gtx/quaternion.hpp"
 #include "platform.h"
 
 IQMData LoadIQM(const char* file)
@@ -134,6 +138,127 @@ IQMData LoadIQM(const char* file)
 			mesh.vertices.push_back(vertC);
 		}
 		result.meshes.push_back(mesh);
+	}
+
+	std::vector<glm::mat4> globalBindPoses;
+	std::vector<glm::mat4> bindPoses;
+	std::vector<glm::mat4> invBindPoses;
+	bindPoses.resize(pHeader->numJoints);
+	invBindPoses.resize(pHeader->numJoints);
+	for (int i = 0; i < pHeader->numJoints; i++) {
+		IQMJoint* pJoint = pJoints + i;
+		printf("Joint %d name: %s\n", i, pText + pJoint->name);
+		
+		glm::vec3 translation = glm::vec3(pJoint->translate[0], pJoint->translate[1], pJoint->translate[2]);
+		glm::quat rotation = glm::quat(pJoint->rotate[0], pJoint->rotate[1], pJoint->rotate[2], pJoint->rotate[3]);
+		glm::vec3 scale = glm::vec3(pJoint->scale[0], pJoint->scale[1], pJoint->scale[2]);
+
+		glm::mat4 mTranslate = glm::translate(glm::mat4(1.0f), translation);
+		glm::mat4 mRotate = glm::toMat4(rotation);
+		glm::mat4 mScale = glm::scale(glm::mat4(1.0f), scale);
+		glm::mat4 m = mTranslate * mRotate * mScale;
+		bindPoses[i] = m;
+		invBindPoses[i] = m;
+		if (pJoint->parent >= 0) {
+			bindPoses[i] = bindPoses[pJoint->parent] * bindPoses[i];
+			invBindPoses[i] = bindPoses[i];
+		}
+	}
+
+	// Invert global bind poses
+
+	for (int i = 0; i < invBindPoses.size(); i++) {
+		invBindPoses[i] = glm::inverse(invBindPoses[i]);
+	}
+
+	result.bindPoses = bindPoses;
+	result.invBindPoses = invBindPoses;
+
+	std::vector<Pose> poses;
+	uint16_t* pFramedata = pFrames;
+	for (int i = 0; i < pHeader->numFrames; i++) {
+		for (int j = 0; j < pHeader->numPoses; j++) {
+			IQMPose* pPose = pPoses + j;
+			glm::vec3 translation;
+			glm::vec3 scale;
+			glm::quat rotation;
+
+			translation.x = pPose->channeloffset[0];
+			if (pPose->channelmask & 0x01) {
+				translation.x += *pFramedata * pPose->channelscale[0];
+				pFramedata += 1;
+			}
+			translation.y = pPose->channeloffset[1];
+			if (pPose->channelmask & 0x02) {
+				translation.y += *pFramedata * pPose->channelscale[1];
+				pFramedata += 1;
+			}
+			translation.z = pPose->channeloffset[2];
+			if (pPose->channelmask & 0x04) {
+				translation.z += *pFramedata * pPose->channelscale[2];
+				pFramedata += 1;
+			}
+
+			rotation.x = pPose->channeloffset[3];
+			if (pPose->channelmask & 0x08) {
+				rotation.x += *pFramedata * pPose->channelscale[3];
+				pFramedata += 1;
+			}
+			rotation.y = pPose->channeloffset[4];
+			if (pPose->channelmask & 0x10) {
+				rotation.y += *pFramedata * pPose->channelscale[4];
+				pFramedata += 1;
+			}
+			rotation.z = pPose->channeloffset[5];
+			if (pPose->channelmask & 0x20) {
+				rotation.z += *pFramedata * pPose->channelscale[5];
+				pFramedata += 1;
+			}
+			rotation.w = pPose->channeloffset[6];
+			if (pPose->channelmask & 0x40) {
+				rotation.w += *pFramedata * pPose->channelscale[6];
+				pFramedata += 1;
+			}
+
+			scale.x = pPose->channeloffset[7];
+			if (pPose->channelmask & 0x80) {
+				scale.x += *pFramedata * pPose->channelscale[7];
+				pFramedata += 1;
+			}
+			scale.y = pPose->channeloffset[8];
+			if (pPose->channelmask & 0x100) {
+				scale.y += *pFramedata * pPose->channelscale[8];
+				pFramedata += 1;
+			}
+			scale.z = pPose->channeloffset[9];
+			if (pPose->channelmask & 0x200) {
+				scale.z += *pFramedata * pPose->channelscale[9];
+				pFramedata += 1;
+			}
+
+			Pose pose = {};
+			pose.parent = pPose->parent;
+			pose.translations = translation;
+			pose.scale = scale;
+			pose.rotation = rotation;
+
+			result.poses.push_back(pose);
+		}
+	}
+
+	result.numJoints = pHeader->numJoints;
+	result.numFrames = pHeader->numFrames;
+
+	for (int i = 0; i < pHeader->numAnims; i++) {
+		IQMAnim* pAnim = pAnims + i;
+		printf("Animation %d, name: %s\n", i, pText + pAnim->name);
+
+		Anim anim = {};
+		anim.name = std::string(pText + pAnim->name);
+		anim.firstFrame = pAnim->firstFrame;
+		anim.numFrames = pAnim->numFrames;
+		anim.framerate = pAnim->framerate;
+		result.animations.push_back(anim);
 	}
 
 	hkd_destroy_file(&iqmFile);

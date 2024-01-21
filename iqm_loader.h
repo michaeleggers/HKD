@@ -63,19 +63,19 @@ struct Pose {
 };
 
 struct Anim {
-    char*    name;
+    std::string    name;
     uint32_t firstFrame, numFrames;
     float    framerate;
 };
 
 struct IQMData {
     std::vector<Mesh> meshes;
-    glm::mat4 bindPoses;
-    glm::mat4 invBindPoses;
-    Pose* poses;
+    std::vector<glm::mat4> bindPoses;
+    std::vector<glm::mat4> invBindPoses;
+    std::vector<Pose> poses;
     uint32_t numJoints;
     uint32_t numFrames;
-    Anim* animations;
+    std::vector<Anim> animations;
 };
 
 struct IQMVertArray {
