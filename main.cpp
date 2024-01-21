@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <string>
+
 #include <SDL.h>
 #include <glad/glad.h>
 
@@ -23,6 +25,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include "platform.h"
+#include "iqm_loader.h"
+
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
 
@@ -31,7 +36,8 @@ const int WINDOW_HEIGHT = 768;
 
 int main(int argc, char** argv)
 {
-   
+    std::string exePath = hkd_GetExePath();
+
     SDL_Window* window;                    
     SDL_Init(SDL_INIT_EVERYTHING);         
 
@@ -101,6 +107,10 @@ int main(int argc, char** argv)
     ImGui_ImplSDL2_InitForOpenGL(window, sdl_gl_Context);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    // ImGui Config
+
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     // Load Shaders
         
 
@@ -109,10 +119,15 @@ int main(int argc, char** argv)
     glFrontFace(GL_CW); // front faces are in clockwise order
     glCullFace(GL_FALSE);
 
+    // Some OpenGL Info
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
     SDL_Log("%s, %s\n", vendor, renderer);
+
+    // Load IQM Model
+
+    IQMData iqmModelData = LoadIQM((exePath + "../../assets/models/hana/hana.iqm").c_str());
 
     // Main loop
     
@@ -134,7 +149,7 @@ int main(int argc, char** argv)
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
-        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        
         ImGui::NewFrame();
         ImGui::ShowDemoWindow();
 
@@ -142,7 +157,6 @@ int main(int argc, char** argv)
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
         
-
         // Draw stuff
 
         ImGui::Render();

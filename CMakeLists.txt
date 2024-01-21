@@ -37,6 +37,10 @@ add_subdirectory(dependencies/SDL2.28.4)
 add_executable(Game
 
 	main.cpp
+	platform.h
+	platform.cpp
+	iqm_loader.h
+	iqm_loader.cpp
 
 	shaders/basic.vert
 	shaders/basic.frag
