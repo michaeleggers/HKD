@@ -27,7 +27,7 @@ struct IQMHeader {
     uint32_t numExt, ofsExt;
 };
 
-struct IQMMesh {
+struct IQMMeshData {
     uint32_t name;
     uint32_t material;
     uint32_t firstVert, numVerts;
@@ -49,7 +49,7 @@ struct IQMVertex {
 // NOTE: Mesh, Pose and Anim structs are not part of IQM.
 //       Maybe move them out of here later or something.
 
-struct Mesh {
+struct IQMMesh {
     std::string material;
     std::vector<IQMVertex> vertices;
     uint32_t firstTri, numTris;
@@ -69,7 +69,7 @@ struct Anim {
 };
 
 struct IQMModel {
-    std::vector<Mesh> meshes;
+    std::vector<IQMMesh> meshes;
     std::vector<glm::mat4> bindPoses;
     std::vector<glm::mat4> invBindPoses;
     std::vector<Pose> poses;

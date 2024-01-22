@@ -32,19 +32,24 @@ Model CreateModelFromIQM(IQMModel* model)
     Model result = {};
 
     for (int i = 0; i < model->meshes.size(); i++) {
-        Mesh* mesh = &model->meshes[i];
-        for (int v = 0; v < mesh->vertices.size(); v += 3) {
-            IQMVertex iqmVertA = mesh->vertices[v + 0];           
-            IQMVertex iqmVertB = mesh->vertices[v + 1];
-            IQMVertex iqmVertC = mesh->vertices[v + 2];
+        IQMMesh* iqmMesh = &model->meshes[i];
+        HKD_Mesh mesh = {};
+        for (int v = 0; v < iqmMesh->vertices.size(); v += 3) {
+
+            IQMVertex iqmVertA = iqmMesh->vertices[v + 0];
+            IQMVertex iqmVertB = iqmMesh->vertices[v + 1];
+            IQMVertex iqmVertC = iqmMesh->vertices[v + 2];
 
             Vertex vertA = IQMVertexToVertex(iqmVertA, glm::vec3(1.0, 0.0, 0.0));
             Vertex vertB = IQMVertexToVertex(iqmVertB, glm::vec3(0.0, 1.0, 0.0));
             Vertex vertC = IQMVertexToVertex(iqmVertC, glm::vec3(0.0, 0.0, 1.0));
+
+            Tri tri = { vertA, vertB, vertC };
+
+            mesh.tris.push_back(tri);
         }
+        result.meshes.push_back(mesh);
     }
 
-
-
-    return Model();
+    return result;
 }

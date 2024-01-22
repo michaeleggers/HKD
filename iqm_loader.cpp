@@ -26,7 +26,7 @@ IQMModel LoadIQM(const char* file)
 
 	IQMHeader* pHeader = (IQMHeader*)iqmFile.data;
 	char* pText = (char*)(iqmData + pHeader->ofsText);
-	IQMMesh* pMeshes = (IQMMesh*)(iqmData + pHeader->ofsMeshes);
+	IQMMeshData* pMeshes = (IQMMeshData*)(iqmData + pHeader->ofsMeshes);
 	IQMVertArray* pVertArrays = (IQMVertArray*)(iqmData + pHeader->ofsVertArrays);
 	uint32_t numVertices = pHeader->numVertices;
 	IQMTri* pTris = (IQMTri*)(iqmData + pHeader->ofsTris);
@@ -101,10 +101,10 @@ IQMModel LoadIQM(const char* file)
 	}
 	
 	for (int i = 0; i < pHeader->numMeshes; i++) {
-		IQMMesh* iqmMesh = pMeshes + i;
+		IQMMeshData* iqmMesh = pMeshes + i;
 		uint32_t firstTri = iqmMesh->firstTri;
 		uint32_t numTris = iqmMesh->numTris;
-		Mesh mesh = {};
+		IQMMesh mesh = {};
 		//mesh.vertices = (IQMVertex*)malloc(iqmMesh->numVerts * sizeof(IQMVertex));
 		mesh.material = std::string(pText + iqmMesh->material);
 		mesh.firstTri = firstTri;

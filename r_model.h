@@ -12,9 +12,13 @@
 #include "r_common.h"
 #include "iqm_loader.h"
 
-struct Model {
+struct HKD_Mesh {
 	std::vector<Tri> tris;
 	int				 textureID;
+};
+
+struct Model {
+	std::vector<HKD_Mesh> meshes;
 };
 
 Model CreateModelFromIQM(IQMModel* model);
