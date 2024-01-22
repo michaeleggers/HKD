@@ -52,6 +52,8 @@ int main(int argc, char** argv)
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
+    Model model = CreateModelFromIQM(&iqmModel);
+
     // Maybe init an entity here?
 
 

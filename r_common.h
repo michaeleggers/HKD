@@ -9,10 +9,10 @@
 
 struct Vertex {
 	glm::vec3 pos;
-	glm::vec3 uv;
+	glm::vec2 uv;
 	glm::vec3 bc;
 	glm::vec3 normal;
-	glm::vec3 color;
+	glm::vec4 color;
 	uint32_t  blendindices[4];
 	glm::vec4 blendweights;
 };
