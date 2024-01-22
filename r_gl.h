@@ -3,13 +3,18 @@
 
 #include "irender.h"
 
+#include <SDL.h>
+#include <glad/glad.h>
+
 class GLRender : public IRender {
 public:
-	virtual void Init(void)			override;
+	virtual bool Init(void)			override;
 	virtual void Shutdown(void)		override;
-	virtual void RegisterModel()	override;
+	//virtual void RegisterModel()	override;
+	virtual void Render(void)       override;
 
 private:
+	SDL_Window* m_Window;
 };
 
 #endif

@@ -6,9 +6,10 @@
 
 class IRender {
 public:
-	virtual void Init(void)			= 0;
+	virtual bool Init(void)			= 0;
 	virtual void Shutdown(void)		= 0;
-	virtual void RegisterModel()	= 0;
+	//virtual void RegisterModel()	= 0;
+	virtual void Render(void) = 0;
 
 private:
 
