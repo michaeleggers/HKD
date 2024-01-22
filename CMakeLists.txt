@@ -41,6 +41,9 @@ add_executable(Game
 	platform.cpp
 	iqm_loader.h
 	iqm_loader.cpp
+	irender.h
+	r_gl.h
+	r_gl.cpp
 
 	shaders/basic.vert
 	shaders/basic.frag

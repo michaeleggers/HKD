@@ -129,6 +129,13 @@ int main(int argc, char** argv)
 
     IQMData iqmModelData = LoadIQM((exePath + "../../assets/models/hana/hana.iqm").c_str());
 
+    // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
+
+    R_RegisterModel(iqmModelData);
+
+    // Maybe init an entity here?
+
+
     // Main loop
     
     bool shouldClose = false;
@@ -158,6 +165,8 @@ int main(int argc, char** argv)
         float windowAspect = (float)windowWidth / (float)windowHeight;
         
         // Draw stuff
+
+
 
         ImGui::Render();
 

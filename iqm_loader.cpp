@@ -9,6 +9,7 @@
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 #include "dependencies/glm/gtx/quaternion.hpp"
+
 #include "platform.h"
 
 IQMData LoadIQM(const char* file)

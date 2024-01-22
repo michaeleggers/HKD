@@ -101,6 +101,7 @@ enum IQMVertArrayType {
 enum IQMVertArrayFormat {
     IQM_BYTE,
     IQM_UBYTE,
+    IQM_SHORT,
     IQM_USHORT,
     IQM_INT,
     IQM_UINT,
