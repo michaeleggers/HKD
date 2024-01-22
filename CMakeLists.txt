@@ -46,6 +46,7 @@ add_executable(Game
 	r_gl.cpp
 	r_model.h
 	r_model.cpp
+	r_common.h
 
 	shaders/basic.vert
 	shaders/basic.frag

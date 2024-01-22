@@ -1,8 +1,8 @@
 #ifndef _RGL_H_
 #define _RGL_H_
 
-#include "r_model.h"
 #include "irender.h"
+#include "r_common.h"
 
 #include <vector>
 
