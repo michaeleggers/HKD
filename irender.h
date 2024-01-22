@@ -4,11 +4,15 @@
 #ifndef _IRENDER_H_
 #define _IRENDER_H_
 
+#include "irender.h"
+
+#include "r_model.h"
+
 class IRender {
 public:
 	virtual bool Init(void)			= 0;
 	virtual void Shutdown(void)		= 0;
-	//virtual void RegisterModel()	= 0;
+	virtual int  RegisterModel(Tri* tris, uint32_t triCount, int textureID)	= 0;
 	virtual void Render(void) = 0;
 
 private:

@@ -68,7 +68,7 @@ struct Anim {
     float    framerate;
 };
 
-struct IQMData {
+struct IQMModel {
     std::vector<Mesh> meshes;
     std::vector<glm::mat4> bindPoses;
     std::vector<glm::mat4> invBindPoses;
@@ -137,7 +137,7 @@ struct IQMAnim {
 };
 
 
-IQMData LoadIQM(const char* file);
-void    UnloadIQM(IQMData* iqmData);
+IQMModel LoadIQM(const char* file);
+void     UnloadIQM(IQMModel* iqmModel);
 
 #endif

@@ -12,13 +12,13 @@
 
 #include "platform.h"
 
-IQMData LoadIQM(const char* file)
+IQMModel LoadIQM(const char* file)
 {
-	IQMData result = {};
+	IQMModel result = {};
 
 	HKD_File iqmFile;
 	if (hkd_read_file(file, &iqmFile) != HKD_FILE_SUCCESS) {
-		printf("Could not read IQM file: %\n", file);
+		printf("Could not read IQM file: %s\n", file);
 		exit(-1);
 	}
 
@@ -92,7 +92,7 @@ IQMData LoadIQM(const char* file)
 			pBlendWeights = iqmData + offset;
 			uint32_t dataSize = 0;
 			if (format == IQM_UBYTE) {
-				dataSize == sizeof(uint8_t);
+				dataSize = sizeof(uint8_t);
 			}
 			blendWeightStride = numComponents * dataSize;
 		}
@@ -267,6 +267,6 @@ IQMData LoadIQM(const char* file)
 	return result;
 }
 
-void UnloadIQM(IQMData* iqmData)
+void UnloadIQM(IQMModel* iqmModel)
 {
 }

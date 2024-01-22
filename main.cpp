@@ -29,6 +29,7 @@
 #include "iqm_loader.h"
 #include "irender.h"
 #include "r_gl.h"
+#include "r_model.h"
 
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
@@ -47,11 +48,9 @@ int main(int argc, char** argv)
 
     // Load IQM Model
 
-    IQMData iqmModelData = LoadIQM((exePath + "../../assets/models/hana/hana.iqm").c_str());
+    IQMModel iqmModel = LoadIQM((exePath + "../../assets/models/hana/hana.iqm").c_str());
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
-
-    // renderer->RegisterModel(iqmModelData);
 
     // Maybe init an entity here?
 

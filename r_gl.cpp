@@ -7,11 +7,13 @@
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include "r_model.h"
+
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
 bool GLRender::Init(void)
-{    
+{   
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -111,6 +113,11 @@ void GLRender::Shutdown(void)
 
     // Close and destroy the window
     SDL_DestroyWindow(m_Window);
+}
+
+int GLRender::RegisterModel(Tri* tris, uint32_t triCount, int textureID)
+{
+    return -1;
 }
 
 void GLRender::Render(void)

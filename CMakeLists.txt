@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(HKD VERSION 1.0)
@@ -44,6 +44,8 @@ add_executable(Game
 	irender.h
 	r_gl.h
 	r_gl.cpp
+	r_model.h
+	r_model.cpp
 
 	shaders/basic.vert
 	shaders/basic.frag
