@@ -2,11 +2,14 @@
 
 #include <glad/glad.h>
 
+#include <string>
+
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
 #include "r_common.h"
+#include "r_gl_texture.h"
 
 //struct Vertex {
 //    glm::vec3 pos;
@@ -58,7 +61,7 @@ GLBatch::GLBatch(uint32_t maxTris)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-int GLBatch::Add(Tri* tris, uint32_t numTris)
+int GLBatch::Add(Tri* tris, uint32_t numTris, std::string textureFileName)
 {
     if (m_TriOffsetIndex + numTris > m_MaxTris) {
         printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxTris - m_TriOffsetIndex);
@@ -71,11 +74,14 @@ int GLBatch::Add(Tri* tris, uint32_t numTris)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    GLuint hTexture = CreateTexture(textureFileName);
+
     int offset = m_TriOffsetIndex;
 
     GLBatchDrawCmd drawCmd = {
         .offset = offset,
-        .numTris = numTris
+        .numTris = numTris,
+        .hTexture = hTexture
     };
     m_DrawCmds.push_back(drawCmd);
 

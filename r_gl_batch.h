@@ -7,18 +7,21 @@
 
 #include <glad/glad.h>
 
+#include <string>
+
 #include "r_common.h"
 
 struct GLBatchDrawCmd {
 	int		 offset;
 	uint32_t numTris;
+	GLuint   hTexture;
 };
 
 class GLBatch {
 public:
 	GLBatch(uint32_t maxTris);
 
-	int     	Add(Tri* tris, uint32_t numTris);
+	int     	Add(Tri* tris, uint32_t numTris, std::string textureFileName);
 	void		Bind();
 	void		Kill();
 
@@ -26,11 +29,11 @@ public:
 	const std::vector<GLBatchDrawCmd>&	DrawCmds();
 	
 private:
-	GLuint m_VBO, m_VAO;
+	GLuint		m_VBO, m_VAO;
 
-	uint32_t m_MaxTris;
-	uint32_t m_NumTris;
-	int		 m_TriOffsetIndex;
+	uint32_t	m_MaxTris;
+	uint32_t	m_NumTris;
+	int			m_TriOffsetIndex;
 
 	std::vector<GLBatchDrawCmd> m_DrawCmds;
 };

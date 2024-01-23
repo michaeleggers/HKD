@@ -51,6 +51,8 @@ add_executable(Game
 	r_gl_batch.cpp
 	r_gl_shader.h
 	r_gl_shader.cpp
+	r_gl_texture.h
+	r_gl_texture.cpp
 
 	shaders/basic.vert
 	shaders/basic.frag

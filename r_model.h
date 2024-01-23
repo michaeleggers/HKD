@@ -15,7 +15,7 @@
 
 struct HKD_Mesh {
 	std::vector<Tri> tris;
-	std::string		 texture;
+	std::string		 textureFileName;
 };
 
 struct HKD_Model {

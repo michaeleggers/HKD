@@ -136,7 +136,7 @@ int GLRender::RegisterModel(HKD_Model* model)
 
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
-        m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size());
+        m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size(), mesh->textureFileName);
     }
 
     return -1;
@@ -162,8 +162,7 @@ void GLRender::Render(void)
     ImGui::ShowDemoWindow();
     
     // Draw Models
-
-    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
+    
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
 
@@ -172,9 +171,9 @@ void GLRender::Render(void)
     static float z = 15.0f;
     glm::mat4 view = glm::lookAt(
         glm::vec3(x, y, z),
-        glm::vec3(0),
+        glm::vec3(0, 0, 5),
         glm::vec3(0, 0, 1));
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth/ (float)m_WindowHeight, 0.1f, 1000.0f);    
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);    
 
     ImGui::Begin("Cam controlls");
     ImGui::SliderFloat("x pos", &x, -20.0f, 20.0f);
@@ -183,7 +182,12 @@ void GLRender::Render(void)
     ImGui::End();
 
     m_ModelShader->SetViewProjMatrices(view, proj);
-    glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
+    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
+    for (int i = 0; i < modelDrawCmds.size(); i++) {
+        glBindTexture(GL_TEXTURE_2D, modelDrawCmds[i].hTexture);
+        glDrawArrays(GL_TRIANGLES, 3*modelDrawCmds[i].offset, 3 * modelDrawCmds[i].numTris);
+    }
+    //glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 }
 
 void GLRender::RenderEnd(void)

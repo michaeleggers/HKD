@@ -11,7 +11,7 @@ out vec4 out_Color;
 //     uint drawWireframe; // TODO: Check how to reliably pass an actual bool from CPU to shader.
 // };
 
-// uniform sampler2D colorTex;
+uniform sampler2D colorTex;
 
 float edgeFactor(){
     vec3 d = fwidth(BaryCentricCoords);
@@ -21,7 +21,7 @@ float edgeFactor(){
 
 void main() {
 
-    // vec4 texColor = texture(colorTex, TexCoord);
+    vec4 texColor = texture(colorTex, TexCoord);
 
     // vec4 wireframe = vec4(0.0);
     // if (drawWireframe == 1) {
@@ -29,7 +29,7 @@ void main() {
     // }
     
     vec3 normalColor = 0.5*Normal + 0.5;
-    // out_Color = vec4(texColor.rgb + wireframe.rgb, 1.0);
-    out_Color = vec4(normalColor.rgb, 1.0);
+    out_Color = vec4(texColor.rgb, 1.0);
+    //out_Color = vec4(normalColor.rgb, 1.0);
 
 }

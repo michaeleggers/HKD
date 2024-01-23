@@ -2,7 +2,8 @@
 ✔ Render ImGUI menu @done(24-01-20 12:27)
 ✔ Load IQM models @started(24-01-21 12:26) @done(24-01-21 22:49) @lasted(10h23m14s)
 ✔ Render IQM model @done(24-01-23 20:10)
-☐ Load and display textures for IQM models
+✔ Load and display textures for IQM models @started(24-01-23 23:45) @done(24-01-23 23:45) @lasted(6s)
+☐ Cleanup Texturecode
 ☐ Render animated IQM models @started(24-01-21 12:26)
 ☐ Write blogpost on how vertex-skinning works @started(24-01-21 22:49)
 

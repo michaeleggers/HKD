@@ -47,7 +47,7 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
             Tri tri = { vertA, vertB, vertC };
 
             mesh.tris.push_back(tri);
-            mesh.texture = iqmMesh->material;
+            mesh.textureFileName = iqmMesh->material;
         }
         result.meshes.push_back(mesh);
     }
