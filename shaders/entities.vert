@@ -22,6 +22,11 @@ layout (location = 6) in vec4 blendweights;
 //     mat4 palette[96];
 // };
 
+layout (std140) uniform ViewProjMatrices {
+    mat4 view;
+    mat4 proj;
+};
+
 out vec2 TexCoord;
 out vec3 BaryCentricCoords;
 out vec3 Normal;
@@ -34,7 +39,8 @@ void main() {
     // skinnedPos += (palette[blendindices.w] * v) * blendweights.w;
     
     // gl_Position = proj * view * transform * skinnedPos;
-    gl_Position = v;
+    gl_Position = proj * view * v;
+    // gl_Position = v;
     
     TexCoord = uv;
     BaryCentricCoords = bc;

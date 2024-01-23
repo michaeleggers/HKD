@@ -93,7 +93,7 @@ bool GLRender::Init(void)
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
-
+    
     // Some OpenGL Info
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
@@ -153,7 +153,6 @@ void GLRender::Render(void)
     int windowWidth, windowHeight;
     SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
     float windowAspect = (float)windowWidth / (float)windowHeight;
-
     
     // Render ImGui
 
@@ -170,8 +169,10 @@ void GLRender::Render(void)
     const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
+    glm::mat4 view = glm::mat4(1.0);
+    view = glm::translate(view, glm::vec3(3.0, 2.0, 1.0));
+    m_ModelShader->SetViewProjMatrices(view, glm::mat4(1));
     glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
-
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

@@ -3,6 +3,10 @@
 
 #include <glad/glad.h>
 
+#define GLM_FORCE_RADIANS
+#include "dependencies/glm/glm.hpp"
+#include "dependencies/glm/ext.hpp"
+
 #include <string>
 
 class Shader {
@@ -13,6 +17,8 @@ public:
 	void Activate();
 	GLuint Program() const;
 
+	void SetViewProjMatrices(glm::mat4 view, glm::mat4 proj);
+
 private:
 	bool CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader);
 	bool IsCompiled(GLuint shader);
@@ -21,6 +27,9 @@ private:
 	GLuint m_VertexShader;
 	GLuint m_FragmentShader;
 	GLuint m_ShaderProgram;
+
+	GLuint m_ViewProjUniformIndex;
+	GLuint m_ViewProjUBO;
 };
 
 
