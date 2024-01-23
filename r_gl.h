@@ -23,18 +23,23 @@ struct GLModel {
 
 class GLRender : public IRender {
 public:
-	virtual bool Init(void)													override;
-	virtual void Shutdown(void)												override;
-	virtual int  RegisterModel(HKD_Model* model)							override;
-	virtual void Render(void)												override;
+	virtual bool Init(void)							override;
+	virtual void Shutdown(void)						override;
+	virtual int  RegisterModel(HKD_Model* model)	override;
+	virtual void RenderBegin(void)					override;
+	virtual void Render(void)						override;
+	virtual void RenderEnd(void)					override;
 
 	void InitShaders();
 
-private:
+private:	
 	SDL_Window* m_Window;
 
 	GLBatch* m_ModelBatch;
 	Shader* m_ModelShader;
+
+	int m_WindowWidth;
+	int m_WindowHeight;
 };
 
 #endif

@@ -142,13 +142,12 @@ int GLRender::RegisterModel(HKD_Model* model)
     return -1;
 }
 
-void GLRender::Render(void)
-{
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
-    float windowAspect = (float)windowWidth / (float)windowHeight;
-    
-    glViewport(0, 0, windowWidth, windowHeight);
+void GLRender::RenderBegin(void)
+{    
+    SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
+    float windowAspect = (float)m_WindowWidth / (float)m_WindowHeight;
+    glViewport(0, 0, m_WindowWidth, m_WindowHeight);
+
     glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -156,12 +155,12 @@ void GLRender::Render(void)
     ImGui_ImplSDL2_NewFrame();
 
     ImGui::NewFrame();
+}
+
+void GLRender::Render(void)
+{    
     ImGui::ShowDemoWindow();
-
-
-    // Second pass
-
-
+    
     // Draw Models
 
     const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
@@ -175,7 +174,7 @@ void GLRender::Render(void)
         glm::vec3(x, y, z),
         glm::vec3(0),
         glm::vec3(0, 0, 1));
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f);    
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth/ (float)m_WindowHeight, 0.1f, 1000.0f);    
 
     ImGui::Begin("Cam controlls");
     ImGui::SliderFloat("x pos", &x, -20.0f, 20.0f);
@@ -185,11 +184,11 @@ void GLRender::Render(void)
 
     m_ModelShader->SetViewProjMatrices(view, proj);
     glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
+}
 
-    // Render ImGui
-
+void GLRender::RenderEnd(void)
+{
     ImGui::Render();
-
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SDL_GL_SwapWindow(m_Window);
@@ -207,3 +206,4 @@ void GLRender::InitShaders()
         printf("Problems initializing model shaders!\n");
     }
 }
+

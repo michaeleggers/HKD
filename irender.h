@@ -13,7 +13,9 @@ public:
 	virtual bool Init(void)			= 0;
 	virtual void Shutdown(void)		= 0;
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
+	virtual void RenderBegin(void) = 0;
 	virtual void Render(void) = 0;
+	virtual void RenderEnd(void) = 0;
 
 private:
 

@@ -76,7 +76,9 @@ int main(int argc, char** argv)
             }
         }
 
+        renderer->RenderBegin();
         renderer->Render();
+        renderer->RenderEnd();
 
         Uint32 endTime = SDL_GetTicks();
         Uint32 timePassed = endTime - startTime;
