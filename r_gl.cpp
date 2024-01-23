@@ -144,25 +144,23 @@ int GLRender::RegisterModel(HKD_Model* model)
 
 void GLRender::Render(void)
 {
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
+    float windowAspect = (float)windowWidth / (float)windowHeight;
+    
+    glViewport(0, 0, windowWidth, windowHeight);
+    glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
-    float windowAspect = (float)windowWidth / (float)windowHeight;
-    
-    // Render ImGui
-
-    ImGui::Render();
 
     // Second pass
 
-    glViewport(0, 0, windowWidth, windowHeight);
-    glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Models
 
@@ -170,13 +168,27 @@ void GLRender::Render(void)
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
 
+    static float x = 10.0f;
+    static float y = 0.0f;
+    static float z = 15.0f;
     glm::mat4 view = glm::lookAt(
-        glm::vec3(10, 0, 15),
+        glm::vec3(x, y, z),
         glm::vec3(0),
         glm::vec3(0, 0, 1));
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f);    
+
+    ImGui::Begin("Cam controlls");
+    ImGui::SliderFloat("x pos", &x, -20.0f, 20.0f);
+    ImGui::SliderFloat("y pos", &y, -20.0f, 20.0f);
+    ImGui::SliderFloat("z pos", &z, -20.0f, 20.0f);
+    ImGui::End();
+
     m_ModelShader->SetViewProjMatrices(view, proj);
     glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
+
+    // Render ImGui
+
+    ImGui::Render();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
