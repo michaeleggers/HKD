@@ -27,9 +27,9 @@ Vertex IQMVertexToVertex(IQMVertex iqmVert, glm::vec3 bc) {
     return vertex;
 }
 
-Model CreateModelFromIQM(IQMModel* model)
+HKD_Model CreateModelFromIQM(IQMModel* model)
 {
-    Model result = {};
+    HKD_Model result = {};
 
     for (int i = 0; i < model->meshes.size(); i++) {
         IQMMesh* iqmMesh = &model->meshes[i];
@@ -47,6 +47,7 @@ Model CreateModelFromIQM(IQMModel* model)
             Tri tri = { vertA, vertB, vertC };
 
             mesh.tris.push_back(tri);
+            mesh.texture = iqmMesh->material;
         }
         result.meshes.push_back(mesh);
     }

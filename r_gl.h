@@ -3,11 +3,14 @@
 
 #include "irender.h"
 #include "r_common.h"
+#include "r_model.h"
 
 #include <vector>
 
 #include <SDL.h>
 #include <glad/glad.h>
+
+#include "r_gl_batch.h"
 
 // Models for entities (Players, Monsters, Pickup Items...)
 struct GLModel {
@@ -20,11 +23,13 @@ class GLRender : public IRender {
 public:
 	virtual bool Init(void)													override;
 	virtual void Shutdown(void)												override;
-	virtual int  RegisterModel(Tri* tris, uint32_t triCount, int textureID)	override;
+	virtual int  RegisterModel(HKD_Model* model)							override;
 	virtual void Render(void)												override;
 
 private:
 	SDL_Window* m_Window;
+
+	GLBatch* m_ModelBatch;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <vector>
+#include <string>
 
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
@@ -14,13 +15,13 @@
 
 struct HKD_Mesh {
 	std::vector<Tri> tris;
-	int				 textureID;
+	std::string		 texture;
 };
 
-struct Model {
+struct HKD_Model {
 	std::vector<HKD_Mesh> meshes;
 };
 
-Model CreateModelFromIQM(IQMModel* model);
+HKD_Model CreateModelFromIQM(IQMModel* model);
 
 #endif

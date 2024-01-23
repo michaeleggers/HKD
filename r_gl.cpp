@@ -8,6 +8,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "r_common.h"
+#include "r_gl_batch.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -100,6 +101,16 @@ bool GLRender::Init(void)
     const GLubyte* renderer = glGetString(GL_RENDERER);
     SDL_Log("%s, %s\n", vendor, renderer);
 
+    // Create batches
+
+    // make space for 1Mio triangles
+    // TODO: What should be the upper limit?
+    // With sizeof(Vertex) = 92bytes => sizeof(Tri) = 276bytes we need ~ 263MB for Models. 
+    // A lot for a game in the 2000s! Our models have a tri count of maybe 3000 Tris (without weapon), which
+    // is not even close to 1Mio tris.
+    m_ModelBatch = new GLBatch(1000 * 1000);
+
+
     return true;
 }
 
@@ -115,8 +126,14 @@ void GLRender::Shutdown(void)
     SDL_DestroyWindow(m_Window);
 }
 
-int GLRender::RegisterModel(Tri* tris, uint32_t triCount, int textureID)
-{
+int GLRender::RegisterModel(HKD_Model* model)
+{ 
+
+    for (int i = 0; i < model->meshes.size(); i++) {
+        HKD_Mesh* mesh = &model->meshes[i];
+        m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size());
+    }
+
     return -1;
 }
 
