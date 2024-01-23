@@ -45,6 +45,8 @@ IQMModel LoadIQM(const char* file)
 	uint32_t positionStride = 0;
 	uint8_t* pTexCoords = NULL;
 	uint32_t texCoordStride = 0;
+	uint8_t* pNormals = NULL;
+	uint32_t normalStride = 0;
 	uint8_t* pBlendIndices = NULL;
 	uint32_t blendIndexStride = 0;
 	uint8_t* pBlendWeights = NULL;
@@ -79,6 +81,17 @@ IQMModel LoadIQM(const char* file)
 				dataSize = sizeof(double);
 			}
 			texCoordStride = numComponents * dataSize;
+		}
+		else if (type == IQM_NORMAL) {
+			pNormals = iqmData + offset;
+			uint32_t dataSize = 0;
+			if (format == IQM_FLOAT) {
+				dataSize = sizeof(float);
+			}
+			else if (format == IQM_DOUBLE) {
+				dataSize = sizeof(double);
+			}
+			normalStride = numComponents * dataSize;
 		}
 		else if (type == IQM_BLENDINDIXES) {
 			pBlendIndices = iqmData + offset;
@@ -124,6 +137,10 @@ IQMModel LoadIQM(const char* file)
 			memcpy(vertA.texCoord, pTexCoords + tri->vertex[0] * texCoordStride, 2 * sizeof(float));
 			memcpy(vertB.texCoord, pTexCoords + tri->vertex[1] * texCoordStride, 2 * sizeof(float));
 			memcpy(vertC.texCoord, pTexCoords + tri->vertex[2] * texCoordStride, 2 * sizeof(float));
+
+			memcpy(vertA.normal, pNormals + tri->vertex[0] * normalStride, 3 * sizeof(float));
+			memcpy(vertB.normal, pNormals + tri->vertex[1] * normalStride, 3 * sizeof(float));
+			memcpy(vertC.normal, pNormals + tri->vertex[2] * normalStride, 3 * sizeof(float));
 
 			memcpy(vertA.blendindices, pBlendIndices + tri->vertex[0] * blendIndexStride, 4);
 			memcpy(vertB.blendindices, pBlendIndices + tri->vertex[1] * blendIndexStride, 4);

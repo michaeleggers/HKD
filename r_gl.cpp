@@ -169,9 +169,13 @@ void GLRender::Render(void)
     const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
-    glm::mat4 view = glm::mat4(1.0);
-    view = glm::translate(view, glm::vec3(3.0, 2.0, 1.0));
-    m_ModelShader->SetViewProjMatrices(view, glm::mat4(1));
+
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(10, 0, 15),
+        glm::vec3(0),
+        glm::vec3(0, 0, 1));
+    glm::mat4 proj = glm::perspective(45.0f, (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f);    
+    m_ModelShader->SetViewProjMatrices(view, proj);
     glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -190,5 +194,4 @@ void GLRender::InitShaders()
     )) {
         printf("Problems initializing model shaders!\n");
     }
-
 }
