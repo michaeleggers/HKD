@@ -9,6 +9,7 @@
 
 #include "r_common.h"
 #include "r_gl_batch.h"
+#include "platform.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -110,6 +111,9 @@ bool GLRender::Init(void)
     // is not even close to 1Mio tris.
     m_ModelBatch = new GLBatch(1000 * 1000);
 
+    // Initialize shaders
+
+    InitShaders();
 
     return true;
 }
@@ -124,6 +128,9 @@ void GLRender::Shutdown(void)
 
     // Close and destroy the window
     SDL_DestroyWindow(m_Window);
+
+    m_ModelShader->Unload();
+    delete m_ModelShader;
 }
 
 int GLRender::RegisterModel(HKD_Model* model)
@@ -149,7 +156,14 @@ void GLRender::Render(void)
     SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
     float windowAspect = (float)windowWidth / (float)windowHeight;
 
-    // Draw stuff
+    // Draw Models
+
+    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
+    m_ModelBatch->Bind();
+    m_ModelShader->Activate();
+    glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
+    
+    // Render ImGui
 
     ImGui::Render();
 
@@ -168,4 +182,18 @@ void GLRender::Render(void)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SDL_GL_SwapWindow(m_Window);
+}
+
+void GLRender::InitShaders()
+{
+    std::string exePath = hkd_GetExePath();
+
+    m_ModelShader = new Shader();
+    if (!m_ModelShader->Load(
+        exePath + "../../shaders/entities.vert",
+        exePath + "../../shaders/entities.frag"
+    )) {
+        printf("Problems initializing model shaders!\n");
+    }
+
 }

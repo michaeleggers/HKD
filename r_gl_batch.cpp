@@ -18,9 +18,11 @@
 //    glm::vec4 blendweights;
 //};
 
-GLBatch::GLBatch(uint32_t numTris)
+GLBatch::GLBatch(uint32_t maxTris)
 {
-    m_NumTris = numTris;
+    m_MaxTris = maxTris;
+
+    m_NumTris = 0;
     m_TriOffsetIndex = 0;
 
     glGenVertexArrays(1, &m_VAO);
@@ -28,7 +30,7 @@ GLBatch::GLBatch(uint32_t numTris)
 
     glGenBuffers(1, &m_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, numTris * sizeof(Tri), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_MaxTris * sizeof(Tri), nullptr, GL_STATIC_DRAW);
 
     // Input assembly for vertex shader
 
@@ -58,16 +60,24 @@ GLBatch::GLBatch(uint32_t numTris)
 
 int GLBatch::Add(Tri* tris, uint32_t numTris)
 {
-    if (m_TriOffsetIndex + numTris > m_NumTris) {
-        printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_NumTris - m_TriOffsetIndex);
+    if (m_TriOffsetIndex + numTris > m_MaxTris) {
+        printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxTris - m_TriOffsetIndex);
         return -1;
     }
 
     glBindVertexArray(m_VAO);
-
-    glBufferSubData(GL_ARRAY_BUFFER, m_TriOffsetIndex * sizeof(Tri), numTris * sizeof(Tri), tris->vertices);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, m_TriOffsetIndex * sizeof(Tri), numTris * sizeof(Tri), tris);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     int offset = m_TriOffsetIndex;
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numTris = numTris
+    };
+    m_DrawCmds.push_back(drawCmd);
 
     m_TriOffsetIndex += numTris;
 
@@ -87,5 +97,11 @@ void GLBatch::Kill()
 
 uint32_t GLBatch::TriCount()
 {
-    return m_NumTris;
+    return m_TriOffsetIndex;
 }
+
+const std::vector<GLBatchDrawCmd>& GLBatch::DrawCmds()
+{
+    return m_DrawCmds;
+}
+
