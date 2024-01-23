@@ -88,13 +88,11 @@ bool GLRender::Init(void)
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    // Load Shaders
-
-
     // Some OpenGL global settings
-
-    glFrontFace(GL_CW); // front faces are in clockwise order
-    glCullFace(GL_FALSE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
 
     // Some OpenGL Info
 
@@ -156,12 +154,6 @@ void GLRender::Render(void)
     SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
     float windowAspect = (float)windowWidth / (float)windowHeight;
 
-    // Draw Models
-
-    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
-    m_ModelBatch->Bind();
-    m_ModelShader->Activate();
-    glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
     
     // Render ImGui
 
@@ -169,14 +161,16 @@ void GLRender::Render(void)
 
     // Second pass
 
-    // Tell opengl about window size to make correct transform into screenspace
     glViewport(0, 0, windowWidth, windowHeight);
     glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glBindTexture(GL_TEXTURE_2D, texture);
-    //finalShader.Activate();
-    //finalBatch.Bind();
-    //glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+
+    // Draw Models
+
+    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
+    m_ModelBatch->Bind();
+    m_ModelShader->Activate();
+    glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
