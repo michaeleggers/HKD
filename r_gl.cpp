@@ -174,7 +174,7 @@ void GLRender::Render(void)
         glm::vec3(10, 0, 15),
         glm::vec3(0),
         glm::vec3(0, 0, 1));
-    glm::mat4 proj = glm::perspective(45.0f, (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f);    
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f);    
     m_ModelShader->SetViewProjMatrices(view, proj);
     glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 
