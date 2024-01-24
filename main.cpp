@@ -30,14 +30,15 @@
 #include "irender.h"
 #include "r_gl.h"
 #include "r_model.h"
+#include "game.h"
 
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
 
-
-
 int main(int argc, char** argv)
 {
+    // Init subsystems
+
     std::string exePath = hkd_GetExePath();
 
     IRender* renderer = new GLRender();
@@ -46,20 +47,11 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // Load IQM Model
+    // Init the game
 
-    IQMModel iqmModel = LoadIQM((exePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
-
-    // Convert the model to our internal format
-
-    HKD_Model model = CreateModelFromIQM(&iqmModel);
-
-    // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
-
-    int hRenderModel = renderer->RegisterModel(&model);
-    // Check if texture caching works
-    int hRenderModelCopy = renderer->RegisterModel(&model);
-
+    Game game(exePath, renderer);
+    game.Init();
+    
     // Main loop
     
     bool shouldClose = false;
@@ -78,9 +70,7 @@ int main(int argc, char** argv)
             }
         }
 
-        renderer->RenderBegin();
-        renderer->Render();
-        renderer->RenderEnd();
+        game.RunFrame();
 
         Uint32 endTime = SDL_GetTicks();
         Uint32 timePassed = endTime - startTime;
@@ -93,8 +83,7 @@ int main(int argc, char** argv)
         }   
     }
 
-    renderer->Shutdown();
-    delete renderer;
+    game.Shutdown();
 
     // Clean up
     SDL_Quit();

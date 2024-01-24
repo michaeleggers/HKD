@@ -15,6 +15,7 @@
 IQMModel LoadIQM(const char* file)
 {
 	IQMModel result = {};
+	result.filename = std::string(file);
 
 	HKD_File iqmFile;
 	if (hkd_read_file(file, &iqmFile) != HKD_FILE_SUCCESS) {

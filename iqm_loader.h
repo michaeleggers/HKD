@@ -69,6 +69,7 @@ struct Anim {
 };
 
 struct IQMModel {
+    std::string         filename;
     std::vector<IQMMesh> meshes;
     std::vector<glm::mat4> bindPoses;
     std::vector<glm::mat4> invBindPoses;

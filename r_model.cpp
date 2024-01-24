@@ -52,5 +52,7 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
         result.meshes.push_back(mesh);
     }
 
+    result.filename = model->filename;
+
     return result;
 }

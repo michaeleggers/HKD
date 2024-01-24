@@ -19,6 +19,7 @@ struct HKD_Mesh {
 };
 
 struct HKD_Model {
+	std::string			  filename;
 	std::vector<HKD_Mesh> meshes;
 };
 

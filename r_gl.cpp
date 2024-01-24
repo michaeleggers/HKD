@@ -173,20 +173,12 @@ void GLRender::RenderBegin(void)
 void GLRender::Render(void)
 {    
     ImGui::ShowDemoWindow();
-    
-    // Draw Models
-    
-    m_ModelBatch->Bind();
-    m_ModelShader->Activate();
+
+    // Camera
 
     static float x = 10.0f;
     static float y = 0.0f;
     static float z = 15.0f;
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(x, y, z),
-        glm::vec3(0, 0, 5),
-        glm::vec3(0, 0, 1));
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);    
 
     ImGui::Begin("Cam controlls");
     ImGui::SliderFloat("x pos", &x, -20.0f, 20.0f);
@@ -194,6 +186,17 @@ void GLRender::Render(void)
     ImGui::SliderFloat("z pos", &z, -20.0f, 20.0f);
     ImGui::End();
 
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(x, y, z),
+        glm::vec3(0, 0, 5),
+        glm::vec3(0, 0, 1));
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);    
+
+
+    // Draw Models
+
+    m_ModelBatch->Bind();
+    m_ModelShader->Activate();
     m_ModelShader->SetViewProjMatrices(view, proj);
     const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
     for (int i = 0; i < modelDrawCmds.size(); i++) {
