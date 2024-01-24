@@ -152,7 +152,10 @@ int GLRender::RegisterModel(HKD_Model* model)
 
     m_Models.push_back(gl_model);
 
-    return m_Models.size() - 1;
+    int gpuModelHandle = m_Models.size() - 1;
+    model->gpuModelHandle = gpuModelHandle;
+
+    return gpuModelHandle;
 }
 
 void GLRender::RenderBegin(void)

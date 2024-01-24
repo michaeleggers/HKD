@@ -56,27 +56,27 @@ struct IQMMesh {
 };
 
 struct Pose {
-    int32_t parent;
-    glm::vec3 translations;
-    glm::vec3 scale;
-    glm::quat rotation;
+    int32_t     parent;
+    glm::vec3   translations;
+    glm::vec3   scale;
+    glm::quat   rotation;
 };
 
 struct Anim {
-    std::string    name;
-    uint32_t firstFrame, numFrames;
-    float    framerate;
+    std::string name;
+    uint32_t    firstFrame, numFrames;
+    float       framerate;
 };
 
 struct IQMModel {
-    std::string         filename;
-    std::vector<IQMMesh> meshes;
-    std::vector<glm::mat4> bindPoses;
-    std::vector<glm::mat4> invBindPoses;
-    std::vector<Pose> poses;
-    uint32_t numJoints;
-    uint32_t numFrames;
-    std::vector<Anim> animations;
+    std::string             filename;
+    std::vector<IQMMesh>    meshes;
+    std::vector<glm::mat4>  bindPoses;
+    std::vector<glm::mat4>  invBindPoses;
+    std::vector<Pose>       poses;
+    uint32_t                numJoints;
+    uint32_t                numFrames;
+    std::vector<Anim>       animations;
 };
 
 struct IQMVertArray {
@@ -116,25 +116,25 @@ struct IQMTri {
 };
 
 struct IQMJoint {
-    uint32_t name;
-    int32_t  parent;
-    float translate[3];
-    float rotate[4];
-    float scale[3];
+    uint32_t    name;
+    int32_t     parent;
+    float       translate[3];
+    float       rotate[4];
+    float       scale[3];
 };
 
 struct IQMPose {
-    int32_t parent;
-    uint32_t channelmask;
-    float channeloffset[10];
-    float channelscale[10];
+    int32_t     parent;
+    uint32_t    channelmask;
+    float       channeloffset[10];
+    float       channelscale[10];
 };
 
 struct IQMAnim {
-    uint32_t name;
-    uint32_t firstFrame, numFrames;
-    float framerate;
-    uint32_t flags;
+    uint32_t    name;
+    uint32_t    firstFrame, numFrames;
+    float       framerate;
+    uint32_t    flags;
 };
 
 

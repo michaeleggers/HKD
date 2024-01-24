@@ -22,6 +22,7 @@ struct HKD_Model {
 	std::string			  filename;
 	std::vector<Tri>	  tris;
 	std::vector<HKD_Mesh> meshes;
+	int					  gpuModelHandle;
 };
 
 HKD_Model CreateModelFromIQM(IQMModel* model);
