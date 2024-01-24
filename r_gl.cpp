@@ -94,7 +94,8 @@ bool GLRender::Init(void)
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
-    
+    glDepthFunc(GL_LESS);
+
     // Some OpenGL Info
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
@@ -140,11 +141,12 @@ int GLRender::RegisterModel(HKD_Model* model)
 { 
     GLModel gl_model = {};
     GLBatchDrawCmd drawCmd = m_ModelBatch->Add(&model->tris[0], model->tris.size());
+
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
         GLTexture texture = CreateTexture(mesh->textureFileName);        
         GLMesh gl_mesh = {
-            .triOffset = (int)mesh->firstTri,
+            .triOffset = drawCmd.offset + (int)mesh->firstTri,
             .triCount = (int)mesh->numTris,
             .texture = texture
         };
@@ -185,9 +187,9 @@ void GLRender::Render(void)
     static float z = 15.0f;
 
     ImGui::Begin("Cam controlls");
-    ImGui::SliderFloat("x pos", &x, -20.0f, 20.0f);
-    ImGui::SliderFloat("y pos", &y, -20.0f, 20.0f);
-    ImGui::SliderFloat("z pos", &z, -20.0f, 20.0f);
+    ImGui::SliderFloat("x pos", &x, -200.0f, 200.0f);
+    ImGui::SliderFloat("y pos", &y, -200.0f, 200.0f);
+    ImGui::SliderFloat("z pos", &z, -200.0f, 200.0f);
     ImGui::End();
 
     glm::mat4 view = glm::lookAt(

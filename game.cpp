@@ -20,8 +20,8 @@ void Game::Init()
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
-    int hRenderModel = m_Renderer->RegisterModel(&model);
     int hRenderModel2 = m_Renderer->RegisterModel(&model2);
+    int hRenderModel = m_Renderer->RegisterModel(&model);
 
 
     //Entity player = {};
