@@ -21,6 +21,9 @@ void Game::Init()
     int hRenderModel = m_Renderer->RegisterModel(&model);
     // Check if texture caching works
     int hRenderModelCopy = m_Renderer->RegisterModel(&model);
+
+    //Entity player = {};
+    //player.SetModel(model);
 }
 
 bool Game::RunFrame()
