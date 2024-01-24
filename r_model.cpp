@@ -54,7 +54,12 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
         result.meshes.push_back(mesh);
     }
 
-    result.filename = model->filename;
+    result.filename     = model->filename;
+    result.poses        = model->poses;
+    result.invBindPoses = model->invBindPoses;
+    result.bindPoses    = model->bindPoses;
+    result.numJoints    = model->numJoints;
+    result.animations   = model->animations;
 
     return result;
 }
