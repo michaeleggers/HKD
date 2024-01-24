@@ -14,15 +14,14 @@
 
 struct GLBatchDrawCmd {
 	int		 offset;
-	uint32_t numTris;
-	GLuint   hTexture;
+	uint32_t numTris;	
 };
 
 class GLBatch {
 public:
 	GLBatch(uint32_t maxTris);
 
-	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, GLTexture texture);
+	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris);
 	void			Bind();
 	void			Kill();
 

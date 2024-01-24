@@ -138,13 +138,13 @@ void GLRender::Shutdown(void)
 int GLRender::RegisterModel(HKD_Model* model)
 { 
     GLModel gl_model = {};
+    GLBatchDrawCmd drawCmd = m_ModelBatch->Add(&model->tris[0], model->tris.size());
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
         GLTexture texture = CreateTexture(mesh->textureFileName);        
-        GLBatchDrawCmd drawCmd = m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size(), texture);
         GLMesh gl_mesh = {
-            .triOffset = drawCmd.offset,
-            .triCount = (int)drawCmd.numTris,
+            .triOffset = (int)mesh->firstTri,
+            .triCount = (int)mesh->numTris,
             .texture = texture
         };
         gl_model.meshes.push_back(gl_mesh);
@@ -198,11 +198,18 @@ void GLRender::Render(void)
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
     m_ModelShader->SetViewProjMatrices(view, proj);
-    const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
-    for (int i = 0; i < modelDrawCmds.size(); i++) {
-        glBindTexture(GL_TEXTURE_2D, modelDrawCmds[i].hTexture);
-        glDrawArrays(GL_TRIANGLES, 3*modelDrawCmds[i].offset, 3 * modelDrawCmds[i].numTris);
+    for (int i = 0; i < m_Models.size(); i++) {
+        for (int j = 0; j < m_Models[i].meshes.size(); j++) {
+            GLMesh* mesh = &m_Models[i].meshes[j];
+            glBindTexture(GL_TEXTURE_2D, mesh->texture.handle);
+            glDrawArrays(GL_TRIANGLES, 3*mesh->triOffset, 3 * mesh->triCount);
+        }
     }
+    //const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
+    //for (int i = 0; i < modelDrawCmds.size(); i++) {
+    //    glBindTexture(GL_TEXTURE_2D, modelDrawCmds[i].hTexture);
+    //    glDrawArrays(GL_TRIANGLES, 3*modelDrawCmds[i].offset, 3 * modelDrawCmds[i].numTris);
+    //}
     //glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 }
 

@@ -34,6 +34,9 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
     for (int i = 0; i < model->meshes.size(); i++) {
         IQMMesh* iqmMesh = &model->meshes[i];
         HKD_Mesh mesh = {};
+        mesh.textureFileName = iqmMesh->material;
+        mesh.firstTri = iqmMesh->firstTri;
+        mesh.numTris = iqmMesh->numTris;
         for (int v = 0; v < iqmMesh->vertices.size(); v += 3) {
 
             IQMVertex iqmVertA = iqmMesh->vertices[v + 0];
@@ -46,8 +49,7 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
 
             Tri tri = { vertA, vertB, vertC };
 
-            mesh.tris.push_back(tri);
-            mesh.textureFileName = iqmMesh->material;
+            result.tris.push_back(tri);
         }
         result.meshes.push_back(mesh);
     }
@@ -55,4 +57,9 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
     result.filename = model->filename;
 
     return result;
+}
+
+void UpdateModel(HKD_Model* model)
+{
+    
 }

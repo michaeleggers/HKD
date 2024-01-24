@@ -14,15 +14,17 @@
 #include "iqm_loader.h"
 
 struct HKD_Mesh {
-	std::vector<Tri> tris;
+	uint32_t firstTri, numTris;
 	std::string		 textureFileName;
 };
 
 struct HKD_Model {
 	std::string			  filename;
+	std::vector<Tri>	  tris;
 	std::vector<HKD_Mesh> meshes;
 };
 
 HKD_Model CreateModelFromIQM(IQMModel* model);
+void	  UpdateModel(HKD_Model* model);
 
 #endif
