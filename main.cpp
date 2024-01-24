@@ -56,7 +56,9 @@ int main(int argc, char** argv)
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
-    renderer->RegisterModel(&model);
+    int hRenderModel = renderer->RegisterModel(&model);
+    // Check if texture caching works
+    int hRenderModelCopy = renderer->RegisterModel(&model);
 
     // Main loop
     

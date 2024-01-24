@@ -3,15 +3,24 @@
 #include "platform.h"
 #include "stb_image.h"
 
-GLuint CreateTexture(std::string textureFileName)
+#include <string>
+#include <unordered_map>
+
+static std::unordered_map<std::string, GLTexture> g_Texturename2Texture;
+
+GLTexture CreateTexture(std::string filename)
 {
+    if (g_Texturename2Texture.contains(filename)) {
+        return g_Texturename2Texture.at(filename);
+    }
+
     std::string exePath = hkd_GetExePath();
     int x,y,n;
-    unsigned char *data = stbi_load( (exePath + "../../assets/textures/" + textureFileName).c_str(), &x, &y, &n, 0);
+    unsigned char *data = stbi_load( (exePath + "../../assets/textures/" + filename).c_str(), &x, &y, &n, 0);
 
     if (!data) {
-        printf("WARNING: Failed to load texture: %s\n", textureFileName.c_str());
-        return 0;
+        printf("WARNING: Failed to load texture: %s\n", filename.c_str());
+        return {}; // TODO: Load checkerboard texture instead.
     }
 
     GLuint glTextureHandle;
@@ -24,6 +33,16 @@ GLuint CreateTexture(std::string textureFileName)
 
     stbi_image_free(data);
 
-    return glTextureHandle;
+    GLTexture result = {
+        .filename = filename,
+        .handle = glTextureHandle,
+        .width = x,
+        .height = y,
+        .channels = 3
+    };
+
+    g_Texturename2Texture.insert({ filename, result });
+
+    return result;
 }
 

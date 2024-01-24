@@ -8,8 +8,9 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "r_common.h"
-#include "r_gl_batch.h"
 #include "platform.h"
+#include "r_gl_batch.h"
+#include "r_gl_texture.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -127,19 +128,31 @@ void GLRender::Shutdown(void)
     // Close and destroy the window
     SDL_DestroyWindow(m_Window);
 
+    m_ModelBatch->Kill();
+    delete m_ModelBatch;
+
     m_ModelShader->Unload();
     delete m_ModelShader;
 }
 
 int GLRender::RegisterModel(HKD_Model* model)
 { 
-
+    GLModel gl_model = {};
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
-        m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size(), mesh->textureFileName);
+        GLTexture texture = CreateTexture(mesh->textureFileName);        
+        GLBatchDrawCmd drawCmd = m_ModelBatch->Add(&mesh->tris[0], mesh->tris.size(), texture);
+        GLMesh gl_mesh = {
+            .triOffset = drawCmd.offset,
+            .triCount = (int)drawCmd.numTris,
+            .texture = texture
+        };
+        gl_model.meshes.push_back(gl_mesh);
     }
 
-    return -1;
+    m_Models.push_back(gl_model);
+
+    return m_Models.size() - 1;
 }
 
 void GLRender::RenderBegin(void)

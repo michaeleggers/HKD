@@ -12,13 +12,16 @@
 #include "r_model.h"
 #include "r_gl_batch.h"
 #include "r_gl_shader.h"
+#include "r_gl_texture.h"
 
+struct GLMesh {
+	int			triOffset, triCount; // Offsets into VBO of tris
+	GLTexture	texture;
+};
 
 // Models for entities (Players, Monsters, Pickup Items...)
 struct GLModel {
-	GLuint				VAO, VBO;
-	std::vector<Vertex> vertices;
-	int					textureID;
+	std::vector<GLMesh> meshes;
 };
 
 class GLRender : public IRender {
@@ -33,13 +36,14 @@ public:
 	void InitShaders();
 
 private:	
-	SDL_Window* m_Window;
+	SDL_Window*				m_Window;
 
-	GLBatch* m_ModelBatch;
-	Shader* m_ModelShader;
+	GLBatch*				m_ModelBatch;
+	Shader*					m_ModelShader;
+	std::vector<GLModel>	m_Models;
 
-	int m_WindowWidth;
-	int m_WindowHeight;
+	int						m_WindowWidth;
+	int						m_WindowHeight;
 };
 
 #endif

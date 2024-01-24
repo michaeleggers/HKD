@@ -10,6 +10,7 @@
 #include <string>
 
 #include "r_common.h"
+#include "r_gl_texture.h"
 
 struct GLBatchDrawCmd {
 	int		 offset;
@@ -21,9 +22,9 @@ class GLBatch {
 public:
 	GLBatch(uint32_t maxTris);
 
-	int     	Add(Tri* tris, uint32_t numTris, std::string textureFileName);
-	void		Bind();
-	void		Kill();
+	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, GLTexture texture);
+	void			Bind();
+	void			Kill();
 
 	uint32_t							TriCount();
 	const std::vector<GLBatchDrawCmd>&	DrawCmds();

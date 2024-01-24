@@ -50,9 +50,9 @@ struct IQMVertex {
 //       Maybe move them out of here later or something.
 
 struct IQMMesh {
-    std::string material;
-    std::vector<IQMVertex> vertices;
-    uint32_t firstTri, numTris;
+    std::string             material;
+    std::vector<IQMVertex>  vertices;
+    uint32_t                firstTri, numTris;
 };
 
 struct Pose {

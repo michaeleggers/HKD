@@ -5,7 +5,13 @@
 
 #include <string>
 
-GLuint CreateTexture(std::string textureFileName);
+struct GLTexture {
+    std::string filename;
+    GLuint      handle;
+    int         width, height, channels;
+};
+
+GLTexture CreateTexture(std::string filename);
 
 
 #endif

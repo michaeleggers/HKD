@@ -9,7 +9,7 @@
 #include "dependencies/glm/ext.hpp"
 
 #include "r_common.h"
-#include "r_gl_texture.h"
+#include "r_gl_texture.h" 
 
 //struct Vertex {
 //    glm::vec3 pos;
@@ -61,33 +61,31 @@ GLBatch::GLBatch(uint32_t maxTris)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-int GLBatch::Add(Tri* tris, uint32_t numTris, std::string textureFileName)
+GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, GLTexture texture)
 {
     if (m_TriOffsetIndex + numTris > m_MaxTris) {
         printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxTris - m_TriOffsetIndex);
-        return -1;
+        return {};
     }
 
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferSubData(GL_ARRAY_BUFFER, m_TriOffsetIndex * sizeof(Tri), numTris * sizeof(Tri), tris);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    GLuint hTexture = CreateTexture(textureFileName);
+    glBindVertexArray(0);    
 
     int offset = m_TriOffsetIndex;
 
     GLBatchDrawCmd drawCmd = {
         .offset = offset,
         .numTris = numTris,
-        .hTexture = hTexture
+        .hTexture = texture.handle
     };
     m_DrawCmds.push_back(drawCmd);
 
     m_TriOffsetIndex += numTris;
 
-    return offset;
+    return drawCmd;
 }
 
 void GLBatch::Bind()
