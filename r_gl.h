@@ -37,6 +37,7 @@ public:
 
 private:	
 	SDL_Window*				m_Window;
+	SDL_GLContext			m_SDL_GL_Conext;
 
 	GLBatch*				m_ModelBatch;
 	Shader*					m_ModelShader;

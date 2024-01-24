@@ -47,13 +47,13 @@ bool GLRender::Init(void)
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
-    SDL_GLContext sdl_gl_Context = SDL_GL_CreateContext(m_Window);
-    if (!sdl_gl_Context) {
+    m_SDL_GL_Conext = SDL_GL_CreateContext(m_Window);
+    if (!m_SDL_GL_Conext) {
         SDL_Log("Unable to create GL context! SDL-Error: %s\n", SDL_GetError());
         return false;
     }
 
-    SDL_GL_MakeCurrent(m_Window, sdl_gl_Context);
+    SDL_GL_MakeCurrent(m_Window, m_SDL_GL_Conext);
 
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         SDL_Log("Failed to get OpenGL function pointers via GLAD: %s\n", SDL_GetError());
@@ -82,7 +82,7 @@ bool GLRender::Init(void)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui_ImplSDL2_InitForOpenGL(m_Window, sdl_gl_Context);
+    ImGui_ImplSDL2_InitForOpenGL(m_Window, m_SDL_GL_Conext);
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // ImGui Config
@@ -126,6 +126,7 @@ void GLRender::Shutdown(void)
     ImGui::DestroyContext();
 
     // Close and destroy the window
+    SDL_GL_DeleteContext(m_SDL_GL_Conext);
     SDL_DestroyWindow(m_Window);
 
     m_ModelBatch->Kill();
