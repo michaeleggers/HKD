@@ -4,14 +4,19 @@
 #include <glad/glad.h>
 
 #include <string>
+#include <unordered_map>
 
-struct GLTexture {
-    std::string filename;
-    GLuint      handle;
-    int         width, height, channels;
+#include "r_itexture.h"
+
+class GLTexture : public ITexture {
+public:
+    GLTexture(std::string filename); 
+
+    // TODO: Kill texture
+
+    GLuint      m_gl_Handle;
 };
 
-GLTexture CreateTexture(std::string filename);
 
 
 #endif

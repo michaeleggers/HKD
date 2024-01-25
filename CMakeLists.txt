@@ -42,6 +42,7 @@ add_executable(Game
 	iqm_loader.h
 	iqm_loader.cpp
 	irender.h
+	r_itexture.h
 	r_gl.h
 	r_gl.cpp
 	r_model.h
@@ -53,6 +54,8 @@ add_executable(Game
 	r_gl_shader.cpp
 	r_gl_texture.h
 	r_gl_texture.cpp
+	r_gl_texture_mgr.h
+	r_gl_texture_mgr.cpp
 	game.h
 	game.cpp
 

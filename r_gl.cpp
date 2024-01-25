@@ -9,8 +9,10 @@
 
 #include "r_common.h"
 #include "platform.h"
+#include "r_itexture.h"
 #include "r_gl_batch.h"
 #include "r_gl_texture.h"
+#include "r_gl_texture_mgr.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -78,6 +80,10 @@ bool GLRender::Init(void)
         SDL_Log("vsync enabled\n");
     }
 
+    // Init TextureManager
+
+    m_TextureManager = GLTextureManager::Instance();
+
     // Setup Imgui
 
     IMGUI_CHECKVERSION();
@@ -144,7 +150,7 @@ int GLRender::RegisterModel(HKD_Model* model)
 
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
-        GLTexture texture = CreateTexture(mesh->textureFileName);        
+        GLTexture* texture = (GLTexture*)m_TextureManager->CreateTexture(mesh->textureFileName);        
         GLMesh gl_mesh = {
             .triOffset = drawCmd.offset + (int)mesh->firstTri,
             .triCount = (int)mesh->numTris,
@@ -159,6 +165,23 @@ int GLRender::RegisterModel(HKD_Model* model)
     model->gpuModelHandle = gpuModelHandle;
 
     return gpuModelHandle;
+}
+
+// Maybe return a void* as GPU handle, because usually APIs that use the handle of
+// a specific graphics API don't expect it to be in int or whatever.
+std::vector<ITexture*> GLRender::GetTextureHandles(int gpuModelHandle)
+{
+    std::vector<ITexture*> results;
+    
+    if (gpuModelHandle >= m_Models.size()) return results;
+    else if (gpuModelHandle < 0)           return results;
+
+    GLModel* model = &m_Models[gpuModelHandle];
+    for (auto& mesh : model->meshes) {
+        results.push_back( mesh.texture );
+    }
+
+    return results;
 }
 
 void GLRender::RenderBegin(void)
@@ -178,8 +201,6 @@ void GLRender::RenderBegin(void)
 
 void GLRender::Render(void)
 {    
-    ImGui::ShowDemoWindow();
-
     // Camera
 
     static float x = 10.0f;
@@ -187,9 +208,10 @@ void GLRender::Render(void)
     static float z = 15.0f;
 
     ImGui::Begin("Cam controlls");
-    ImGui::SliderFloat("x pos", &x, -200.0f, 200.0f);
-    ImGui::SliderFloat("y pos", &y, -200.0f, 200.0f);
-    ImGui::SliderFloat("z pos", &z, -200.0f, 200.0f);
+    ImGui::Text("position:");
+    ImGui::SliderFloat("x", &x, -200.0f, 200.0f);
+    ImGui::SliderFloat("y", &y, -200.0f, 200.0f);
+    ImGui::SliderFloat("z", &z, -200.0f, 200.0f);
     ImGui::End();
 
     glm::mat4 view = glm::lookAt(
@@ -207,7 +229,7 @@ void GLRender::Render(void)
     for (int i = 0; i < m_Models.size(); i++) {
         for (int j = 0; j < m_Models[i].meshes.size(); j++) {
             GLMesh* mesh = &m_Models[i].meshes[j];
-            glBindTexture(GL_TEXTURE_2D, mesh->texture.handle);
+            glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
             glDrawArrays(GL_TRIANGLES, 3*mesh->triOffset, 3 * mesh->triCount);
         }
     }

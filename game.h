@@ -16,6 +16,8 @@ public:
 private:
 	IRender*	m_Renderer;
 	std::string m_ExePath;
+
+	HKD_Model   m_Model;
 };
 
 #endif

@@ -1,26 +1,22 @@
 #include "r_gl_texture.h"
 
+#include "r_itexture.h"
 #include "platform.h"
 #include "stb_image.h"
 
 #include <string>
-#include <unordered_map>
 
-static std::unordered_map<std::string, GLTexture> g_Texturename2Texture;
+// TODO: This is the texture manager at the moment...
 
-GLTexture CreateTexture(std::string filename)
+GLTexture::GLTexture(std::string filename)
 {
-    if (g_Texturename2Texture.contains(filename)) {
-        return g_Texturename2Texture.at(filename);
-    }
-
     std::string exePath = hkd_GetExePath();
-    int x,y,n;
-    unsigned char *data = stbi_load( (exePath + "../../assets/textures/" + filename).c_str(), &x, &y, &n, 0);
+    int x, y, n;
+    unsigned char* data = stbi_load((exePath + "../../assets/textures/" + filename).c_str(), &x, &y, &n, 0);
 
     if (!data) {
         printf("WARNING: Failed to load texture: %s\n", filename.c_str());
-        return {}; // TODO: Load checkerboard texture instead.
+        // return {}; // TODO: Load checkerboard texture instead.
     }
 
     GLuint glTextureHandle;
@@ -33,16 +29,15 @@ GLTexture CreateTexture(std::string filename)
 
     stbi_image_free(data);
 
-    GLTexture result = {
-        .filename = filename,
-        .handle = glTextureHandle,
-        .width = x,
-        .height = y,
-        .channels = 3
-    };
+    m_Filename = filename;
+    m_gl_Handle = glTextureHandle;
+    m_Width= x;
+    m_Height = y;
+    m_Channels = 3;
 
-    g_Texturename2Texture.insert({ filename, result });
-
-    return result;
+    m_hGPU = (uint64_t)glTextureHandle;    
 }
+
+
+
 
