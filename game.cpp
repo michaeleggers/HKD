@@ -4,7 +4,7 @@
 #include "imgui.h"
 
 static int hkd_Clamp(int val, int clamp) {
-    if (val > clamp) return clamp;
+    if (val > clamp || val < clamp) return clamp;
     return val;
 }
 
