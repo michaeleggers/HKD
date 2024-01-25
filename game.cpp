@@ -3,6 +3,11 @@
 
 #include "imgui.h"
 
+static int hkd_Clamp(int val, int clamp) {
+    if (val > clamp) return clamp;
+    return val;
+}
+
 Game::Game(std::string exePath, IRender* renderer)
 {
     m_Renderer = renderer;
@@ -42,13 +47,20 @@ bool Game::RunFrame()
     ImGui::Text("We try to do something cool here");
     std::vector<ITexture*> gpuTexHandles = m_Renderer->GetTextureHandles(m_Model.gpuModelHandle);
     for (auto& handle : gpuTexHandles) {
-        ImGui::Text("%s", handle->m_Filename.c_str());
-        ImGui::Image(
-            (void*)(handle->m_hGPU),
-            ImVec2(400, 400)
-        );
+        int width = handle->m_Width;
+        int height = handle->m_Height;
+        ImGui::Text("%s, %d x %d", handle->m_Filename.c_str(), width, height);
+        if (
+            ImGui::ImageButton(
+                (void*)(handle->m_hGPU),
+                ImVec2(
+                    hkd_Clamp(width, 128),
+                    hkd_Clamp(height, 128))
+            )
+            ) {
+        }
     }
-    ImGui::End();
+    ImGui::End();   
 
     m_Renderer->Render();
 
