@@ -26,18 +26,33 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName)
 	if (!IsValidProgram()) return false;
 
 	// Uniforms
+
+	// Per frame matrices
 	GLuint bindingPoint = 0;
-	m_ViewProjUniformIndex  = glGetUniformBlockIndex(m_ShaderProgram, "ViewProjMatrices");
+	m_ViewProjUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "ViewProjMatrices");
 	if (m_ViewProjUniformIndex == GL_INVALID_INDEX) {
-		printf("Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());
+		printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());
+		// TODO: What to do in this case???
 	}
 	glUniformBlockBinding(m_ShaderProgram, m_ViewProjUniformIndex, bindingPoint);
-
 	glGenBuffers(1, &m_ViewProjUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_ViewProjUBO);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_ViewProjUBO, 0, 2 * sizeof(glm::mat4));	
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	// Per frame settings
+	GLuint settingsBindingPoint = 1;
+	m_SettingsUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "Settings");
+	if (m_SettingsUniformIndex == GL_INVALID_INDEX) {
+		printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());		
+		// TODO: What to do in this case???
+	}
+	glUniformBlockBinding(m_ShaderProgram, m_SettingsUniformIndex, settingsBindingPoint);
+	glGenBuffers(1, &m_SettingsUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_SettingsUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, m_SettingsUBO, 0, sizeof(uint32_t));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	return true;
@@ -65,6 +80,13 @@ void Shader::SetViewProjMatrices(glm::mat4 view, glm::mat4 proj)
 	glBindBuffer(GL_UNIFORM_BUFFER, m_ViewProjUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(view));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Shader::DrawWireframe(uint32_t yesOrNo)
+{
+	glBindBuffer(GL_UNIFORM_BUFFER, m_SettingsUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&yesOrNo);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

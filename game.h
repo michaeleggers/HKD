@@ -18,6 +18,9 @@ private:
 	std::string m_ExePath;
 
 	HKD_Model   m_Model;
+	HKD_Model   m_Model2;
+
+	std::vector<HKD_Model*> m_Models;
 };
 
 #endif

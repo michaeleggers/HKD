@@ -24,12 +24,14 @@ void Game::Init()
     // Convert the model to our internal format
 
     m_Model = CreateModelFromIQM(&iqmModel);
-    HKD_Model model2 = CreateModelFromIQM(&iqmModel2);
+    m_Model2 = CreateModelFromIQM(&iqmModel2);
+    m_Models.push_back(&m_Model);
+    m_Models.push_back(&m_Model2);
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
-    int hRenderModel2 = m_Renderer->RegisterModel(&model2);
+    int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
 
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model);
 
@@ -45,19 +47,21 @@ bool Game::RunFrame()
 
     ImGui::Begin("Textures");
     ImGui::Text("We try to do something cool here");
-    std::vector<ITexture*> gpuTexHandles = m_Renderer->GetTextureHandles(m_Model.gpuModelHandle);
-    for (auto& handle : gpuTexHandles) {
-        int width = handle->m_Width;
-        int height = handle->m_Height;
-        ImGui::Text("%s, %d x %d", handle->m_Filename.c_str(), width, height);
-        if (
-            ImGui::ImageButton(
-                (void*)(handle->m_hGPU),
-                ImVec2(
-                    hkd_Clamp(width, 128),
-                    hkd_Clamp(height, 128))
-            )
-            ) {
+    for (auto& model : m_Models) {
+        std::vector<ITexture*> textures = m_Renderer->ModelTextures(model->gpuModelHandle);
+        for (auto& texture : textures) {
+            int width = texture->m_Width;
+            int height = texture->m_Height;
+            ImGui::Text("%s, %d x %d", texture->m_Filename.c_str(), width, height);
+            if (
+                ImGui::ImageButton(
+                    (void*)(texture->m_hGPU),
+                    ImVec2(
+                        hkd_Clamp(width, 128),
+                        hkd_Clamp(height, 128))
+                )
+                ) {
+            }
         }
     }
     ImGui::End();   

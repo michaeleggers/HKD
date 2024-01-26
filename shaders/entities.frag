@@ -11,6 +11,11 @@ out vec4 out_Color;
 //     uint drawWireframe; // TODO: Check how to reliably pass an actual bool from CPU to shader.
 // };
 
+
+layout (std140) uniform Settings {
+    uint drawWireframe;
+};
+
 uniform sampler2D colorTex;
 
 float lookUp[9] = float[9](
@@ -50,14 +55,13 @@ void main() {
     color.b = float(lookUp[idxB]) / 255.0f;
     color.a = 1.0f;
     
-    // vec4 wireframe = vec4(0.0);
-    // if (drawWireframe == 1) {
-    //     wireframe = vec4(mix(vec3(1.0), vec3(0.0), edgeFactor()), 1.0);        
-    // }
+    vec4 wireframe = vec4(0.0);
+    if (drawWireframe == 1U) {
+        wireframe = vec4(mix(vec3(1.0), vec3(0.0), edgeFactor()), 1.0);
+        wireframe.a = 0.2;
+        wireframe.rgb *= wireframe.a;
+    }
 
-    vec4 wireframe = vec4(mix(vec3(1.0), vec3(0.0), edgeFactor()), 1.0);
-    wireframe.a = 0.2;
-    wireframe.rgb *= wireframe.a;
     
     vec3 normalColor = 0.5*Normal + 0.5;
 
