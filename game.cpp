@@ -95,23 +95,22 @@ bool Game::RunFrame(double dt)
     }
 
     ImGui::End();   
-
     
-    //for (int i = 0; i < showModelInspector.size(); i++) {
-    //    if (showModelInspector[i]) {
-    //        ITexture* texture = textures[i];
-    //        char buffer[256];
-    //        sprintf(buffer, "%s, %d x %d", texture->m_Filename.c_str(), texture->m_Width, texture->m_Height);
-    //        ImGui::Begin(buffer);
+    for (int i = 0; i < showModelInspector.size(); i++) {
+        if (showModelInspector[i]) {
+            ITexture* texture = textures[i];
+            char buffer[256];
+            sprintf(buffer, "%s, %d x %d", texture->m_Filename.c_str(), texture->m_Width, texture->m_Height);
+            ImGui::Begin(buffer);
 
-    //        ImGui::Image(
-    //            (void*)(texture->m_hGPU),
-    //            ImVec2(texture->m_Width, texture->m_Height)
-    //        );
+            ImGui::Image(
+                (void*)(texture->m_hGPU),
+                ImVec2(texture->m_Width, texture->m_Height)
+            );
 
-    //        ImGui::End();
-    //    }
-    //}
+            ImGui::End();
+        }
+    }
 
     m_Renderer->Render(m_Models);
 
