@@ -48,14 +48,12 @@ void Game::Init()
     //player.SetModel(model);
 }
 
-bool Game::RunFrame()
+bool Game::RunFrame(double dt)
 {
-    // Update game state
-
-    static float dt = 16.67f; // fix to 60Hz update
+    // Update game state    
 
     for (auto& model : m_Models) {
-        UpdateModel(model, dt);
+        UpdateModel(model, (float)dt);
     }
 
     // Render stuff

@@ -10,7 +10,7 @@ public:
 	Game(std::string exePath, IRender* renderer);
 
 	void Init();
-	bool RunFrame();
+	bool RunFrame(double dt);
 	void Shutdown();
 
 private:

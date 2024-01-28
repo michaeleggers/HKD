@@ -118,8 +118,6 @@ void UpdateModel(HKD_Model* model, float dt)
         currentFrame++;
         model->pctFrameDone = 0.0f;
     }
-    printf("model->pctFrameDone: %f\n", model->pctFrameDone);
-
 
     if (currentFrame >= anim.firstFrame + anim.numFrames) {
         model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();

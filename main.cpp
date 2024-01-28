@@ -56,9 +56,16 @@ int main(int argc, char** argv)
     
     bool shouldClose = false;
     float accumTime = 0.0f;    
+    Uint64 ticksPerSecond = SDL_GetPerformanceFrequency();
+    Uint64 startCounter = SDL_GetPerformanceCounter();
+    Uint64 endCounter = SDL_GetPerformanceCounter();
     while (!shouldClose) {
 
-        Uint32 startTime = SDL_GetTicks();
+        double ticksPerFrame = (double)endCounter - (double)startCounter;
+        double msPerFrame = (ticksPerFrame / (double)ticksPerSecond) * 1000.0;
+        printf("frametime (ms): %f\n", msPerFrame);
+
+        startCounter = SDL_GetPerformanceCounter();
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -70,17 +77,9 @@ int main(int argc, char** argv)
             }
         }
 
-        game.RunFrame();
+        game.RunFrame(msPerFrame);
 
-        Uint32 endTime = SDL_GetTicks();
-        Uint32 timePassed = endTime - startTime;
-        float timePassedSeconds = (float)timePassed / 1000.0f;
-        float FPS = 1.0f / timePassedSeconds;
-        accumTime += timePassedSeconds;
-        if (accumTime >= 1.0f) {
-            //printf("FPS: %f\n", FPS);
-            accumTime = 0.0f;
-        }   
+        endCounter = SDL_GetPerformanceCounter();
     }
 
     game.Shutdown();
