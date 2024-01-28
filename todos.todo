@@ -5,7 +5,8 @@
 ✔ Load and display textures for IQM models @started(24-01-23 23:45) @done(24-01-23 23:45) @lasted(6s)
 ✔ Cleanup Texturecode @done(24-01-24 13:51)
 ☐ Load checkerboard texture when texturefile cannot be found on disk
-☐ Render animated IQM models
+✔ Render animated IQM models @started(24-01-27 23:31) @done(24-01-28 16:02) @lasted(16h31m4s)
+✔ Stop frametime @done(24-01-28 16:02)
 ☐ Write blogpost on how vertex-skinning works
 ☐ Set the basepath (usually executable path) for all subsystems. So fileloading doesn't have to be like: LoadIQM((exePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str()); but rather just LoadIQM(mrfixit.iqm);
 ✔ Have a game class that operates only on the subsystems (renderer, input-system, etc.) that is given to it. So the game-code acts on all the custom library functions and does not care about renderer implementation or Operating System stuff @done(24-01-24 15:14)
