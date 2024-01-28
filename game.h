@@ -19,6 +19,7 @@ private:
 
 	HKD_Model   m_Model;
 	HKD_Model   m_Model2;
+	HKD_Model   m_Model3;
 
 	std::vector<HKD_Model*> m_Models;
 };

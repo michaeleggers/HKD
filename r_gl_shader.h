@@ -9,6 +9,8 @@
 
 #include <string>
 
+#define MAX_BONES 96
+
 class Shader {
 public:
 	
@@ -18,6 +20,7 @@ public:
 	GLuint Program() const;
 
 	void SetViewProjMatrices(glm::mat4 view, glm::mat4 proj);
+	void SetMatrixPalette(glm::mat4* palette, uint32_t numMatrices);
 	void DrawWireframe(uint32_t yesOrNo);
 
 private:
@@ -31,8 +34,10 @@ private:
 
 	GLuint m_ViewProjUniformIndex;
 	GLuint m_SettingsUniformIndex;
+	GLuint m_PaletteUniformIndex;
 	GLuint m_ViewProjUBO;
 	GLuint m_SettingsUBO;
+	GLuint m_PaletteUBO;
 };
 
 

@@ -4,6 +4,8 @@
 #ifndef _IRENDER_H_
 #define _IRENDER_H_
 
+#include <vector>
+
 #include "irender.h"
 #include "r_itexture.h"
 #include "r_model.h"
@@ -15,7 +17,7 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual void RenderBegin(void) = 0;
-	virtual void Render(void) = 0;
+	virtual void Render(std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;
 
 private:

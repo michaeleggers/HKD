@@ -23,16 +23,19 @@ struct HKD_Model {
 	std::vector<Tri>		tris;
 	std::vector<HKD_Mesh>	meshes;
 	int						gpuModelHandle;
-	std::vector<Pose>		poses;
+	std::vector<Pose>		poses; // A POSE IS JUST A LOCAL TRANSFORM FOR A SINGLE JOINT!!! IT IS NOT THE SKELETON STATE AT A CERTAIN FRAME!
+	uint32_t				currentFrame;
+	uint32_t				numFrames;
+	float					pctFrameDone;
 	std::vector<glm::mat4>	invBindPoses;
 	std::vector<glm::mat4>	bindPoses;
 	std::vector<glm::mat4>	palette;
 	uint32_t				numJoints;
 	std::vector<Anim>		animations;
-	uint32_t				currentAnim;
+	uint32_t				currentAnimIdx;
 };
 
 HKD_Model CreateModelFromIQM(IQMModel* model);
-void	  UpdateModel(HKD_Model* model);
+void	  UpdateModel(HKD_Model* model, float dt);
 
 #endif

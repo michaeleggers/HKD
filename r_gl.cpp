@@ -199,39 +199,43 @@ void GLRender::RenderBegin(void)
     ImGui::NewFrame();
 }
 
-void GLRender::Render(void)
+void GLRender::Render(std::vector<HKD_Model*>& models)
 {    
     // Camera and render settings
 
-    static float x = 10.0f;
-    static float y = 0.0f;
-    static float z = 15.0f;
+    static float x = -1.0f;
+    static float y = -4.0f;
+    static float z = 8.0f;
     static uint32_t drawWireframe = 0;
 
     ImGui::Begin("controlls");
     ImGui::Text("Cam position:");
-    ImGui::SliderFloat("x", &x, -200.0f, 200.0f);
-    ImGui::SliderFloat("y", &y, -200.0f, 200.0f);
-    ImGui::SliderFloat("z", &z, -200.0f, 200.0f);
+    ImGui::SliderFloat("x", &x, -500.0f, 500.0f);
+    ImGui::SliderFloat("y", &y, -500.0f, 500.0f);
+    ImGui::SliderFloat("z", &z, -500.0f, 500.0f);
     ImGui::Text("Render settings:");
     ImGui::Checkbox("wireframe", (bool*)&drawWireframe);    
     ImGui::End();
 
     glm::mat4 view = glm::lookAt(
         glm::vec3(x, y, z),
-        glm::vec3(0, 0, 5),
+        glm::vec3(0, 0, 0),
         glm::vec3(0, 0, 1));
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);
 
     // Draw Models
 
     m_ModelBatch->Bind();
-    m_ModelShader->Activate();    
-    m_ModelShader->DrawWireframe((uint32_t)drawWireframe);    
+    m_ModelShader->Activate();
+    m_ModelShader->DrawWireframe((uint32_t)drawWireframe);
     m_ModelShader->SetViewProjMatrices(view, proj);
-    for (int i = 0; i < m_Models.size(); i++) {
-        for (int j = 0; j < m_Models[i].meshes.size(); j++) {
-            GLMesh* mesh = &m_Models[i].meshes[j];
+    for (int i = 0; i < models.size(); i++) {
+        
+        GLModel model = m_Models[models[i]->gpuModelHandle];
+        m_ModelShader->SetMatrixPalette(&models[i]->palette[0], models[i]->numJoints);
+
+        for (int j = 0; j < model.meshes.size(); j++) {
+            GLMesh* mesh = &model.meshes[j];            
             glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
             glDrawArrays(GL_TRIANGLES, 3*mesh->triOffset, 3 * mesh->triCount);
         }

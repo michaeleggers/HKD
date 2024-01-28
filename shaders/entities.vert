@@ -27,19 +27,25 @@ layout (std140) uniform ViewProjMatrices {
     mat4 proj;
 };
 
+layout (std140) uniform Palette {
+    mat4 palette[96];
+};
+
 out vec2 TexCoord;
 out vec3 BaryCentricCoords;
 out vec3 Normal;
 
 void main() {
     vec4 v = vec4(pos, 1.0);
-    // vec4 skinnedPos = (palette[blendindices.x] * v) * blendweights.x;
-    // skinnedPos += (palette[blendindices.y] * v) * blendweights.y;
-    // skinnedPos += (palette[blendindices.z] * v) * blendweights.z;
-    // skinnedPos += (palette[blendindices.w] * v) * blendweights.w;
+    vec4 skinnedPos = (palette[blendindices.x] * v) * blendweights.x;
+    skinnedPos += (palette[blendindices.y] * v) * blendweights.y;
+    skinnedPos += (palette[blendindices.z] * v) * blendweights.z;
+    skinnedPos += (palette[blendindices.w] * v) * blendweights.w;
+
+    // skinnedPos = palette[blendindices.x] * palette[blendindices.y] * palette[blendindices.z] * palette[blendindices.w] * v;
     
-    // gl_Position = proj * view * transform * skinnedPos;
-    gl_Position = proj * view * v;
+    gl_Position = proj * view * skinnedPos;
+    // gl_Position = proj * view * v;
     // gl_Position = v;
     
     TexCoord = uv;

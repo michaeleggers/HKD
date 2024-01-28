@@ -18,22 +18,31 @@ void Game::Init()
 {
     // Load IQM Model
 
-    IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
-    IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
+    //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
+    IQMModel iqmModel = LoadIQM((m_ExePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
+    IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
+    IQMModel iqmModel3 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
+
 
     // Convert the model to our internal format
 
     m_Model = CreateModelFromIQM(&iqmModel);
     m_Model2 = CreateModelFromIQM(&iqmModel2);
+    m_Model3 = CreateModelFromIQM(&iqmModel3);
+
     m_Models.push_back(&m_Model);
     m_Models.push_back(&m_Model2);
+    m_Models.push_back(&m_Model3);
+
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
     int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
+    int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
-    int hRenderModel3 = m_Renderer->RegisterModel(&m_Model);
+
+    //int hRenderModel3 = m_Renderer->RegisterModel(&m_Model);
 
     //Entity player = {};
     //player.SetModel(model);
@@ -41,6 +50,16 @@ void Game::Init()
 
 bool Game::RunFrame()
 {
+    // Update game state
+
+    static float dt = 0.5f;
+
+    for (auto& model : m_Models) {
+        UpdateModel(model, dt);
+    }
+
+    // Render stuff
+
     m_Renderer->RenderBegin();
 
     ImGui::ShowDemoWindow();
@@ -60,13 +79,16 @@ bool Game::RunFrame()
                         hkd_Clamp(width, 128),
                         hkd_Clamp(height, 128))
                 )
-                ) {
+                ) 
+            {
+                // TODO: Display texture magnified in another window
             }
         }
     }
     ImGui::End();   
 
-    m_Renderer->Render();
+
+    m_Renderer->Render(m_Models);
 
     m_Renderer->RenderEnd();
 

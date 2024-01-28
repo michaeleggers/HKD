@@ -32,7 +32,7 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)		override;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle)	override;
 	virtual void RenderBegin(void)						override;
-	virtual void Render(void)							override;
+	virtual void Render(std::vector<HKD_Model*>& models) override;
 	virtual void RenderEnd(void)						override;
 
 	void InitShaders();
