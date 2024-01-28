@@ -62,29 +62,56 @@ bool Game::RunFrame(double dt)
 
     ImGui::ShowDemoWindow();
 
+    static std::vector<bool> showModelInspector;
+    std::vector<ITexture*> textures = m_Renderer->Textures();
+    showModelInspector.resize(textures.size());
+
+    int textureID = 0;   
+
+    // Display textures
+
     ImGui::Begin("Textures");
-    ImGui::Text("We try to do something cool here");
-    for (auto& model : m_Models) {
-        std::vector<ITexture*> textures = m_Renderer->ModelTextures(model->gpuModelHandle);
-        for (auto& texture : textures) {
-            int width = texture->m_Width;
-            int height = texture->m_Height;
-            ImGui::Text("%s, %d x %d", texture->m_Filename.c_str(), width, height);
-            if (
-                ImGui::ImageButton(
-                    (void*)(texture->m_hGPU),
-                    ImVec2(
-                        hkd_Clamp(width, 128),
-                        hkd_Clamp(height, 128))
-                )
-                ) 
-            {
-                // TODO: Display texture magnified in another window
-            }
+
+    for (auto& texture : textures) {
+
+        int width = texture->m_Width;
+        int height = texture->m_Height;
+
+        ImGui::Text("%s, %d x %d", texture->m_Filename.c_str(), width, height);
+
+        if (
+            ImGui::ImageButton(
+                (void*)(texture->m_hGPU),
+                ImVec2(
+                    hkd_Clamp(width, 128),
+                    hkd_Clamp(height, 128))
+            )
+            )
+        {
+            showModelInspector[textureID] = !showModelInspector[textureID];
         }
+
+        textureID++;
     }
+
     ImGui::End();   
 
+    
+    //for (int i = 0; i < showModelInspector.size(); i++) {
+    //    if (showModelInspector[i]) {
+    //        ITexture* texture = textures[i];
+    //        char buffer[256];
+    //        sprintf(buffer, "%s, %d x %d", texture->m_Filename.c_str(), texture->m_Width, texture->m_Height);
+    //        ImGui::Begin(buffer);
+
+    //        ImGui::Image(
+    //            (void*)(texture->m_hGPU),
+    //            ImVec2(texture->m_Width, texture->m_Height)
+    //        );
+
+    //        ImGui::End();
+    //    }
+    //}
 
     m_Renderer->Render(m_Models);
 

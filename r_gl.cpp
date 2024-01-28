@@ -184,6 +184,16 @@ std::vector<ITexture*> GLRender::ModelTextures(int gpuModelHandle)
     return results;
 }
 
+std::vector<ITexture*> GLRender::Textures(void)
+{
+    std::vector<ITexture*> result;
+    for (auto& elem: m_TextureManager->m_NameToTexture) {
+        result.push_back(elem.second);
+    }
+
+    return result;
+}
+
 void GLRender::RenderBegin(void)
 {    
     SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);

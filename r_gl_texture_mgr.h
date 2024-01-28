@@ -14,10 +14,10 @@ public:
 
 	// TODO: Shutdown methods
 
+	std::unordered_map<std::string, ITexture*> m_NameToTexture;
 private:
 	GLTextureManager();
 	
-	std::unordered_map<std::string, ITexture*> m_NameToTexture;
 };
 
 #endif

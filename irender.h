@@ -16,6 +16,7 @@ public:
 	virtual void Shutdown(void)		= 0;
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
+	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;
