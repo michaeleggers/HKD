@@ -52,7 +52,7 @@ bool Game::RunFrame()
 {
     // Update game state
 
-    static float dt = 0.5f;
+    static float dt = 16.67f; // fix to 60Hz update
 
     for (auto& model : m_Models) {
         UpdateModel(model, dt);

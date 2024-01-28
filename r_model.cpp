@@ -109,27 +109,36 @@ void UpdateModel(HKD_Model* model, float dt)
 {
     uint32_t currentFrame = model->currentFrame;    
     uint32_t animIdx = model->currentAnimIdx;    
-
+    
     Anim anim = model->animations[animIdx];
+    float msPerFrame = 1000.0f / anim.framerate;
+    model->pctFrameDone += dt;
+    
+    if (model->pctFrameDone > msPerFrame) {
+        currentFrame++;
+        model->pctFrameDone = 0.0f;
+    }
+    printf("model->pctFrameDone: %f\n", model->pctFrameDone);
+
+
     if (currentFrame >= anim.firstFrame + anim.numFrames) {
         model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();
         anim = model->animations[model->currentAnimIdx];
         currentFrame = anim.firstFrame;
     }
+    model->currentFrame = currentFrame;
     uint32_t nextFrame = (currentFrame + 1) % (anim.firstFrame + anim.numFrames);
 
-    //currentFrame = 0;
-
     // Build the matrix palette
+
+    // Build the global transform for each bone for the current pose
 
     std::vector<glm::mat4> currentPoses;
     currentPoses.resize(model->numJoints);
     for (int i = 0; i < model->numJoints; i++) {
         Pose currentPoseTransform = model->poses[currentFrame * model->numJoints + i];        
         Pose nextPoseTransform = model->poses[nextFrame * model->numJoints + i];
-        // parentGlobal * globalMat * poseMatrix * invGlobalMat * vertex;
-        glm::mat4 poseMat = InterpolatePoses(currentPoseTransform, nextPoseTransform, model->pctFrameDone);
-        //glm::mat4 poseMat = PoseToMatrix(currentPoseTransform);
+        glm::mat4 poseMat = InterpolatePoses(currentPoseTransform, nextPoseTransform, model->pctFrameDone/msPerFrame);
         if (currentPoseTransform.parent >= 0) {
             currentPoses[i] = currentPoses[currentPoseTransform.parent] * poseMat;
         }
@@ -138,15 +147,12 @@ void UpdateModel(HKD_Model* model, float dt)
         }
     }    
 
+    // Post multiply the global transforms with the global inverse bind transform to get
+    // the vertex from bindspace to local bonespace first and then transform the
+    // vertex to the currents pose global bone space.
+
     for (int i = 0; i < model->numJoints; i++) {
         glm::mat4 invGlobalMat = model->invBindPoses[i];               
         model->palette[i] = currentPoses[i] * invGlobalMat;
-    }
-
-    model->pctFrameDone += dt;
-    if (model->pctFrameDone > 1.0f) {
-        model->pctFrameDone = 0.0f;
-        model->currentFrame = currentFrame;
-        model->currentFrame++;    
     }
 }
