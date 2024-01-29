@@ -14,5 +14,6 @@
 ☐ Create camera class
 ✔ Read and implement Input code @started(24-01-29 17:14) @done(24-01-29 18:39) @lasted(1h25m11s)
 ☐ Space optimization: If the same model (IQM) is loaded twice. Use the existing VBO, VAO
+☐ Move Render API into game. The user should be able to do render-stuff him/herself.
 
 

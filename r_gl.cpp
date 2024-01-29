@@ -13,6 +13,7 @@
 #include "r_gl_batch.h"
 #include "r_gl_texture.h"
 #include "r_gl_texture_mgr.h"
+#include "input.h" 
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -217,6 +218,10 @@ void GLRender::Render(std::vector<HKD_Model*>& models)
     static float y = -4.0f;
     static float z = 8.0f;
     static uint32_t drawWireframe = 0;
+
+    if (KeyWentDown(SDLK_w)) {
+        drawWireframe ^= 1;
+    }
 
     ImGui::Begin("controlls");
     ImGui::Text("Cam position:");
