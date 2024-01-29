@@ -30,6 +30,7 @@
 #include "irender.h"
 #include "r_gl.h"
 #include "r_model.h"
+#include "input.h"
 #include "game.h"
 
 #define PI                      3.14159265359
@@ -59,23 +60,14 @@ int main(int argc, char** argv)
     Uint64 ticksPerSecond = SDL_GetPerformanceFrequency();
     Uint64 startCounter = SDL_GetPerformanceCounter();
     Uint64 endCounter = SDL_GetPerformanceCounter();
-    while (!shouldClose) {
+    while (!ShouldClose()) {
 
         double ticksPerFrame = (double)endCounter - (double)startCounter;
         double msPerFrame = (ticksPerFrame / (double)ticksPerSecond) * 1000.0;
-        printf("frametime (ms): %f\n", msPerFrame);
 
         startCounter = SDL_GetPerformanceCounter();
 
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-
-            ImGui_ImplSDL2_ProcessEvent(&event);
-
-            if (event.type == SDL_QUIT) {
-                shouldClose = true;
-            }
-        }
+        HandleInput();
 
         game.RunFrame(msPerFrame);
 

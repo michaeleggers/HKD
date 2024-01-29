@@ -12,6 +12,7 @@
 ✔ Have a game class that operates only on the subsystems (renderer, input-system, etc.) that is given to it. So the game-code acts on all the custom library functions and does not care about renderer implementation or Operating System stuff @done(24-01-24 15:14)
 ☐ Let usercode create entities
 ☐ Create camera class
-☐ Read and implement Input code
+✔ Read and implement Input code @started(24-01-29 17:14) @done(24-01-29 18:39) @lasted(1h25m11s)
+☐ Space optimization: If the same model (IQM) is loaded twice. Use the existing VBO, VAO
 
 

@@ -1,5 +1,9 @@
 #include "game.h"
+
+#include <SDL.h>
+
 #include "r_itexture.h"
+#include "input.h" 
 
 #include "imgui.h"
 
@@ -50,6 +54,13 @@ void Game::Init()
 
 bool Game::RunFrame(double dt)
 {
+
+    // Input test
+     
+    if (KeyWentDown(SDLK_a))  printf("A key went down\n");
+    if (KeyWentUp(SDLK_a))    printf("A key went up\n");
+    if (KeyPressed(SDLK_UP))  printf("Up key is pressed\n");
+    
     // Update game state    
 
     for (auto& model : m_Models) {

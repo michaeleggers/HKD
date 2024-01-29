@@ -39,6 +39,8 @@ add_executable(Game
 	main.cpp
 	platform.h
 	platform.cpp
+	input.h
+	input.cpp
 	iqm_loader.h
 	iqm_loader.cpp
 	irender.h
