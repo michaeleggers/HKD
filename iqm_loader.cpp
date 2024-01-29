@@ -163,7 +163,6 @@ IQMModel LoadIQM(const char* file)
 	std::vector<glm::mat4> bindPoses;
 	std::vector<glm::mat4> invBindPoses;
 	bindPoses.resize(pHeader->numJoints);
-	invBindPoses.resize(pHeader->numJoints);
 	for (int i = 0; i < pHeader->numJoints; i++) {
 		IQMJoint* pJoint = pJoints + i;
 		printf("Joint %d name: %s\n", i, pText + pJoint->name);
@@ -178,17 +177,16 @@ IQMModel LoadIQM(const char* file)
 		glm::mat4 mScale = glm::scale(glm::mat4(1.0f), scale);
 		glm::mat4 m = mTranslate * mRotate * mScale;
 		bindPoses[i] = m;
-		invBindPoses[i] = m;
 		if (pJoint->parent >= 0) {
 			bindPoses[i] = bindPoses[pJoint->parent] * bindPoses[i];
-			invBindPoses[i] = invBindPoses[pJoint->parent] * invBindPoses[i];
 		}
 	}
 
 	// Invert global bind poses
 
+	invBindPoses.resize(pHeader->numJoints);
 	for (int i = 0; i < invBindPoses.size(); i++) {
-		invBindPoses[i] = glm::inverse(invBindPoses[i]);
+		invBindPoses[i] = glm::inverse(bindPoses[i]);
 	}
 
 	result.bindPoses = bindPoses;

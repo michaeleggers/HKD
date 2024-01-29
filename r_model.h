@@ -22,7 +22,7 @@ struct HKD_Model {
 	std::string				filename;
 	std::vector<Tri>		tris;
 	std::vector<HKD_Mesh>	meshes;
-	int						gpuModelHandle;
+	int						gpuModelHandle; // -1: Data not yet on GPU
 	std::vector<Pose>		poses; // A POSE IS JUST A LOCAL TRANSFORM FOR A SINGLE JOINT!!! IT IS NOT THE SKELETON STATE AT A CERTAIN FRAME!
 	uint32_t				currentFrame;
 	uint32_t				numFrames;

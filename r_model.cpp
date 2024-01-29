@@ -71,6 +71,7 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
     result.currentAnimIdx = 0;
     result.pctFrameDone = 0.0f;
     result.palette.resize(model->numJoints);
+    result.gpuModelHandle = -1;
 
     return result;
 }
@@ -89,18 +90,14 @@ static glm::mat4 PoseToMatrix(Pose pose)
 
 static glm::mat4 InterpolatePoses(Pose a, Pose b, float pct) 
 {
-    glm::vec3 transA = a.translations;
-    glm::vec3 transB = b.translations;
-    glm::vec3 iTrans = (1.0f - pct) * transA + pct * transB;
-    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), iTrans);
+    glm::vec3 interpTrans = (1.0f - pct) * a.translations + pct * b.translations;
+    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), interpTrans);
 
-    glm::vec3 scaleA = a.scale;
-    glm::vec3 scaleB = b.scale;
-    glm::vec3 iScale = (1.0f - pct) * scaleA + pct * scaleB;
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), iScale);
+    glm::vec3 interpScale = (1.0f - pct) * a.scale + pct * b.scale;
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), interpScale);
 
-    glm::quat iRot = glm::slerp(a.rotation, b.rotation, pct);
-    glm::mat4 rotMat = glm::toMat4(iRot);
+    glm::quat interpRot = glm::slerp(a.rotation, b.rotation, pct);
+    glm::mat4 rotMat = glm::toMat4(interpRot);
 
     return transMat * rotMat * scaleMat;    
 }
@@ -131,17 +128,15 @@ void UpdateModel(HKD_Model* model, float dt)
 
     // Build the global transform for each bone for the current pose
 
-    std::vector<glm::mat4> currentPoses;
-    currentPoses.resize(model->numJoints);
     for (int i = 0; i < model->numJoints; i++) {
         Pose currentPoseTransform = model->poses[currentFrame * model->numJoints + i];        
         Pose nextPoseTransform = model->poses[nextFrame * model->numJoints + i];
         glm::mat4 poseMat = InterpolatePoses(currentPoseTransform, nextPoseTransform, model->pctFrameDone/msPerFrame);
         if (currentPoseTransform.parent >= 0) {
-            currentPoses[i] = currentPoses[currentPoseTransform.parent] * poseMat;
+            model->palette[i] = model->palette[currentPoseTransform.parent] * poseMat;
         }
         else {
-            currentPoses[i] = poseMat;
+            model->palette[i] = poseMat;
         }
     }    
 
@@ -151,6 +146,6 @@ void UpdateModel(HKD_Model* model, float dt)
 
     for (int i = 0; i < model->numJoints; i++) {
         glm::mat4 invGlobalMat = model->invBindPoses[i];               
-        model->palette[i] = currentPoses[i] * invGlobalMat;
+        model->palette[i] = model->palette[i] * invGlobalMat;
     }
 }
