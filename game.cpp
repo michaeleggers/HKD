@@ -60,26 +60,30 @@ bool Game::RunFrame(double dt)
 
     // Test Mouse input
 
-    if (MouseWentDown(SDL_BUTTON_LEFT)) {
-        printf("Left mouse button went down.\n");
-    }
-    if (MouseWentUp(SDL_BUTTON_LEFT)) {
-        printf("Left mouse button went up.\n");
+    if (!ImGui::GetIO().WantCaptureMouse) { // But only if mouse is not over any Imgui Window
+
+        if (MouseWentDown(SDL_BUTTON_LEFT)) {
+            printf("Left mouse button went down.\n");
+        }
+        if (MouseWentUp(SDL_BUTTON_LEFT)) {
+            printf("Left mouse button went up.\n");
+        }
+
+        if (MouseWentDown(SDL_BUTTON_RIGHT)) {
+            printf("Right mouse button went down.\n");
+        }
+        if (MouseWentUp(SDL_BUTTON_RIGHT)) {
+            printf("Right mouse button went up.\n");
+        }
+
+        if (MousePressed(SDL_BUTTON_LEFT)) {
+            printf("Left mouse button pressed\n");
+        }
+        if (MousePressed(SDL_BUTTON_RIGHT)) {
+            printf("Right mouse button pressed\n");
+        }
     }
 
-    if (MouseWentDown(SDL_BUTTON_RIGHT)) {
-        printf("Right mouse button went down.\n");
-    }
-    if (MouseWentUp(SDL_BUTTON_RIGHT)) {
-        printf("Right mouse button went up.\n");
-    }
-
-    if (MousePressed(SDL_BUTTON_LEFT)) {
-        printf("Left mouse button pressed\n");
-    }
-    if (MousePressed(SDL_BUTTON_RIGHT)) {
-        printf("Right mouse button pressed\n");
-    }
     // Want to quit on ESCAPE
 
     if (KeyPressed(SDLK_ESCAPE)) {
