@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include "r_itexture.h"
+#include "camera.h"
 #include "input.h" 
 
 #include "imgui.h"
@@ -27,7 +28,6 @@ void Game::Init()
     IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
     IQMModel iqmModel3 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
 
-
     // Convert the model to our internal format
 
     m_Model = CreateModelFromIQM(&iqmModel);
@@ -38,35 +38,53 @@ void Game::Init()
     m_Models.push_back(&m_Model2);
     m_Models.push_back(&m_Model3);
 
-
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
     int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
+    // Camera
 
-    //int hRenderModel3 = m_Renderer->RegisterModel(&m_Model);
-
-    //Entity player = {};
-    //player.SetModel(model);
+    m_Camera = Camera(glm::vec3(0, -5, 8.0));
 }
 
 bool Game::RunFrame(double dt)
 {
-
-    // Input test
-     
-    if (KeyWentDown(SDLK_a))  printf("A key went down\n");
-    if (KeyWentUp(SDLK_a))    printf("A key went up\n");
-    if (KeyPressed(SDLK_UP))  printf("Up key is pressed\n");
-    
     // Update game state    
 
     for (auto& model : m_Models) {
         UpdateModel(model, (float)dt);
     }
 
+    // Update camera
+
+    if (KeyPressed(SDLK_w)) {
+        m_Camera.Pan(m_Camera.m_Forward);
+    }
+    if (KeyPressed(SDLK_s)) {
+        m_Camera.Pan(-m_Camera.m_Forward);
+    }
+    if (KeyPressed(SDLK_d)) {
+        m_Camera.Pan(m_Camera.m_Side);
+    }
+    if (KeyPressed(SDLK_a)) {
+        m_Camera.Pan(-m_Camera.m_Side);
+    }
+
+    if (KeyPressed(SDLK_RIGHT)) {
+        m_Camera.RotateAroundUp(-1.0f);
+    }
+    if (KeyPressed(SDLK_LEFT)) {
+        m_Camera.RotateAroundUp(1.0f);
+    }
+
+    if (KeyPressed(SDLK_UP)) {
+        m_Camera.RotateAroundSide(1.0f);
+    }
+    if (KeyPressed(SDLK_DOWN)) {
+        m_Camera.RotateAroundSide(-1.0f);
+    }
     // Render stuff
 
     m_Renderer->RenderBegin();
@@ -123,7 +141,7 @@ bool Game::RunFrame(double dt)
         }
     }
 
-    m_Renderer->Render(m_Models);
+    m_Renderer->Render(&m_Camera, m_Models);
 
     m_Renderer->RenderEnd();
 

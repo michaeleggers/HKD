@@ -4,6 +4,7 @@
 #include <string>
 
 #include "irender.h" 
+#include "camera.h"
 
 class Game {
 public:
@@ -20,6 +21,8 @@ private:
 	HKD_Model   m_Model;
 	HKD_Model   m_Model2;
 	HKD_Model   m_Model3;
+
+	Camera		m_Camera;
 
 	std::vector<HKD_Model*> m_Models;
 };

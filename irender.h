@@ -9,6 +9,7 @@
 #include "irender.h"
 #include "r_itexture.h"
 #include "r_model.h"
+#include "camera.h"
 
 class IRender {
 public:
@@ -18,7 +19,7 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void RenderBegin(void) = 0;
-	virtual void Render(std::vector<HKD_Model*>& models) = 0;
+	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;
 
 private:

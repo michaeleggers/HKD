@@ -210,32 +210,26 @@ void GLRender::RenderBegin(void)
     ImGui::NewFrame();
 }
 
-void GLRender::Render(std::vector<HKD_Model*>& models)
+void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
 {    
     // Camera and render settings
 
-    static float x = -1.0f;
-    static float y = -4.0f;
-    static float z = 8.0f;
     static uint32_t drawWireframe = 0;
 
-    if (KeyWentDown(SDLK_w)) {
+    if (KeyWentDown(SDLK_r)) { // WARNING: TAB key also triggers slider-values in ImGui Window.
         drawWireframe ^= 1;
     }
 
     ImGui::Begin("controlls");
     ImGui::Text("Cam position:");
-    ImGui::SliderFloat("x", &x, -500.0f, 500.0f);
-    ImGui::SliderFloat("y", &y, -500.0f, 500.0f);
-    ImGui::SliderFloat("z", &z, -500.0f, 500.0f);
+    ImGui::SliderFloat("x", &camera->m_Pos.x, -500.0f, 500.0f);
+    ImGui::SliderFloat("y", &camera->m_Pos.y, -500.0f, 500.0f);
+    ImGui::SliderFloat("z", &camera->m_Pos.z, -500.0f, 500.0f);
     ImGui::Text("Render settings:");
     ImGui::Checkbox("wireframe", (bool*)&drawWireframe);    
     ImGui::End();
 
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(x, y, z),
-        glm::vec3(0, 0, 0),
-        glm::vec3(0, 0, 1));
+    glm::mat4 view = camera->ViewMatrix();
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);
 
     // Draw Models
