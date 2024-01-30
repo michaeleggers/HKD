@@ -13,9 +13,10 @@ static int hkd_Clamp(int val, int clamp) {
     return val;
 }
 
-Game::Game(std::string exePath, IRender* renderer)
+Game::Game(std::string exePath, hkdInterface* interface, IRender* renderer)
 {
     m_Renderer = renderer;
+    m_Interface = interface;
     m_ExePath = exePath;
 }
 
@@ -57,33 +58,39 @@ bool Game::RunFrame(double dt)
         UpdateModel(model, (float)dt);
     }
 
+    // Want to quit on ESCAPE
+
+    if (KeyPressed(SDLK_ESCAPE)) {
+        m_Interface->QuitGame();
+    }
+
     // Update camera
 
     if (KeyPressed(SDLK_w)) {
-        m_Camera.Pan(m_Camera.m_Forward);
+        m_Camera.Pan((float)dt * 0.5f * m_Camera.m_Forward);
     }
     if (KeyPressed(SDLK_s)) {
-        m_Camera.Pan(-m_Camera.m_Forward);
+        m_Camera.Pan((float)dt * 0.5f * -m_Camera.m_Forward);
     }
     if (KeyPressed(SDLK_d)) {
-        m_Camera.Pan(m_Camera.m_Side);
+        m_Camera.Pan((float)dt * 0.5f * m_Camera.m_Side);
     }
     if (KeyPressed(SDLK_a)) {
-        m_Camera.Pan(-m_Camera.m_Side);
+        m_Camera.Pan((float)dt * 0.5f * -m_Camera.m_Side);
     }
 
     if (KeyPressed(SDLK_RIGHT)) {
-        m_Camera.RotateAroundUp(-1.0f);
+        m_Camera.RotateAroundUp(-0.2f * dt);
     }
     if (KeyPressed(SDLK_LEFT)) {
-        m_Camera.RotateAroundUp(1.0f);
+        m_Camera.RotateAroundUp(0.2f * dt);
     }
 
     if (KeyPressed(SDLK_UP)) {
-        m_Camera.RotateAroundSide(1.0f);
+        m_Camera.RotateAroundSide(0.2f * dt);
     }
     if (KeyPressed(SDLK_DOWN)) {
-        m_Camera.RotateAroundSide(-1.0f);
+        m_Camera.RotateAroundSide(-0.2f * dt);
     }
     // Render stuff
 

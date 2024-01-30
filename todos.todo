@@ -17,6 +17,7 @@
 ☐ Move Render API into game. The user should be able to do render-stuff him/herself.
 ☐ Load Quake .MAP files as levels and render them.
 ☐ Run around with player
+☐ Use mouse to control debug camera
 
 - BUGS:
 ✔ When SDLK_TAB is used to toggle wireframe then some WASD keys get disabled. @done(24-01-30 01:39) (Problem was TAB key triggering imgui slider-values)

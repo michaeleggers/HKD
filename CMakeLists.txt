@@ -37,6 +37,7 @@ add_subdirectory(dependencies/SDL2.28.4)
 add_executable(Game
 
 	main.cpp
+	hkd_interface.h
 	platform.h
 	platform.cpp
 	input.h

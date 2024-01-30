@@ -31,14 +31,30 @@
 #include "r_gl.h"
 #include "r_model.h"
 #include "input.h"
+#include "hkd_interface.h"
 #include "game.h"
 
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
 
+static bool g_GameWantsToQuit;
+
+static bool QuitGameFunc(void) {
+    g_GameWantsToQuit = true;
+    
+    return true;
+}
+
 int main(int argc, char** argv)
 {
+    // Init globals
+
+    g_GameWantsToQuit = false;
+
     // Init subsystems
+
+    hkdInterface interface = {};
+    interface.QuitGame = QuitGameFunc;
 
     std::string exePath = hkd_GetExePath();
 
@@ -50,17 +66,16 @@ int main(int argc, char** argv)
 
     // Init the game
 
-    Game game(exePath, renderer);
+    Game game(exePath, &interface, renderer);
     game.Init();
     
     // Main loop
     
-    bool shouldClose = false;
-    float accumTime = 0.0f;    
     Uint64 ticksPerSecond = SDL_GetPerformanceFrequency();
     Uint64 startCounter = SDL_GetPerformanceCounter();
     Uint64 endCounter = SDL_GetPerformanceCounter();
-    while (!ShouldClose()) {
+    
+    while (!ShouldClose() && !g_GameWantsToQuit) {
 
         double ticksPerFrame = (double)endCounter - (double)startCounter;
         double msPerFrame = (ticksPerFrame / (double)ticksPerSecond) * 1000.0;
