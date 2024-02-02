@@ -16,9 +16,10 @@
 ☐ Space optimization: If the same model (IQM) is loaded twice. Use the existing VBO, VAO
 ☐ Move Render API into game. The user should be able to do render-stuff him/herself.
 ☐ Load Quake .MAP files as levels and render them.
-☐ Run around with player
+☐ Run around with player @started(24-02-02 12:44)
 ✔ Add mouse-input @done(24-01-30 18:12)
 ☐ Use mouse to control debug camera
+✔ Create model matrix and upload to shader @done(24-02-02 12:41)
 
 - BUGS:
 ✔ When SDLK_TAB is used to toggle wireframe then some WASD keys get disabled. @done(24-01-30 01:39) (Problem was TAB key triggering imgui slider-values)

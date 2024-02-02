@@ -33,11 +33,7 @@ void Game::Init()
 
     m_Model = CreateModelFromIQM(&iqmModel);
     m_Model2 = CreateModelFromIQM(&iqmModel2);
-    m_Model3 = CreateModelFromIQM(&iqmModel3);
-
-    m_Models.push_back(&m_Model);
-    m_Models.push_back(&m_Model2);
-    m_Models.push_back(&m_Model3);
+    m_Model3 = CreateModelFromIQM(&iqmModel3);    
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
@@ -52,12 +48,6 @@ void Game::Init()
 
 bool Game::RunFrame(double dt)
 {
-    // Update game state    
-
-    for (auto& model : m_Models) {
-        UpdateModel(model, (float)dt);
-    }
-
     // Test Mouse input
 
     if (!ImGui::GetIO().WantCaptureMouse) { // But only if mouse is not over any Imgui Window
@@ -90,33 +80,68 @@ bool Game::RunFrame(double dt)
         m_Interface->QuitGame();
     }
 
-    // Update camera
+    // Update models
 
+    static double val = 0.0f;
+    val += 0.005;
+    double xPos = glm::sin(val);
+    double yPos = glm::cos(val);
+    printf("xPos: %f\n", xPos);
+    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
+    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_Model.position.x = 20.0f*xPos;
+    m_Model.position.y = 20.0f * yPos;    
+
+    m_Model3.scale.x = 10.0f;
+    m_Model3.scale.y = 10.0f;
+    m_Model3.scale.z = 2.0 + glm::sin(val);
+
+
+    // Select models that should be rendered:
+
+    std::vector<HKD_Model*> modelsToRender;
+
+    modelsToRender.push_back(&m_Model);
+    modelsToRender.push_back(&m_Model2);
+    modelsToRender.push_back(&m_Model3);
+
+    for (auto& model : modelsToRender) {
+        UpdateModel(model, (float)dt);
+    }
+
+    // Update camera
+    float camSpeed = 0.5f;
+    float turnSpeed = 0.2f;
+    if (KeyPressed(SDLK_LSHIFT)) {
+        camSpeed *= 0.1f;
+        turnSpeed *= 0.25f;
+    }
     if (KeyPressed(SDLK_w)) {
-        m_Camera.Pan((float)dt * 0.5f * m_Camera.m_Forward);
+        m_Camera.Pan((float)dt * camSpeed * m_Camera.m_Forward);
     }
     if (KeyPressed(SDLK_s)) {
-        m_Camera.Pan((float)dt * 0.5f * -m_Camera.m_Forward);
+        m_Camera.Pan((float)dt * camSpeed * -m_Camera.m_Forward);
     }
     if (KeyPressed(SDLK_d)) {
-        m_Camera.Pan((float)dt * 0.5f * m_Camera.m_Side);
+        m_Camera.Pan((float)dt * camSpeed * m_Camera.m_Side);
     }
     if (KeyPressed(SDLK_a)) {
-        m_Camera.Pan((float)dt * 0.5f * -m_Camera.m_Side);
+        m_Camera.Pan((float)dt * camSpeed * -m_Camera.m_Side);
     }
 
     if (KeyPressed(SDLK_RIGHT)) {
-        m_Camera.RotateAroundUp(-0.2f * dt);
+        m_Camera.RotateAroundUp(-turnSpeed * dt);
     }
     if (KeyPressed(SDLK_LEFT)) {
-        m_Camera.RotateAroundUp(0.2f * dt);
+        m_Camera.RotateAroundUp(turnSpeed * dt);
     }
 
     if (KeyPressed(SDLK_UP)) {
-        m_Camera.RotateAroundSide(0.2f * dt);
+        m_Camera.RotateAroundSide(turnSpeed * dt);
     }
     if (KeyPressed(SDLK_DOWN)) {
-        m_Camera.RotateAroundSide(-0.2f * dt);
+        m_Camera.RotateAroundSide(-turnSpeed * dt);
     }
     // Render stuff
 
@@ -174,7 +199,7 @@ bool Game::RunFrame(double dt)
         }
     }
 
-    m_Renderer->Render(&m_Camera, m_Models);
+    m_Renderer->Render(&m_Camera, modelsToRender);
 
     m_Renderer->RenderEnd();
 

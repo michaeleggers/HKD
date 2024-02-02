@@ -22,6 +22,9 @@ struct HKD_Model {
 	std::string				filename;
 	std::vector<Tri>		tris;
 	std::vector<HKD_Mesh>	meshes;
+	glm::vec3				position;
+	glm::quat				orientation;
+	glm::vec3				scale;
 	int						gpuModelHandle; // -1: Data not yet on GPU
 	std::vector<Pose>		poses; // A POSE IS JUST A LOCAL TRANSFORM FOR A SINGLE JOINT!!! IT IS NOT THE SKELETON STATE AT A CERTAIN FRAME!
 	uint32_t				currentFrame;
@@ -37,5 +40,6 @@ struct HKD_Model {
 
 HKD_Model CreateModelFromIQM(IQMModel* model);
 void	  UpdateModel(HKD_Model* model, float dt);
+glm::mat4 CreateModelMatrix(HKD_Model* model);
 
 #endif

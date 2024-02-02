@@ -9,6 +9,8 @@
 
 #include <string>
 
+#include "r_model.h"
+
 #define MAX_BONES 96
 
 class Shader {
@@ -21,6 +23,7 @@ public:
 
 	void SetViewProjMatrices(glm::mat4 view, glm::mat4 proj);
 	void SetMatrixPalette(glm::mat4* palette, uint32_t numMatrices);
+	void SetMat4(std::string uniformName, glm::mat4 mat4);
 	void DrawWireframe(uint32_t yesOrNo);
 
 private:

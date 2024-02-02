@@ -104,6 +104,12 @@ void Shader::SetMatrixPalette(glm::mat4* palette, uint32_t numMatrices)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+void Shader::SetMat4(std::string uniformName, glm::mat4 mat4)
+{
+	GLuint loc = glGetUniformLocation(m_ShaderProgram, uniformName.c_str());
+	glUniformMatrix4fv(loc, 1, GL_FALSE, (float*)&mat4);
+}
+
 void Shader::DrawWireframe(uint32_t yesOrNo)
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, m_SettingsUBO);

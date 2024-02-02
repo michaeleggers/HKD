@@ -61,6 +61,9 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
         result.meshes.push_back(mesh);
     }
 
+    result.position     = glm::vec3(0.0f);
+    result.orientation  = glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    result.scale        = glm::vec3(1.0f);
     result.filename     = model->filename;
     result.poses        = model->poses;
     result.invBindPoses = model->invBindPoses;
@@ -148,4 +151,13 @@ void UpdateModel(HKD_Model* model, float dt)
         glm::mat4 invGlobalMat = model->invBindPoses[i];               
         model->palette[i] = model->palette[i] * invGlobalMat;
     }
+}
+
+glm::mat4 CreateModelMatrix(HKD_Model* model)
+{
+    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), model->position);
+    glm::mat4 rotMat = glm::toMat4(model->orientation);
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), model->scale);
+    
+    return transMat * rotMat * scaleMat;
 }

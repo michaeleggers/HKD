@@ -15,8 +15,8 @@
 #include "r_gl_texture_mgr.h"
 #include "input.h" 
 
-const int WINDOW_WIDTH = 1024;
-const int WINDOW_HEIGHT = 768;
+const int WINDOW_WIDTH = 1920;
+const int WINDOW_HEIGHT = 1080;
 
 bool GLRender::Init(void)
 {   
@@ -242,6 +242,8 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
         
         GLModel model = m_Models[models[i]->gpuModelHandle];
         m_ModelShader->SetMatrixPalette(&models[i]->palette[0], models[i]->numJoints);
+        glm::mat4 modelMatrix = CreateModelMatrix(models[i]);
+        m_ModelShader->SetMat4("model", modelMatrix);
 
         for (int j = 0; j < model.meshes.size(); j++) {
             GLMesh* mesh = &model.meshes[j];            

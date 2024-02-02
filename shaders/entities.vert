@@ -31,6 +31,8 @@ layout (std140) uniform Palette {
     mat4 palette[96];
 };
 
+uniform mat4 model;
+
 out vec2 TexCoord;
 out vec3 BaryCentricCoords;
 out vec3 Normal;
@@ -44,7 +46,7 @@ void main() {
 
     // skinnedPos = palette[blendindices.x] * palette[blendindices.y] * palette[blendindices.z] * palette[blendindices.w] * v;
     
-    gl_Position = proj * view * skinnedPos;
+    gl_Position = proj * view * model * skinnedPos;
     // gl_Position = proj * view * v;
     // gl_Position = v;
     
