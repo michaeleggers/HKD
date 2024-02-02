@@ -12,6 +12,7 @@ public:
 	Camera(glm::vec3 pos = glm::vec3(0.0f));
 
 	void Pan(glm::vec3 direction);
+	void Rotate(glm::quat quat);
 	void RotateAroundUp(float angle);
 	void RotateAroundSide(float angle);
 

@@ -35,15 +35,22 @@ void Game::Init()
     m_Model2 = CreateModelFromIQM(&iqmModel2);
     m_Model3 = CreateModelFromIQM(&iqmModel3);    
 
+    m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
     int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
-    // Camera
+    // Cameras
 
     m_Camera = Camera(glm::vec3(0, -5, 8.0));
+    m_FollowCamera = Camera(m_Model3.position);
+    m_FollowCamera.m_Pos.y -= 200.0f;    
+    m_FollowCamera.m_Pos.z += 180.0f;
+
+    m_FollowCamera.RotateAroundSide(-20.0f);    
 }
 
 bool Game::RunFrame(double dt)
@@ -82,21 +89,55 @@ bool Game::RunFrame(double dt)
 
     // Update models
 
-    static double val = 0.0f;
-    val += 0.005;
-    double xPos = glm::sin(val);
-    double yPos = glm::cos(val);
-    printf("xPos: %f\n", xPos);
-    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(0.0f, 0.0f, 1.0f));
-    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
-    m_Model.orientation *= glm::angleAxis(glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_Model.position.x = 20.0f*xPos;
-    m_Model.position.y = 20.0f * yPos;    
+    float followCamSpeed = 0.5f;
+    float followTurnSpeed = 0.2f;
+    if (KeyPressed(SDLK_LSHIFT)) {
+        followCamSpeed *= 0.1f;        
+        followTurnSpeed *= 0.1f;
+    }
 
-    m_Model3.scale.x = 10.0f;
-    m_Model3.scale.y = 10.0f;
-    m_Model3.scale.z = 2.0 + glm::sin(val);
+    // Model rotation
 
+    float r = followTurnSpeed * dt;
+    if (KeyPressed(SDLK_RIGHT)) {
+        glm::quat rot = glm::angleAxis(glm::radians(-r), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_Model3.orientation *= rot;
+        m_FollowCamera.RotateAroundUp(-r);
+    }
+    if (KeyPressed(SDLK_LEFT)) {
+        glm::quat rot = glm::angleAxis(glm::radians(r), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_Model3.orientation *= rot;
+        m_FollowCamera.RotateAroundUp(r);
+    }
+    glm::quat orientation = m_Model3.orientation;    
+    glm::vec3 forward = glm::rotate(orientation, glm::vec3(0.0f, -1.0f, 0.0f)); // -1 because the model is facing -1 (Outside the screen)
+    glm::vec3 side = glm::cross(forward, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Model translation
+
+    float t = (float)dt * followCamSpeed;
+    if (KeyPressed(SDLK_w)) {          
+        m_Model3.position += t * forward;        
+    }
+    if (KeyPressed(SDLK_s)) {        
+        m_Model3.position -= t * forward;        
+    }
+    if (KeyPressed(SDLK_d)) {
+        m_Model3.position += t * side;
+    }
+    if (KeyPressed(SDLK_a)) {
+        m_Model3.position -= t * side;
+    }
+
+    // Fix camera position
+
+    m_FollowCamera.m_Pos.x = m_Model3.position.x;
+    m_FollowCamera.m_Pos.y = m_Model3.position.y;
+    m_FollowCamera.m_Pos += (-forward * 200.0f);
+
+    // Scale small model up
+
+    m_Model.scale = glm::vec3(20.0f);
 
     // Select models that should be rendered:
 
@@ -199,7 +240,7 @@ bool Game::RunFrame(double dt)
         }
     }
 
-    m_Renderer->Render(&m_Camera, modelsToRender);
+    m_Renderer->Render(&m_FollowCamera, modelsToRender);
 
     m_Renderer->RenderEnd();
 

@@ -16,7 +16,7 @@
 ☐ Space optimization: If the same model (IQM) is loaded twice. Use the existing VBO, VAO
 ☐ Move Render API into game. The user should be able to do render-stuff him/herself.
 ☐ Load Quake .MAP files as levels and render them.
-☐ Run around with player @started(24-02-02 12:44)
+✔ Run around with player @started(24-02-02 12:44) @done(24-02-02 14:02) @lasted(1h18m2s)
 ✔ Add mouse-input @done(24-01-30 18:12)
 ☐ Use mouse to control debug camera
 ✔ Create model matrix and upload to shader @done(24-02-02 12:41)

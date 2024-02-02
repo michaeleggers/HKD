@@ -25,6 +25,7 @@ private:
 	HKD_Model		m_Model3;
 
 	Camera			m_Camera;
+	Camera			m_FollowCamera;
 
 	std::vector<HKD_Model*> m_Models;
 };
