@@ -29,10 +29,17 @@ endif()
 
 add_subdirectory(dependencies/SDL2.28.4)
 
+# link_directories(${CMAKE_SOURCE_DIR}/dependencies/bullet/libs)
+link_directories(dependencies/bullet/libs/Debug)
+link_directories(dependencies/bullet/libs/Release)
+
+
+
 # add_executable(Game
 # 	${SRC_FILES}
 # 	${HEADER_FILES}
 # )	
+
 
 add_executable(Game
 
@@ -100,12 +107,46 @@ target_include_directories(Game
     PUBLIC dependencies
 	PUBLIC dependencies/glad/include
 	PUBLIC dependencies/imgui
-	PUBLIC dependencies/SDL2.28.4/include
+	PUBLIC dependencies/SDL2.28.4/include	
+	PUBLIC dependencies/bullet/src
 )
 
+# Bullet libs. Setting debug/release configs for each lib. Annoying, but don't know a better way to do this. Source:
+# https://discourse.cmake.org/t/link-to-debug-or-release-binaries/4280/2
+
+add_library(BulletCollision STATIC IMPORTED)
+set_property(TARGET BulletCollision APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+set_property(TARGET BulletCollision APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(BulletCollision PROPERTIES
+        IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+        IMPORTED_LOCATION_DEBUG "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Debug/BulletCollision_Debug.lib"
+        IMPORTED_LOCATION_RELEASE "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Release/BulletCollision.lib")
+
+
+add_library(BulletDynamics STATIC IMPORTED)
+set_property(TARGET BulletDynamics APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+set_property(TARGET BulletDynamics APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(BulletDynamics PROPERTIES
+        IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+        IMPORTED_LOCATION_DEBUG "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Debug/BulletDynamics_Debug.lib"
+        IMPORTED_LOCATION_RELEASE "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Release/BulletDynamics.lib")
+
+
+add_library(LinearMath STATIC IMPORTED)
+set_property(TARGET LinearMath APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+set_property(TARGET LinearMath APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(LinearMath PROPERTIES
+        IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+        IMPORTED_LOCATION_DEBUG "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Debug/LinearMath_Debug.lib"
+        IMPORTED_LOCATION_RELEASE "${PROJECT_SOURCE_DIR}/dependencies/bullet/lib/Release/LinearMath.lib")
+
+
 target_link_libraries(Game PUBLIC
-    PUBLIC SDL2
-    PUBLIC SDL2main
+    SDL2
+    SDL2main
+	BulletCollision
+	BulletDynamics
+	LinearMath
 )
 
 # if (WIN32)

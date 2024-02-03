@@ -20,6 +20,7 @@
 ✔ Add mouse-input @done(24-01-30 18:12)
 ☐ Use mouse to control debug camera
 ✔ Create model matrix and upload to shader @done(24-02-02 12:41)
+✔ Build bullet physics library and link against them @done(24-02-03 13:35)
 
 - BUGS:
 ✔ When SDLK_TAB is used to toggle wireframe then some WASD keys get disabled. @done(24-01-30 01:39) (Problem was TAB key triggering imgui slider-values)
