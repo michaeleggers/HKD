@@ -28,6 +28,8 @@ private:
 	Camera			m_FollowCamera;
 
 	std::vector<HKD_Model*> m_Models;
+	
+	double			m_AccumTime;
 };
 
 #endif

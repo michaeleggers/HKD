@@ -5,6 +5,8 @@
 #include "r_itexture.h"
 #include "camera.h"
 #include "input.h" 
+#include "physics.h"
+
 
 #include "imgui.h"
 
@@ -22,6 +24,8 @@ Game::Game(std::string exePath, hkdInterface* interface, IRender* renderer)
 
 void Game::Init()
 {
+    m_AccumTime = 0.0f;
+
     // Load IQM Model
 
     //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
@@ -31,30 +35,39 @@ void Game::Init()
 
     // Convert the model to our internal format
 
-    m_Model = CreateModelFromIQM(&iqmModel);
-    m_Model2 = CreateModelFromIQM(&iqmModel2);
-    m_Model3 = CreateModelFromIQM(&iqmModel3);    
+    m_Model = CreateModelFromIQM(&iqmModel, CreateRigidSphereBody(100.0, 0.0f));
+    //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
+    m_Model3 = CreateModelFromIQM(&iqmModel3, CreateRigidSphereBody(10.0, 0.5f));    
 
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_Model3.position = glm::vec3(100, 0, 0);
+
+    // Update the model's rigid bodies
+
+    UpdateRigidBodyTransform(&m_Model);
+    //UpdateRigidBodyTransform(&m_Model2);
+    UpdateRigidBodyTransform(&m_Model3);
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
-    int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
+    //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
     // Cameras
 
     m_Camera = Camera(glm::vec3(0, -5, 8.0));
+
     m_FollowCamera = Camera(m_Model3.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    
     m_FollowCamera.m_Pos.z += 180.0f;
-
     m_FollowCamera.RotateAroundSide(-20.0f);    
 }
 
 bool Game::RunFrame(double dt)
 {
+    m_AccumTime += dt;
+
     // Test Mouse input
 
     if (!ImGui::GetIO().WantCaptureMouse) { // But only if mouse is not over any Imgui Window
@@ -129,12 +142,6 @@ bool Game::RunFrame(double dt)
         m_Model3.position -= t * side;
     }
 
-    // Fix camera position
-
-    m_FollowCamera.m_Pos.x = m_Model3.position.x;
-    m_FollowCamera.m_Pos.y = m_Model3.position.y;
-    m_FollowCamera.m_Pos += (-forward * 200.0f);
-
     // Scale small model up
 
     m_Model.scale = glm::vec3(20.0f);
@@ -144,12 +151,35 @@ bool Game::RunFrame(double dt)
     std::vector<HKD_Model*> modelsToRender;
 
     modelsToRender.push_back(&m_Model);
-    modelsToRender.push_back(&m_Model2);
+    //modelsToRender.push_back(&m_Model2);
     modelsToRender.push_back(&m_Model3);
 
     for (auto& model : modelsToRender) {
         UpdateModel(model, (float)dt);
     }
+
+    // Run physics
+    
+    printf("dt: %f\n", dt);
+    if (m_AccumTime >= 1.0) {
+        while (m_AccumTime >= 0.0) {
+            ApplyPhysicsStep(10.0);
+            m_AccumTime -= dt;
+        }
+        //m_AccumTime = 0.0;
+    }
+
+
+    for (auto& model : modelsToRender) {
+        ApplyPhysicsToModel(model);
+    }
+
+    // Fix camera position
+
+    m_FollowCamera.m_Pos.x = m_Model3.position.x;
+    m_FollowCamera.m_Pos.y = m_Model3.position.y;
+    m_FollowCamera.m_Pos.z = m_Model3.position.z + 180.0f;
+    m_FollowCamera.m_Pos += (-forward * 200.0f);
 
     // Update camera
     float camSpeed = 0.5f;

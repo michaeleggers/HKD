@@ -10,6 +10,8 @@
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
+#include "btBulletDynamicsCommon.h"
+
 #include "r_common.h"
 #include "iqm_loader.h"
 
@@ -36,10 +38,16 @@ struct HKD_Model {
 	uint32_t				numJoints;
 	std::vector<Anim>		animations;
 	uint32_t				currentAnimIdx;
+
+	// Physics (TODO: move to Entity later)
+
+	btRigidBody*			m_RigidBody;
 };
 
-HKD_Model CreateModelFromIQM(IQMModel* model);
+HKD_Model CreateModelFromIQM(IQMModel* model, btRigidBody* rigidBody);
 void	  UpdateModel(HKD_Model* model, float dt);
+void	  ApplyPhysicsToModel(HKD_Model* model);
+void	  UpdateRigidBodyTransform(HKD_Model* model);
 glm::mat4 CreateModelMatrix(HKD_Model* model);
 
 #endif

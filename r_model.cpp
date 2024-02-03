@@ -34,7 +34,7 @@ Vertex IQMVertexToVertex(IQMVertex iqmVert, glm::vec3 bc) {
     return vertex;
 }
 
-HKD_Model CreateModelFromIQM(IQMModel* model)
+HKD_Model CreateModelFromIQM(IQMModel* model, btRigidBody* rigidBody)
 {
     HKD_Model result = {};
 
@@ -74,7 +74,11 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
     result.currentAnimIdx = 0;
     result.pctFrameDone = 0.0f;
     result.palette.resize(model->numJoints);
-    result.gpuModelHandle = -1;
+    result.gpuModelHandle = -1;    
+
+    // TODO: In the future this will be part of an Entity. We just have it here for testing out Bullet
+
+    result.m_RigidBody = rigidBody;
 
     return result;
 }
@@ -150,6 +154,39 @@ void UpdateModel(HKD_Model* model, float dt)
     for (int i = 0; i < model->numJoints; i++) {
         glm::mat4 invGlobalMat = model->invBindPoses[i];               
         model->palette[i] = model->palette[i] * invGlobalMat;
+    }
+
+    // DONE WITH ANIMATION
+
+    // Update the rigid body
+    
+    UpdateRigidBodyTransform(model);
+}
+
+void ApplyPhysicsToModel(HKD_Model* model)
+{
+    if (model->m_RigidBody) {
+        btTransform transform;
+        model->m_RigidBody->getMotionState()->getWorldTransform(transform);
+        btQuaternion rotation = transform.getRotation();
+        btVector3 translate = transform.getOrigin();
+
+        glm::vec3 glmTrans = glm::vec3(translate.getX(), translate.getY(), translate.getZ());
+        glm::quat glmRot = glm::quat(rotation.getW(), rotation.getX(), rotation.getY(), rotation.getZ());
+
+        model->position = glmTrans;
+        //model->orientation *= glmRot;
+    }
+}
+
+void UpdateRigidBodyTransform(HKD_Model* model)
+{
+    if (model->m_RigidBody) {
+        btQuaternion btRot(model->orientation.x, model->orientation.y, model->orientation.z, model->orientation.w);
+        btVector3 btTrans(model->position.x, model->position.y, model->position.z);
+
+        btTransform trans(btRot, btTrans);
+        model->m_RigidBody->setWorldTransform(trans);
     }
 }
 

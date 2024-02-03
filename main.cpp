@@ -15,8 +15,6 @@
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "btBulletDynamicsCommon.h"
-
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
@@ -34,6 +32,7 @@
 #include "r_model.h"
 #include "input.h"
 #include "hkd_interface.h"
+#include "physics.h"
 #include "game.h"
 
 #define PI                      3.14159265359
@@ -41,21 +40,18 @@
 
 static bool g_GameWantsToQuit;
 
+
 static bool QuitGameFunc(void) {
     g_GameWantsToQuit = true;
     
     return true;
 }
 
-void BulletTest() {
-    btDefaultCollisionConfiguration* collisionConfig = new btDefaultCollisionConfiguration();
-    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfig);
-    btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-}
+
 
 int main(int argc, char** argv)
 {
-    BulletTest();
+    InitBullet();    
 
     // Init globals
 

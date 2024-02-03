@@ -68,6 +68,8 @@ add_executable(Game
 	r_gl_texture_mgr.cpp
 	camera.h
 	camera.cpp
+	physics.h
+	physics.cpp
 	game.h
 	game.cpp
 
