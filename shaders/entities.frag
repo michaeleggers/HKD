@@ -67,5 +67,6 @@ void main() {
 
     out_Color = vec4(color.rgb + wireframe.rgb, 1.0);
     //out_Color = vec4(normalColor.rgb, 1.0);
+    out_Color = vec4(texColor.rgb + wireframe.rgb, 1.0f);
 
 }

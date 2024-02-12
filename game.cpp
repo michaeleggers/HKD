@@ -42,12 +42,6 @@ void Game::Init()
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
 
-    // Update the model's rigid bodies
-
-    UpdateRigidBodyTransform(&m_Model);
-    //UpdateRigidBodyTransform(&m_Model2);
-    UpdateRigidBodyTransform(&m_Model3);
-
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
@@ -160,19 +154,19 @@ bool Game::RunFrame(double dt)
 
     // Run physics
     
-    printf("dt: %f\n", dt);
-    if (m_AccumTime >= 1.0) {
-        while (m_AccumTime >= 0.0) {
-            ApplyPhysicsStep(10.0);
-            m_AccumTime -= dt;
-        }
-        //m_AccumTime = 0.0;
-    }
+    //printf("dt: %f\n", dt);
+    //if (m_AccumTime >= 1.0) {
+    //    while (m_AccumTime >= 0.0) {
+    //        ApplyPhysicsStep(10.0);
+    //        m_AccumTime -= dt;
+    //    }
+    //    //m_AccumTime = 0.0;
+    //}
 
 
-    for (auto& model : modelsToRender) {
-        ApplyPhysicsToModel(model);
-    }
+    //for (auto& model : modelsToRender) {
+    //    ApplyPhysicsToModel(model);
+    //}
 
     // Fix camera position
 

@@ -120,7 +120,7 @@ void UpdateModel(HKD_Model* model, float dt)
     
     if (model->pctFrameDone > msPerFrame) {
         currentFrame++;
-        model->pctFrameDone = 0.0f;
+        model->pctFrameDone -= msPerFrame;
     }
 
     if (currentFrame >= anim.firstFrame + anim.numFrames) {

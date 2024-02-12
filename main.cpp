@@ -1,6 +1,10 @@
 
 // HKD Game - 20.1.2024 - Michael Eggers
 
+#if WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,6 +55,10 @@ static bool QuitGameFunc(void) {
 
 int main(int argc, char** argv)
 {
+#if WIN32
+    SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+#endif
+
     InitBullet();    
 
     // Init globals
