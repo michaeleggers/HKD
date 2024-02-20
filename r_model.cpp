@@ -116,6 +116,23 @@ void UpdateModel(HKD_Model* model, float dt)
     
     Anim anim = model->animations[animIdx];
     float msPerFrame = 1000.0f / anim.framerate;
+
+    // If the frame took really long then we need to catch up
+
+    while (dt > msPerFrame) {
+        dt -= msPerFrame;
+        currentFrame++;
+        model->pctFrameDone -= msPerFrame;
+    }
+
+    if (model->pctFrameDone < 0.0) {
+        model->pctFrameDone = 0.0;
+    }
+
+    if (dt < 0.0) {
+        dt = 0.0;
+    }
+
     model->pctFrameDone += dt;
     
     if (model->pctFrameDone > msPerFrame) {
