@@ -92,6 +92,12 @@ void GLBatch::Bind()
     glBindVertexArray(m_VAO);
 }
 
+void GLBatch::Reset()
+{
+    m_NumTris = 0;
+    m_TriOffsetIndex = 0;
+}
+
 void GLBatch::Kill()
 {
     glDeleteBuffers(1, &m_VBO);

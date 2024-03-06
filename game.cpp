@@ -153,20 +153,8 @@ bool Game::RunFrame(double dt)
     }
 
     // Run physics
-    
-    //printf("dt: %f\n", dt);
-    //if (m_AccumTime >= 1.0) {
-    //    while (m_AccumTime >= 0.0) {
-    //        ApplyPhysicsStep(10.0);
-    //        m_AccumTime -= dt;
-    //    }
-    //    //m_AccumTime = 0.0;
-    //}
 
-
-    //for (auto& model : modelsToRender) {
-    //    ApplyPhysicsToModel(model);
-    //}
+    // TODO :)
 
     // Fix camera position
 
@@ -263,6 +251,21 @@ bool Game::RunFrame(double dt)
             ImGui::End();
         }
     }
+
+    // Draw some primitives in immediate mode
+
+    Vertex a = {};
+    a.pos = glm::vec3(-100, -100, 100);
+    a.color = glm::vec4(1, 0, 0, 1);
+    Vertex b = {};
+    b.pos = glm::vec3(100, -100, 100);
+    b.color = glm::vec4(0, 1, 0, 1);
+    Vertex c = {};
+    c.pos = glm::vec3(100, -100, -100);
+    c.color = glm::vec4(0, 0, 1, 1);
+    Tri myCoolTri = { a, b, c };
+    m_Renderer->ImDrawTri(myCoolTri);
+   
 
     m_Renderer->Render(&m_FollowCamera, modelsToRender);
 

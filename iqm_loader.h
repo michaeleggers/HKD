@@ -66,6 +66,10 @@ struct Anim {
     std::string name;
     uint32_t    firstFrame, numFrames;
     float       framerate;
+    glm::vec3   bbmins;
+    glm::vec3   bbmaxs;
+    float       xyRadius;
+    float       sphericalRadius;
 };
 
 struct IQMModel {
@@ -135,6 +139,13 @@ struct IQMAnim {
     uint32_t    firstFrame, numFrames;
     float       framerate;
     uint32_t    flags;
+};
+
+struct IQMBounds {
+    float bbmins[3];
+    float bbmaxs[3];
+    float xyradius; // circular radius in xy-plane
+    float radius;   // spherical radius
 };
 
 

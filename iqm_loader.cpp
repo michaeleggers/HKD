@@ -36,7 +36,7 @@ IQMModel LoadIQM(const char* file)
 	IQMPose* pPoses = (IQMPose*)(iqmData + pHeader->ofsPoses);
 	IQMAnim* pAnims = (IQMAnim*)(iqmData + pHeader->ofsAnims);
 	uint16_t* pFrames = (uint16_t*)(iqmData + pHeader->ofsFrames);
-	uint8_t* pBounds = (uint8_t*)(iqmData + pHeader->ofsBounds);
+	IQMBounds* pBounds = (IQMBounds*)(iqmData + pHeader->ofsBounds);
 	char* pComments = (char*)(iqmData + pHeader->ofsComment);
 	uint8_t* pExt = (uint8_t*)(iqmData + pHeader->ofsExt);
 
@@ -269,6 +269,8 @@ IQMModel LoadIQM(const char* file)
 
 	for (int i = 0; i < pHeader->numAnims; i++) {
 		IQMAnim* pAnim = pAnims + i;
+		IQMBounds* pBound = pBounds + i;
+
 		printf("Animation %d, name: %s\n", i, pText + pAnim->name);
 
 		Anim anim = {};
@@ -276,6 +278,11 @@ IQMModel LoadIQM(const char* file)
 		anim.firstFrame = pAnim->firstFrame;
 		anim.numFrames = pAnim->numFrames;
 		anim.framerate = pAnim->framerate;
+		anim.bbmins = glm::vec3(pBound->bbmins[0], pBound->bbmins[1], pBound->bbmins[2]);
+		anim.bbmaxs = glm::vec3(pBound->bbmaxs[0], pBound->bbmaxs[1], pBound->bbmaxs[2]);
+		anim.xyRadius = pBound->xyradius;
+		anim.sphericalRadius = pBound->radius;
+
 		result.animations.push_back(anim);
 	}
 

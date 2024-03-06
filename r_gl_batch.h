@@ -12,6 +12,7 @@
 #include "r_common.h"
 #include "r_gl_texture.h"
 
+
 struct GLBatchDrawCmd {
 	int		 offset;
 	uint32_t numTris;	
@@ -23,6 +24,7 @@ public:
 
 	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris);
 	void			Bind();
+	void			Reset();
 	void			Kill();
 
 	uint32_t							TriCount();

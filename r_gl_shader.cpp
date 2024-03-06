@@ -117,6 +117,11 @@ void Shader::DrawWireframe(uint32_t yesOrNo)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+void Shader::InitGlobalBuffers()
+{
+	printf("INITIALIZE GLOBAL SHADER BUFFERS...\n");
+}
+
 bool Shader::CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader)
 {
 	HKD_File shaderCode;

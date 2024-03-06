@@ -13,6 +13,10 @@
 
 #define MAX_BONES 96
 
+// Global shader data
+
+
+
 class Shader {
 public:
 	
@@ -25,6 +29,8 @@ public:
 	void SetMatrixPalette(glm::mat4* palette, uint32_t numMatrices);
 	void SetMat4(std::string uniformName, glm::mat4 mat4);
 	void DrawWireframe(uint32_t yesOrNo);
+
+	static void InitGlobalBuffers();
 
 private:
 	bool CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader);

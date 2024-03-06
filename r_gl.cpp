@@ -117,6 +117,7 @@ bool GLRender::Init(void)
     // A lot for a game in the 2000s! Our models have a tri count of maybe 3000 Tris (without weapon), which
     // is not even close to 1Mio tris.
     m_ModelBatch = new GLBatch(1000 * 1000);
+    m_ImPrimitiveBatch = new GLBatch(1000 * 1000);
 
     // Initialize shaders
 
@@ -140,8 +141,14 @@ void GLRender::Shutdown(void)
     m_ModelBatch->Kill();
     delete m_ModelBatch;
 
+    m_ImPrimitiveBatch->Kill();
+    delete m_ImPrimitiveBatch;
+
     m_ModelShader->Unload();
     delete m_ModelShader;
+
+    m_ImPrimitivesShader->Unload();
+    delete m_ImPrimitivesShader;
 }
 
 int GLRender::RegisterModel(HKD_Model* model)
@@ -195,6 +202,21 @@ std::vector<ITexture*> GLRender::Textures(void)
     return result;
 }
 
+void GLRender::ImDrawTri(Tri& tri)
+{
+    m_ImPrimitiveBatch->Add(&tri, 1);
+}
+
+void GLRender::ImDrawQuad(glm::vec3 pos, float width, float height)
+{
+    float halfWidth = width / 2.0f;
+    float halfHeight = height / 2.0f;
+
+    std::vector<Tri> tris;
+    
+    m_ImPrimitiveBatch->Add(&tris[0], tris.size());
+}
+
 void GLRender::RenderBegin(void)
 {    
     SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
@@ -232,6 +254,15 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     glm::mat4 view = camera->ViewMatrix();
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);
 
+    // Draw immediate mode primitives
+
+    m_ImPrimitiveBatch->Bind();
+    m_ImPrimitivesShader->Activate();
+    m_ImPrimitivesShader->DrawWireframe((uint32_t)drawWireframe);
+    m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
+    m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
+    glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
+
     // Draw Models
 
     m_ModelBatch->Bind();
@@ -251,6 +282,9 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
             glDrawArrays(GL_TRIANGLES, 3*mesh->triOffset, 3 * mesh->triCount);
         }
     }
+
+
+
     //const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
     //for (int i = 0; i < modelDrawCmds.size(); i++) {
     //    glBindTexture(GL_TEXTURE_2D, modelDrawCmds[i].hTexture);
@@ -265,6 +299,8 @@ void GLRender::RenderEnd(void)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SDL_GL_SwapWindow(m_Window);
+
+    m_ImPrimitiveBatch->Reset();
 }
 
 void GLRender::InitShaders()
@@ -277,6 +313,14 @@ void GLRender::InitShaders()
         exePath + "../../shaders/entities.frag"
     )) {
         printf("Problems initializing model shaders!\n");
+    }
+
+    m_ImPrimitivesShader = new Shader();
+    if (!m_ImPrimitivesShader->Load(
+        exePath + "../../shaders/primitives.vert",
+        exePath + "../../shaders/primitives.frag"
+    )) {
+        printf("Problems initializing primitives shader!\n");
     }
 }
 

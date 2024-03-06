@@ -10,6 +10,7 @@
 #include "r_itexture.h"
 #include "r_model.h"
 #include "camera.h"
+#include "r_common.h"
 
 class IRender {
 public:
@@ -18,6 +19,8 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
+	virtual void ImDrawTri(Tri& tri) = 0;
+	virtual void ImDrawQuad(glm::vec3 pos, float width, float height) = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;
