@@ -6,7 +6,7 @@
 #include "camera.h"
 #include "input.h" 
 #include "physics.h"
-
+#include "utils.h"
 
 #include "imgui.h"
 
@@ -264,9 +264,8 @@ bool Game::RunFrame(double dt)
     c.pos = glm::vec3(100, -100, -100);
     c.color = glm::vec4(0, 0, 1, 1);
     Tri myCoolTri = { a, b, c };
-    m_Renderer->ImDrawTri(myCoolTri);
+    m_Renderer->ImDrawTris(&myCoolTri, 1, false);
    
-
     m_Renderer->Render(&m_FollowCamera, modelsToRender);
 
     m_Renderer->RenderEnd();

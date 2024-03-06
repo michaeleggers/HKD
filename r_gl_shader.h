@@ -13,14 +13,14 @@
 
 #define MAX_BONES 96
 
-// Global shader data
 
-
+#define SHADER_FEATURE_MODEL_ANIMATION_BIT (0x00000001)
+#define SHADER_FEATURE_MAX				   (0x00000001 << 1)
 
 class Shader {
 public:
 	
-	bool Load(const std::string& vertName, const std::string& fragName);
+	bool Load(const std::string& vertName, const std::string& fragName, uint32_t shaderFeatureBits = 0x0);
 	void Unload();
 	void Activate();
 	GLuint Program() const;

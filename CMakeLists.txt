@@ -70,6 +70,8 @@ add_executable(Game
 	camera.cpp
 	physics.h
 	physics.cpp
+	utils.h
+	utils.cpp
 	game.h
 	game.cpp
 

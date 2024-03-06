@@ -61,7 +61,7 @@ GLBatch::GLBatch(uint32_t maxTris)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris)
+GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace)
 {
     if (m_TriOffsetIndex + numTris > m_MaxTris) {
         printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxTris - m_TriOffsetIndex);
@@ -78,7 +78,8 @@ GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris)
 
     GLBatchDrawCmd drawCmd = {
         .offset = offset,
-        .numTris = numTris        
+        .numTris = numTris,
+        .cullFace = cullFace
     };
     m_DrawCmds.push_back(drawCmd);
 
@@ -96,6 +97,7 @@ void GLBatch::Reset()
 {
     m_NumTris = 0;
     m_TriOffsetIndex = 0;
+    m_DrawCmds.clear();
 }
 
 void GLBatch::Kill()

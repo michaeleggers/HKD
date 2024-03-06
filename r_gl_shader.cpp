@@ -10,7 +10,16 @@
 
 #include "platform.h"
 
-bool Shader::Load(const std::string& vertName, const std::string& fragName)
+// GLOBAL SHADER BUFFERS (USED BY ALL SHADERS)
+
+#define BIND_POINT_VIEW_PROJECTION    0
+#define BIND_POINT_SETTINGS			  1
+static GLuint g_PaletteBindingPoint = 2;
+
+static GLuint g_ViewProjUBO;
+static GLuint g_SettingsUBO;
+
+bool Shader::Load(const std::string& vertName, const std::string& fragName, uint32_t shaderFeatureBits)
 {
 	if (!CompileShader(vertName, GL_VERTEX_SHADER, m_VertexShader)
 		|| !CompileShader(fragName, GL_FRAGMENT_SHADER, m_FragmentShader)) {
@@ -28,46 +37,49 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName)
 	// Uniforms
 
 	// Per frame matrices
-	GLuint bindingPoint = 0;
+	//glBindBuffer(GL_UNIFORM_BUFFER, g_ViewProjUBO);
+	GLuint bindingPoint = BIND_POINT_VIEW_PROJECTION;
 	m_ViewProjUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "ViewProjMatrices");
 	if (m_ViewProjUniformIndex == GL_INVALID_INDEX) {
 		printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());
 		// TODO: What to do in this case???
 	}
 	glUniformBlockBinding(m_ShaderProgram, m_ViewProjUniformIndex, bindingPoint);
-	glGenBuffers(1, &m_ViewProjUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_ViewProjUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_ViewProjUBO, 0, 2 * sizeof(glm::mat4));	
+	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, g_ViewProjUBO, 0, 2*sizeof(glm::mat4));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Per frame settings
-	GLuint settingsBindingPoint = 1;
+	//glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
+	GLuint settingsBindingPoint = BIND_POINT_SETTINGS;
 	m_SettingsUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "Settings");
 	if (m_SettingsUniformIndex == GL_INVALID_INDEX) {
 		printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());		
 		// TODO: What to do in this case???
 	}
 	glUniformBlockBinding(m_ShaderProgram, m_SettingsUniformIndex, settingsBindingPoint);
-	glGenBuffers(1, &m_SettingsUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_SettingsUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, m_SettingsUBO, 0, sizeof(uint32_t));
+	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, g_SettingsUBO, 0, sizeof(uint32_t));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	// Per frame per model animation matrix palette
-	GLuint paletteBindingPoint = 2;
-	m_PaletteUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "Palette");
-	if (m_PaletteUniformIndex  == GL_INVALID_INDEX) {
-		printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());
-		// TODO: What to do in this case???
+
+	// TODO: Animation stuff is not global to all shaders. That is why we check for shader flags here.
+
+	if (shaderFeatureBits & SHADER_FEATURE_MODEL_ANIMATION_BIT) {
+
+		// Per frame per model animation matrix palette
+		GLuint paletteBindingPoint = g_PaletteBindingPoint++; // If a UBO is not being shared between shaders we need separate binding points to these buffers
+		m_PaletteUniformIndex = glGetUniformBlockIndex(m_ShaderProgram, "Palette");
+		if (m_PaletteUniformIndex == GL_INVALID_INDEX) {
+			printf("SHADER-WARNING: Not able to get index for UBO in shader program.\nShaders:\n %s\n %s\n", vertName.c_str(), fragName.c_str());
+			// TODO: What to do in this case???
+		}
+		glUniformBlockBinding(m_ShaderProgram, m_PaletteUniformIndex, paletteBindingPoint);
+
+		glGenBuffers(1, &m_PaletteUBO);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_PaletteUBO);
+		glBufferData(GL_UNIFORM_BUFFER, MAX_BONES * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferRange(GL_UNIFORM_BUFFER, paletteBindingPoint, m_PaletteUBO, 0, MAX_BONES*sizeof(glm::mat4));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
-	glUniformBlockBinding(m_ShaderProgram, m_PaletteUniformIndex, paletteBindingPoint);
-	glGenBuffers(1, &m_PaletteUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_PaletteUBO);
-	glBufferData(GL_UNIFORM_BUFFER, MAX_BONES*sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, paletteBindingPoint, m_PaletteUBO, 0, MAX_BONES*sizeof(glm::mat4));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	return true;
 }
@@ -91,7 +103,7 @@ GLuint Shader::Program() const
 
 void Shader::SetViewProjMatrices(glm::mat4 view, glm::mat4 proj)
 {	
-	glBindBuffer(GL_UNIFORM_BUFFER, m_ViewProjUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_ViewProjUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(view));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -112,7 +124,7 @@ void Shader::SetMat4(std::string uniformName, glm::mat4 mat4)
 
 void Shader::DrawWireframe(uint32_t yesOrNo)
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, m_SettingsUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&yesOrNo);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -120,6 +132,20 @@ void Shader::DrawWireframe(uint32_t yesOrNo)
 void Shader::InitGlobalBuffers()
 {
 	printf("INITIALIZE GLOBAL SHADER BUFFERS...\n");
+
+	// view projection matrices
+	
+	glGenBuffers(1, &g_ViewProjUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_ViewProjUBO);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// render settings (such as wireframe)
+
+	glGenBuffers(1, &g_SettingsUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 bool Shader::CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader)

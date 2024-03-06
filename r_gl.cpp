@@ -202,9 +202,9 @@ std::vector<ITexture*> GLRender::Textures(void)
     return result;
 }
 
-void GLRender::ImDrawTri(Tri& tri)
+void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace)
 {
-    m_ImPrimitiveBatch->Add(&tri, 1);
+    m_ImPrimitiveBatch->Add(tris, numTris, cullFace);
 }
 
 void GLRender::ImDrawQuad(glm::vec3 pos, float width, float height)
@@ -223,7 +223,7 @@ void GLRender::RenderBegin(void)
     float windowAspect = (float)m_WindowWidth / (float)m_WindowHeight;
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
 
-    glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -261,7 +261,15 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ImPrimitivesShader->DrawWireframe((uint32_t)drawWireframe);
     m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
-    glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
+    std::vector<GLBatchDrawCmd> imDrawCmds = m_ImPrimitiveBatch->DrawCmds();    
+    for (int i = 0; i < imDrawCmds.size(); i++) {
+        if (!imDrawCmds[i].cullFace) {
+            glDisable(GL_CULL_FACE);
+        }
+        glDrawArrays(GL_TRIANGLES, 3*imDrawCmds[i].offset, 3 * imDrawCmds[i].numTris);
+    }
+    //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
+    glEnable(GL_CULL_FACE);
 
     // Draw Models
 
@@ -305,12 +313,15 @@ void GLRender::RenderEnd(void)
 
 void GLRender::InitShaders()
 {
+    Shader::InitGlobalBuffers();
+
     std::string exePath = hkd_GetExePath();
 
     m_ModelShader = new Shader();
     if (!m_ModelShader->Load(
         exePath + "../../shaders/entities.vert",
-        exePath + "../../shaders/entities.frag"
+        exePath + "../../shaders/entities.frag",
+        SHADER_FEATURE_MODEL_ANIMATION_BIT
     )) {
         printf("Problems initializing model shaders!\n");
     }
@@ -321,6 +332,16 @@ void GLRender::InitShaders()
         exePath + "../../shaders/primitives.frag"
     )) {
         printf("Problems initializing primitives shader!\n");
+    }
+
+    // TODO: Just to test if shaders overwrite data from each other. Delete later!
+    Shader* foo = new Shader(); 
+    if (!foo->Load(
+        exePath + "../../shaders/entities.vert",
+        exePath + "../../shaders/entities.frag",
+        SHADER_FEATURE_MODEL_ANIMATION_BIT
+    )) {
+        printf("Problems initializing model shaders!\n");
     }
 }
 

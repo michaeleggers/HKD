@@ -16,13 +16,14 @@
 struct GLBatchDrawCmd {
 	int		 offset;
 	uint32_t numTris;	
+	bool     cullFace;
 };
 
 class GLBatch {
 public:
 	GLBatch(uint32_t maxTris);
 
-	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris);
+	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, bool cullFace = true);
 	void			Bind();
 	void			Reset();
 	void			Kill();

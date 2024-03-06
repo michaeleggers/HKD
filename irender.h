@@ -19,7 +19,7 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
-	virtual void ImDrawTri(Tri& tri) = 0;
+	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true) = 0;
 	virtual void ImDrawQuad(glm::vec3 pos, float width, float height) = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;

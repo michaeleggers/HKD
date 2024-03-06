@@ -76,13 +76,12 @@ int main(int argc, char** argv)
     if (!renderer->Init()) {
         SDL_Log("Could not initialize renderer.\n");
         return -1;
-    }
-    Shader::InitGlobalBuffers();
+    }    
 
     // Init the game
 
     Game game(exePath, &interface, renderer);
-    game.Init();
+    game.Init();    
     
     // Main loop
     
