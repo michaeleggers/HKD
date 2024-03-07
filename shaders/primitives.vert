@@ -27,7 +27,7 @@ out vec4 Color;
 
 void main() {
     vec4 v = vec4(pos, 1.0);    
-    gl_Position = proj * view * model * v;
+    gl_Position = proj * view * v;
     
     TexCoord = uv;
     BaryCentricCoords = bc;

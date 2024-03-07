@@ -58,6 +58,7 @@ add_executable(Game
 	r_model.h
 	r_model.cpp
 	r_common.h
+	r_common.cpp
 	r_gl_batch.h
 	r_gl_batch.cpp
 	r_gl_shader.h

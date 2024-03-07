@@ -264,8 +264,31 @@ bool Game::RunFrame(double dt)
     c.pos = glm::vec3(100, -100, -100);
     c.color = glm::vec4(0, 0, 1, 1);
     Tri myCoolTri = { a, b, c };
-    m_Renderer->ImDrawTris(&myCoolTri, 1, false);
-   
+    Tri myCoolTri2 = myCoolTri;
+    RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
+
+    //m_Renderer->ImDrawTris(&myCoolTri, 1, false);
+    //m_Renderer->ImDrawTris(&myCoolTri2, 1, false);
+
+    Quad quad = CreateQuad(glm::vec3(0.0f, -49, 0.0f), 100.0f, 100.0f, glm::vec4(0.3, 0.1, 0.8, 1.0));
+    Quad quad2 = quad;
+    SetQuadColor(&quad2, glm::vec4(1, 0, 0, 1));
+    RotateQuad(&quad2, glm::vec3(0, 0, 1), 90.0f);
+    Quad quad3 = quad2;
+    SetQuadColor(&quad3, glm::vec4(0, 1, 0, 1));
+    RotateQuad(&quad3, glm::vec3(0, 0, 1), 90.0f);
+    Quad quad4 = CreateQuad(glm::vec3(0.0f), 50.0f, 50.0f, glm::vec4(1, 0, 0, 1));
+    RotateQuad(&quad4, glm::vec3(0, 0, 1), 45.0f);
+    TranslateQuad(&quad4, glm::vec3(200.0f, -200.0f, 100.0f));
+
+    //m_Renderer->ImDrawTris(quad.tris, 2, false);
+    //m_Renderer->ImDrawTris(quad2.tris, 2, false);
+    //m_Renderer->ImDrawTris(quad3.tris, 2, false);
+    m_Renderer->ImDrawTris(quad4.tris, 2, false);
+
+    Box box = CreateBox(glm::vec3(2000.0f, 2000.0f, 2000.0f));
+    m_Renderer->ImDrawTris(box.tris, 6 * 2, false);
+
     m_Renderer->Render(&m_FollowCamera, modelsToRender);
 
     m_Renderer->RenderEnd();

@@ -252,7 +252,7 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     ImGui::End();
 
     glm::mat4 view = camera->ViewMatrix();
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 10000.0f);
 
     // Draw immediate mode primitives
 
