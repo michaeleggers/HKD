@@ -20,6 +20,13 @@ void TranslateTri(Tri* tri, glm::vec3 t)
 	tri->c.pos += t;
 }
 
+void TransformTri(Tri* tri, glm::mat4 modelMatrix)
+{
+	tri->a.pos = modelMatrix * glm::vec4(tri->a.pos, 1.0f);
+	tri->b.pos = modelMatrix * glm::vec4(tri->b.pos, 1.0f);
+	tri->c.pos = modelMatrix * glm::vec4(tri->c.pos, 1.0f);
+}
+
 Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)
 {
 	Quad result = {};
@@ -144,6 +151,16 @@ void TranslateBox(Box* box, glm::vec3 t)
 	for (int i = 0; i < 6; i++) {
 		Quad* q = &box->quads[i];
 		TranslateQuad(q, t);
+	}
+}
+
+void TransformBox(Box* box, glm::mat4 modelMatrix)
+{
+	for (int i = 0; i < 6; i++) {
+		Quad* q = &box->quads[i];
+		for (int j = 0; j < 2; j++) {
+			TransformTri(&q->tris[j], modelMatrix);
+		}
 	}
 }
 

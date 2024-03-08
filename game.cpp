@@ -138,7 +138,10 @@ bool Game::RunFrame(double dt)
 
     // Scale small model up
 
-    //m_Model.scale = glm::vec3(20.0f);
+    m_Model.scale = glm::vec3(20.0f);
+    static float sinX = 0.0f;
+    sinX += 0.00001f;
+    m_Model.position.x += 0.001f;
 
     // Select models that should be rendered:
 
@@ -286,12 +289,14 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(quad3.tris, 2, false);
     m_Renderer->ImDrawTris(quad4.tris, 2, false);
 
-    Box box = CreateBox(glm::vec3(500.0f, 1000.0f, 500.0f));
+    Box box = CreateBox(glm::vec3(500.0f, 1000.0f, 500.0f));    
     m_Renderer->ImDrawTris(box.tris, 12, false);
 
     // Render AABBs of models
 
-    m_Renderer->ImDrawTris(m_Model.aabbBoxes[m_Model.currentAnimIdx].tris, 12);
+    Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
+    TransformBox(&modelBox, CreateModelMatrix(&m_Model));
+    m_Renderer->ImDrawTris(modelBox.tris, 12);
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
     m_Renderer->Render(&m_Camera, modelsToRender);

@@ -226,3 +226,12 @@ glm::mat4 CreateModelMatrix(HKD_Model* model)
     
     return transMat * rotMat * scaleMat;
 }
+
+glm::mat4 CreateModelMatrix(glm::vec3 pos, glm::quat orientation, glm::vec3 scale) 
+{
+    glm::mat4 T = glm::translate(glm::mat4(1.0f), pos);
+    glm::mat4 R = glm::toMat4(orientation);
+    glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
+
+    return T * R * S;
+}

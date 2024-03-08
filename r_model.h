@@ -42,7 +42,7 @@ struct HKD_Model {
 	std::vector<glm::mat4>	palette;
 	uint32_t				numJoints;
 	std::vector<Anim>		animations;
-	std::vector<AABB>		aabbs; // one AABB for each animation. 
+	std::vector<AABB>		aabbs; // one AABB for each animation (first frame of anim used). 
 	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
 	uint32_t				currentAnimIdx;
 
@@ -56,5 +56,6 @@ void	  UpdateModel(HKD_Model* model, float dt);
 void	  ApplyPhysicsToModel(HKD_Model* model);
 void	  UpdateRigidBodyTransform(HKD_Model* model);
 glm::mat4 CreateModelMatrix(HKD_Model* model);
+glm::mat4 CreateModelMatrix(glm::vec3 pos, glm::quat orientation, glm::vec3 scale);
 
 #endif

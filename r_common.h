@@ -61,13 +61,15 @@ struct Box {
 
 void RotateTri(Tri* tri, glm::vec3 axis, float angle);
 void TranslateTri(Tri* tri, glm::vec3 t);
+void TransformTri(Tri* tri, glm::mat4 modelMatrix);
 Quad CreateQuad(glm::vec3 pos = glm::vec3(0, 0, 0), float width = 2.0f, float height = 2.0f, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 void RotateQuad(Quad* quad, glm::vec3 axis, float angle);
 void TranslateQuad(Quad* quad, glm::vec3 t);
 void SetQuadColor(Quad* quad, glm::vec4 color);
-Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f));
+Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
+void TransformBox(Box* box, glm::mat4 modelMatrix);
 
 #endif
 
