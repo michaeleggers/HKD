@@ -66,6 +66,9 @@ struct Anim {
     std::string name;
     uint32_t    firstFrame, numFrames;
     float       framerate;
+};
+
+struct Frame {
     glm::vec3   bbmins;
     glm::vec3   bbmaxs;
     float       xyRadius;
@@ -81,6 +84,7 @@ struct IQMModel {
     uint32_t                numJoints;
     uint32_t                numFrames;
     std::vector<Anim>       animations;
+    std::vector<Frame>      frameData; // Only holds bounding boxes
 };
 
 struct IQMVertArray {

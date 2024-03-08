@@ -195,6 +195,16 @@ IQMModel LoadIQM(const char* file)
 	std::vector<Pose> poses;
 	uint16_t* pFramedata = pFrames;
 	for (int i = 0; i < pHeader->numFrames; i++) {
+
+		IQMBounds* pBound = pBounds + i;
+
+		Frame frame = {};
+		frame.bbmins = glm::vec3(pBound->bbmins[0], pBound->bbmins[1], pBound->bbmins[2]);
+		frame.bbmaxs = glm::vec3(pBound->bbmaxs[0], pBound->bbmaxs[1], pBound->bbmaxs[2]);
+		frame.xyRadius = pBound->xyradius;
+		frame.sphericalRadius = pBound->radius;
+		result.frameData.push_back(frame);
+
 		for (int j = 0; j < pHeader->numPoses; j++) {  // A pose is actually the local matrix for a joint
 			IQMPose* pPose = pPoses + j;
 			glm::vec3 translation = {};
@@ -269,7 +279,6 @@ IQMModel LoadIQM(const char* file)
 
 	for (int i = 0; i < pHeader->numAnims; i++) {
 		IQMAnim* pAnim = pAnims + i;
-		IQMBounds* pBound = pBounds + i;
 
 		printf("Animation %d, name: %s\n", i, pText + pAnim->name);
 
@@ -278,10 +287,6 @@ IQMModel LoadIQM(const char* file)
 		anim.firstFrame = pAnim->firstFrame;
 		anim.numFrames = pAnim->numFrames;
 		anim.framerate = pAnim->framerate;
-		anim.bbmins = glm::vec3(pBound->bbmins[0], pBound->bbmins[1], pBound->bbmins[2]);
-		anim.bbmaxs = glm::vec3(pBound->bbmaxs[0], pBound->bbmaxs[1], pBound->bbmaxs[2]);
-		anim.xyRadius = pBound->xyradius;
-		anim.sphericalRadius = pBound->radius;
 
 		result.animations.push_back(anim);
 	}

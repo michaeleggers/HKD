@@ -29,7 +29,7 @@ void Game::Init()
     // Load IQM Model
 
     //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel = LoadIQM((m_ExePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
+    IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
     IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
     IQMModel iqmModel3 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
 
@@ -138,7 +138,7 @@ bool Game::RunFrame(double dt)
 
     // Scale small model up
 
-    m_Model.scale = glm::vec3(20.0f);
+    //m_Model.scale = glm::vec3(20.0f);
 
     // Select models that should be rendered:
 
@@ -277,7 +277,7 @@ bool Game::RunFrame(double dt)
     Quad quad3 = quad2;
     SetQuadColor(&quad3, glm::vec4(0, 1, 0, 1));
     RotateQuad(&quad3, glm::vec3(0, 0, 1), 90.0f);
-    Quad quad4 = CreateQuad(glm::vec3(0.0f), 50.0f, 50.0f, glm::vec4(1, 0, 0, 1));
+    Quad quad4 = CreateQuad(glm::vec3(0.0f), 50.0f, 100.0f, glm::vec4(1, 1, 0, 1));
     RotateQuad(&quad4, glm::vec3(0, 0, 1), 45.0f);
     TranslateQuad(&quad4, glm::vec3(200.0f, -200.0f, 100.0f));
 
@@ -286,10 +286,15 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(quad3.tris, 2, false);
     m_Renderer->ImDrawTris(quad4.tris, 2, false);
 
-    Box box = CreateBox(glm::vec3(2000.0f, 2000.0f, 2000.0f));
-    m_Renderer->ImDrawTris(box.tris, 6 * 2, false);
+    Box box = CreateBox(glm::vec3(500.0f, 1000.0f, 500.0f));
+    m_Renderer->ImDrawTris(box.tris, 12, false);
 
-    m_Renderer->Render(&m_FollowCamera, modelsToRender);
+    // Render AABBs of models
+
+    m_Renderer->ImDrawTris(m_Model.aabbBoxes[m_Model.currentAnimIdx].tris, 12);
+    //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
+
+    m_Renderer->Render(&m_Camera, modelsToRender);
 
     m_Renderer->RenderEnd();
 

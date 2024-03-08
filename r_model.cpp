@@ -61,6 +61,17 @@ HKD_Model CreateModelFromIQM(IQMModel* model, btRigidBody* rigidBody)
         result.meshes.push_back(mesh);
     }
 
+    // We take the aabb of the first frame of an animation and ignore the others.
+    // Might be changed later. Hopefully good enough for the start.
+
+    for (int i = 0; i < model->animations.size(); i++) {
+        Anim a = model->animations[i];
+        Frame f = model->frameData[a.firstFrame];
+        result.aabbs.push_back({ f.bbmins, f.bbmins });
+        Box aabbBox = CreateBoxFromAABB(f.bbmins, f.bbmaxs);        
+        result.aabbBoxes.push_back(aabbBox);
+    }
+
     result.position     = glm::vec3(0.0f);
     result.orientation  = glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     result.scale        = glm::vec3(1.0f);

@@ -25,12 +25,6 @@ struct Vertex {
 #define VERT_BLENDINDICES_OFFSET (VERT_COLOR_OFFSET + sizeof(glm::vec4))
 #define VERT_BLENDWEIGHTS_OFFSET (VERT_BLENDINDICES_OFFSET + 4*sizeof(uint32_t))
 
-//struct Tri2 {
-//	union {
-//		Vertex a, b, c;
-//		Vertex vertices[3];
-//	};
-//};
 
 struct Tri {
 	union {
@@ -45,7 +39,8 @@ struct Quad {
 			Tri a;
 			Tri b;
 		};
-		Tri tris[2];
+		Tri		tris[2];
+		Vertex  vertices[6];
 	};
 };
 
@@ -71,6 +66,8 @@ void RotateQuad(Quad* quad, glm::vec3 axis, float angle);
 void TranslateQuad(Quad* quad, glm::vec3 t);
 void SetQuadColor(Quad* quad, glm::vec4 color);
 Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f));
+Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
+void TranslateBox(Box* box, glm::vec3 t);
 
 #endif
 

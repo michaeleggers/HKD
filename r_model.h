@@ -20,6 +20,11 @@ struct HKD_Mesh {
 	std::string	textureFileName;
 };
 
+struct AABB {
+	glm::vec3 mins;
+	glm::vec3 maxs;
+};
+
 struct HKD_Model {
 	std::string				filename;
 	std::vector<Tri>		tris;
@@ -37,6 +42,8 @@ struct HKD_Model {
 	std::vector<glm::mat4>	palette;
 	uint32_t				numJoints;
 	std::vector<Anim>		animations;
+	std::vector<AABB>		aabbs; // one AABB for each animation. 
+	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
 	uint32_t				currentAnimIdx;
 
 	// Physics (TODO: move to Entity later)
