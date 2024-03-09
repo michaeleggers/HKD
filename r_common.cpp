@@ -1,5 +1,7 @@
 #include "r_common.h" 
 
+#include <math.h>
+
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
@@ -27,7 +29,7 @@ void TransformTri(Tri* tri, glm::mat4 modelMatrix)
 	tri->c.pos = modelMatrix * glm::vec4(tri->c.pos, 1.0f);
 }
 
-void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numDivs)
+void SubdivTri(Tri* tri, Tri out_tris[])
 {	
 	glm::vec3 A = tri->a.pos;
 	glm::vec3 B = tri->b.pos;
@@ -45,17 +47,58 @@ void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numDivs)
 	glm::vec3 mBC = B + 0.5f * BC;
 	glm::vec3 mCA = C + 0.5f * CA;
 
+	// Colors between points
+
+	glm::vec4 cAB = 0.5f * tri->a.color + 0.5f * tri->b.color;
+	glm::vec4 cBC = 0.5f * tri->b.color + 0.5f * tri->c.color;
+	glm::vec4 cCA = 0.5f * tri->c.color + 0.5f * tri->a.color;
+
 	// New tris
 
 	Tri t1 = { .vertices = { {.pos = A}, {.pos = mAB}, {.pos = mCA} } };
 	Tri t2 = { .vertices = { {.pos = mAB}, {.pos = B}, {.pos = mBC} } };
 	Tri t3 = { .vertices = { {.pos = mBC}, {.pos = C}, {.pos = mCA} } };
 	Tri t4 = { .vertices = { {.pos = mCA}, {.pos = mAB}, {.pos = mBC} } };
+	t1.a.color = tri->a.color;
+	t1.b.color = cAB;
+	t1.c.color = cCA;
+	t2.a.color = cAB;
+	t2.b.color = tri->b.color;
+	t2.c.color = cBC;
+	t3.a.color = cBC;
+	t3.b.color = tri->c.color;
+	t3.c.color = cCA;
+	t4.a.color = cCA;
+	t4.b.color = cAB;
+	t4.c.color = cBC;
 
 	out_tris[0] = t1;
 	out_tris[1] = t2;
 	out_tris[2] = t3;
-	out_tris[3] = t4;	
+	out_tris[3] = t4;
+}
+
+void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numIterations)
+{
+	// each iteration makes one tri to four tris -> 4 tris -> 16 tris and so on.
+	// so each iteration will multiply the current tricount by 4.
+
+	uint32_t maxTris = pow(4, numIterations);
+	
+	//SubdivTri(tri, out_tris);	
+
+	Tri* tmp = (Tri*)malloc(maxTris * sizeof(Tri));
+	out_tris[0] = *tri;
+	tmp[0] = *tri;
+	uint32_t numTris = 1;
+	for (int i = 0; i < numIterations; i++) {		
+		for (int j = 0; j < numTris; j++) {
+			SubdivTri(&out_tris[j], tmp + j*4);
+		}
+		numTris <<= 2;
+		memcpy(out_tris, tmp, numTris * sizeof(Tri));
+	}
+	free(tmp);
 }
 
 Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)

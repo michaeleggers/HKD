@@ -269,12 +269,12 @@ bool Game::RunFrame(double dt)
     Tri myCoolTri = { a, b, c };
     Tri myCoolTri2 = myCoolTri;
     //RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
-    Tri subdivTri[4] = {};
-    SubdivTri(&myCoolTri, subdivTri);
+    Tri subdivTri[64*4*4] = {};
+    SubdivTri(&myCoolTri, subdivTri, 5);
     //Tri subdivSubdivTri[16] = {};
     //SubdivTri(&myCoolTri, subdivSubdivTri, 2);
 
-    m_Renderer->ImDrawTris(subdivTri, 4, false, DRAW_MODE_WIREFRAME);
+    m_Renderer->ImDrawTris(subdivTri, 64*4*4, false, DRAW_MODE_WIREFRAME);
 
     //m_Renderer->ImDrawTris(&myCoolTri2, 1, false);
 
