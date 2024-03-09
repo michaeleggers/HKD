@@ -265,12 +265,17 @@ bool Game::RunFrame(double dt)
     b.color = glm::vec4(0, 1, 0, 1);
     Vertex c = {};
     c.pos = glm::vec3(100, -100, -100);
-    c.color = glm::vec4(0, 0, 1, 1);
+    c.color = glm::vec4(1, 1, 0, 1);
     Tri myCoolTri = { a, b, c };
     Tri myCoolTri2 = myCoolTri;
-    RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
+    //RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
+    Tri subdivTri[4] = {};
+    SubdivTri(&myCoolTri, subdivTri);
+    //Tri subdivSubdivTri[16] = {};
+    //SubdivTri(&myCoolTri, subdivSubdivTri, 2);
 
-    //m_Renderer->ImDrawTris(&myCoolTri, 1, false);
+    m_Renderer->ImDrawTris(subdivTri, 4, false, DRAW_MODE_WIREFRAME);
+
     //m_Renderer->ImDrawTris(&myCoolTri2, 1, false);
 
     Quad quad = CreateQuad(glm::vec3(0.0f, -49, 0.0f), 100.0f, 100.0f, glm::vec4(0.3, 0.1, 0.8, 1.0));
@@ -289,7 +294,7 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(quad3.tris, 2, false);
     m_Renderer->ImDrawTris(quad4.tris, 2, false);
 
-    Box box = CreateBox(glm::vec3(500.0f, 1000.0f, 500.0f));    
+    Box box = CreateBox(glm::vec3(5000.0f, 5000.0f, 5000.0f));    
     m_Renderer->ImDrawTris(box.tris, 12, false);
 
     // Render AABBs of models

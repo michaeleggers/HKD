@@ -27,6 +27,37 @@ void TransformTri(Tri* tri, glm::mat4 modelMatrix)
 	tri->c.pos = modelMatrix * glm::vec4(tri->c.pos, 1.0f);
 }
 
+void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numDivs)
+{	
+	glm::vec3 A = tri->a.pos;
+	glm::vec3 B = tri->b.pos;
+	glm::vec3 C = tri->c.pos;
+
+	// Vectors from vert to vert in clockwise order
+
+	glm::vec3 AB = B - A;
+	glm::vec3 BC = C - B;
+	glm::vec3 CA = A - C;
+
+	// Midpoints between the points on half distance
+
+	glm::vec3 mAB = A + 0.5f * AB;
+	glm::vec3 mBC = B + 0.5f * BC;
+	glm::vec3 mCA = C + 0.5f * CA;
+
+	// New tris
+
+	Tri t1 = { .vertices = { {.pos = A}, {.pos = mAB}, {.pos = mCA} } };
+	Tri t2 = { .vertices = { {.pos = mAB}, {.pos = B}, {.pos = mBC} } };
+	Tri t3 = { .vertices = { {.pos = mBC}, {.pos = C}, {.pos = mCA} } };
+	Tri t4 = { .vertices = { {.pos = mCA}, {.pos = mAB}, {.pos = mBC} } };
+
+	out_tris[0] = t1;
+	out_tris[1] = t2;
+	out_tris[2] = t3;
+	out_tris[3] = t4;	
+}
+
 Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)
 {
 	Quad result = {};
