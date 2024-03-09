@@ -11,19 +11,21 @@
 
 #include "r_common.h"
 #include "r_gl_texture.h"
+#include "irender.h"
 
 
 struct GLBatchDrawCmd {
 	int		 offset;
-	uint32_t numTris;	
+	uint32_t numTris;
 	bool     cullFace;
+	DrawMode drawMode;
 };
 
 class GLBatch {
 public:
 	GLBatch(uint32_t maxTris);
 
-	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, bool cullFace = true);
+	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID);
 	void			Bind();
 	void			Reset();
 	void			Kill();

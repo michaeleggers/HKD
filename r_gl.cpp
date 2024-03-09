@@ -74,7 +74,7 @@ bool GLRender::Init(void)
     SDL_ShowWindow(m_Window);
 
     // GL Vsync on
-    if (SDL_GL_SetSwapInterval(0) != 0) {
+    if (SDL_GL_SetSwapInterval(1) != 0) {
         SDL_Log("Failed to enable vsync!\n");
     }
     else {
@@ -143,7 +143,7 @@ void GLRender::Shutdown(void)
 
     m_ImPrimitiveBatch->Kill();
     delete m_ImPrimitiveBatch;
-
+    
     m_ModelShader->Unload();
     delete m_ModelShader;
 
@@ -202,9 +202,9 @@ std::vector<ITexture*> GLRender::Textures(void)
     return result;
 }
 
-void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace)
-{
-    m_ImPrimitiveBatch->Add(tris, numTris, cullFace);
+void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
+{    
+    m_ImPrimitiveBatch->Add(tris, numTris, cullFace, drawMode);       
 }
 
 void GLRender::ImDrawQuad(glm::vec3 pos, float width, float height)
@@ -262,14 +262,29 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
     std::vector<GLBatchDrawCmd> imDrawCmds = m_ImPrimitiveBatch->DrawCmds();    
+    uint32_t prevDrawMode = GL_FILL;
     for (int i = 0; i < imDrawCmds.size(); i++) {
         if (!imDrawCmds[i].cullFace) {
             glDisable(GL_CULL_FACE);
         }
+        if (prevDrawMode != imDrawCmds[i].drawMode) {
+            if (imDrawCmds[i].drawMode == DRAW_MODE_WIREFRAME) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                prevDrawMode = GL_LINE;
+            }
+            else { // DRAW_MODE_SOLID
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                prevDrawMode = GL_FILL;
+            }
+        }
         glDrawArrays(GL_TRIANGLES, 3*imDrawCmds[i].offset, 3 * imDrawCmds[i].numTris);
     }
     //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
+
+    // Reset to default state
+
     glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Draw Models
 

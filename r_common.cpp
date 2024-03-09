@@ -140,7 +140,7 @@ Box CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	float depth  = abs(maxs.y - mins.y);
 	float height = abs(maxs.z - mins.z);
 	glm::vec3 posFix = mins + glm::vec3(width / 2.0f, depth / 2.0f, height / 2.0f);
-	Box result = CreateBox(glm::vec3(width, depth, height), glm::vec4(0.5, 0.1f, 0.3f, 1.0f));
+	Box result = CreateBox(glm::vec3(width, depth, height), glm::vec4(1.0, 1.0f, 1.0f, 1.0f));
 	TranslateBox(&result, posFix);
 
 	return result;

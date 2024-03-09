@@ -296,7 +296,7 @@ bool Game::RunFrame(double dt)
 
     Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
     TransformBox(&modelBox, CreateModelMatrix(&m_Model));
-    m_Renderer->ImDrawTris(modelBox.tris, 12);
+    m_Renderer->ImDrawTris(modelBox.tris, 12, false, DRAW_MODE_WIREFRAME);
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
     m_Renderer->Render(&m_Camera, modelsToRender);

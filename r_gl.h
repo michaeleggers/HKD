@@ -33,7 +33,7 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)		override;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle)	override;
 	virtual std::vector<ITexture*> Textures(void)       override;
-	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true) override;
+	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
 	virtual void ImDrawQuad(glm::vec3 pos, float width, float height)						override;
 	virtual void RenderBegin(void)						override;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) override;
@@ -48,7 +48,7 @@ private:
 	GLTextureManager*		m_TextureManager;
 
 	GLBatch*				m_ModelBatch;
-	GLBatch*				m_ImPrimitiveBatch;
+	GLBatch*				m_ImPrimitiveBatch;	
 	Shader*					m_ModelShader;
 	std::vector<GLModel>	m_Models;
 

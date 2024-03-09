@@ -12,6 +12,11 @@
 #include "camera.h"
 #include "r_common.h"
 
+enum DrawMode {
+	DRAW_MODE_SOLID,
+	DRAW_MODE_WIREFRAME
+};
+
 class IRender {
 public:
 	virtual bool Init(void)			= 0;
@@ -19,7 +24,7 @@ public:
 	virtual int  RegisterModel(HKD_Model* model)	= 0;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
-	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true) = 0;
+	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
 	virtual void ImDrawQuad(glm::vec3 pos, float width, float height) = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
