@@ -25,6 +25,7 @@ struct Vertex {
 #define VERT_BLENDINDICES_OFFSET (VERT_COLOR_OFFSET + sizeof(glm::vec4))
 #define VERT_BLENDWEIGHTS_OFFSET (VERT_BLENDINDICES_OFFSET + 4*sizeof(uint32_t))
 
+#define GOLDEN_RATIO			1.618033988749
 
 struct Tri {
 	union {
@@ -36,12 +37,28 @@ struct Tri {
 struct Quad {
 	union {
 		struct {
-			Tri a;
-			Tri b;
+			Tri a; // top right
+			Tri b; // bottom left
 		};
 		Tri		tris[2];
 		Vertex  vertices[6];
+		struct { // This just makes access to individual vertices easier.
+			Vertex tl;
+			Vertex tr;
+			Vertex br;
+			Vertex br2;
+			Vertex bl;
+			Vertex tl2;
+		};
 	};
+};
+
+// Representation of a Quad but only stores the four cornerpoints, not whole tris.
+struct FaceQuad {
+	Vertex a;
+	Vertex b;
+	Vertex c;
+	Vertex d;
 };
 
 struct Box {
@@ -62,11 +79,13 @@ struct Box {
 void RotateTri(Tri* tri, glm::vec3 axis, float angle);
 void TranslateTri(Tri* tri, glm::vec3 t);
 void TransformTri(Tri* tri, glm::mat4 modelMatrix);
+void SetTriColor(Tri* tri, glm::vec4 color);
 void SubdivTri(Tri* tri, Tri out_tris[]);
 void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numIterations);
-Quad CreateQuad(glm::vec3 pos = glm::vec3(0, 0, 0), float width = 2.0f, float height = 2.0f, glm::vec4 color = glm::vec4(1, 0, 0, 1));
+Quad CreateQuad(glm::vec3 pos = glm::vec3(0, 0, 0), float width = 1.0f, float height = 1.0f, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 void RotateQuad(Quad* quad, glm::vec3 axis, float angle);
 void TranslateQuad(Quad* quad, glm::vec3 t);
+FaceQuad QuadToFace(Quad* quad);
 void SetQuadColor(Quad* quad, glm::vec4 color);
 Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);

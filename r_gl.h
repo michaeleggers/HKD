@@ -34,7 +34,6 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle)	override;
 	virtual std::vector<ITexture*> Textures(void)       override;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
-	virtual void ImDrawQuad(glm::vec3 pos, float width, float height)						override;
 	virtual void RenderBegin(void)						override;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) override;
 	virtual void RenderEnd(void)						override;

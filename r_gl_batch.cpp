@@ -21,19 +21,19 @@
 //    glm::vec4 blendweights;
 //};
 
-GLBatch::GLBatch(uint32_t maxTris)
+GLBatch::GLBatch(uint32_t maxVerts)
 {
-    m_MaxTris = maxTris;
+    m_MaxVerts = maxVerts;
 
-    m_NumTris = 0;
-    m_TriOffsetIndex = 0;
+    m_NumVerts = 0;
+    m_VertOffsetIndex = 0;
 
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
 
     glGenBuffers(1, &m_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_MaxTris * sizeof(Tri), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_MaxVerts * sizeof(Vertex), nullptr, GL_STATIC_DRAW);
 
     // Input assembly for vertex shader
 
@@ -63,30 +63,35 @@ GLBatch::GLBatch(uint32_t maxTris)
 
 GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
 {
-    if (m_TriOffsetIndex + numTris > m_MaxTris) {
-        printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxTris - m_TriOffsetIndex);
+    if (m_VertOffsetIndex + 3*numTris > m_MaxVerts) {
+        printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxVerts - m_VertOffsetIndex);
         return {};
     }
 
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, m_TriOffsetIndex * sizeof(Tri), numTris * sizeof(Tri), tris);
+    glBufferSubData(GL_ARRAY_BUFFER, m_VertOffsetIndex * sizeof(Vertex), numTris * sizeof(Tri), tris);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);    
 
-    int offset = m_TriOffsetIndex;
+    int offset = m_VertOffsetIndex;
 
     GLBatchDrawCmd drawCmd = {
         .offset = offset,
-        .numTris = numTris,
+        .numVerts = 3*numTris,
         .cullFace = cullFace,
         .drawMode = drawMode
     };
     m_DrawCmds.push_back(drawCmd);
 
-    m_TriOffsetIndex += numTris;
+    m_VertOffsetIndex += 3*numTris;
 
     return drawCmd;
+}
+
+GLBatchDrawCmd GLBatch::Add(Vertex* verts, uint32_t numVerts, bool cullFace, DrawMode drawMode)
+{
+    return GLBatchDrawCmd();
 }
 
 void GLBatch::Bind()
@@ -96,8 +101,8 @@ void GLBatch::Bind()
 
 void GLBatch::Reset()
 {
-    m_NumTris = 0;
-    m_TriOffsetIndex = 0;
+    m_NumVerts = 0;
+    m_VertOffsetIndex = 0;
     m_DrawCmds.clear();
 }
 
@@ -107,9 +112,9 @@ void GLBatch::Kill()
     glDeleteVertexArrays(1, &m_VAO);
 }
 
-uint32_t GLBatch::TriCount()
+uint32_t GLBatch::VertCount()
 {
-    return m_TriOffsetIndex;
+    return m_VertOffsetIndex;
 }
 
 const std::vector<GLBatchDrawCmd>& GLBatch::DrawCmds()

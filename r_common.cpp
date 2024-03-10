@@ -29,6 +29,13 @@ void TransformTri(Tri* tri, glm::mat4 modelMatrix)
 	tri->c.pos = modelMatrix * glm::vec4(tri->c.pos, 1.0f);
 }
 
+void SetTriColor(Tri* tri, glm::vec4 color)
+{
+	tri->a.color = color;
+	tri->b.color = color;
+	tri->c.color = color;
+}
+
 void SubdivTri(Tri* tri, Tri out_tris[])
 {	
 	glm::vec3 A = tri->a.pos;
@@ -147,19 +154,17 @@ void TranslateQuad(Quad* quad, glm::vec3 t)
 	TranslateTri(&quad->b, t);
 }
 
+FaceQuad QuadToFace(Quad* quad)
+{
+	return {
+		quad->tl, quad->tr, quad->br, quad->bl
+	};
+}
+
 void SetQuadColor(Quad* quad, glm::vec4 color)
 {
-	// Tri 1
-
-	quad->a.vertices[0].color = color;
-	quad->a.vertices[1].color = color;
-	quad->a.vertices[2].color = color;
-
-	// Tri 2
-
-	quad->b.vertices[0].color = color;
-	quad->b.vertices[1].color = color;
-	quad->b.vertices[2].color = color;
+	SetTriColor(&quad->a, color);
+	SetTriColor(&quad->b, color);
 }
 
 //Quad front;

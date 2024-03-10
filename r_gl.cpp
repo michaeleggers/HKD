@@ -160,7 +160,7 @@ int GLRender::RegisterModel(HKD_Model* model)
         HKD_Mesh* mesh = &model->meshes[i];
         GLTexture* texture = (GLTexture*)m_TextureManager->CreateTexture(mesh->textureFileName);        
         GLMesh gl_mesh = {
-            .triOffset = drawCmd.offset + (int)mesh->firstTri,
+            .triOffset = drawCmd.offset/3 + (int)mesh->firstTri,
             .triCount = (int)mesh->numTris,
             .texture = texture
         };
@@ -205,16 +205,6 @@ std::vector<ITexture*> GLRender::Textures(void)
 void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
 {    
     m_ImPrimitiveBatch->Add(tris, numTris, cullFace, drawMode);       
-}
-
-void GLRender::ImDrawQuad(glm::vec3 pos, float width, float height)
-{
-    float halfWidth = width / 2.0f;
-    float halfHeight = height / 2.0f;
-
-    std::vector<Tri> tris;
-    
-    m_ImPrimitiveBatch->Add(&tris[0], tris.size());
 }
 
 void GLRender::RenderBegin(void)
@@ -277,7 +267,7 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
                 prevDrawMode = GL_FILL;
             }
         }
-        glDrawArrays(GL_TRIANGLES, 3*imDrawCmds[i].offset, 3 * imDrawCmds[i].numTris);
+        glDrawArrays(GL_TRIANGLES, imDrawCmds[i].offset, imDrawCmds[i].numVerts);
     }
     //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
 

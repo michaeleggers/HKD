@@ -16,7 +16,7 @@
 
 struct GLBatchDrawCmd {
 	int		 offset;
-	uint32_t numTris;
+	uint32_t numVerts;
 	bool     cullFace;
 	DrawMode drawMode;
 };
@@ -26,19 +26,20 @@ public:
 	GLBatch(uint32_t maxTris);
 
 	GLBatchDrawCmd	Add(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID);
+	GLBatchDrawCmd  Add(Vertex* verts, uint32_t numVerts, bool cullFace = true, DrawMode drawMode = DRAW_MODE_LINES);
 	void			Bind();
 	void			Reset();
 	void			Kill();
 
-	uint32_t							TriCount();
+	uint32_t							VertCount();
 	const std::vector<GLBatchDrawCmd>&	DrawCmds();
 	
 private:
 	GLuint		m_VBO, m_VAO;
 
-	uint32_t	m_MaxTris;
-	uint32_t	m_NumTris;
-	int			m_TriOffsetIndex;
+	uint32_t	m_MaxVerts;
+	uint32_t	m_NumVerts;
+	int			m_VertOffsetIndex;
 
 	std::vector<GLBatchDrawCmd> m_DrawCmds;
 };

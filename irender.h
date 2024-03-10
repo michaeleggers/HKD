@@ -14,7 +14,8 @@
 
 enum DrawMode {
 	DRAW_MODE_SOLID,
-	DRAW_MODE_WIREFRAME
+	DRAW_MODE_WIREFRAME,
+	DRAW_MODE_LINES
 };
 
 class IRender {
@@ -25,7 +26,6 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
-	virtual void ImDrawQuad(glm::vec3 pos, float width, float height) = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;
