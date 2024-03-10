@@ -26,6 +26,8 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
+	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) = 0;
+	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) = 0;
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
 	virtual void RenderEnd(void) = 0;

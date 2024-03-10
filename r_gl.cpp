@@ -207,6 +207,33 @@ void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode d
     m_ImPrimitiveBatch->Add(tris, numTris, cullFace, drawMode);       
 }
 
+void GLRender::ImDrawVerts(Vertex* verts, uint32_t numVerts)
+{
+    m_ImPrimitiveBatch->Add(verts, numVerts);
+}
+
+// We have separate draw cmds from the batch. This function generate unneccessary many
+// draw cmds (each Add is a new one!).
+void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
+{
+    if (numVerts < 2) { // This won't work, man.
+        return;
+    }
+
+    Vertex* v = verts;
+    m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
+    v += 1;
+    for (int i = 2; i < numVerts; i++) {
+        m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
+        v++;
+    }
+
+    if (close) {
+        Vertex endAndStart[] = { *v, verts[0] };
+        m_ImPrimitiveBatch->Add(endAndStart, 2, false, DRAW_MODE_LINES);        
+    }
+}
+
 void GLRender::RenderBegin(void)
 {    
     SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
@@ -253,21 +280,32 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
     std::vector<GLBatchDrawCmd> imDrawCmds = m_ImPrimitiveBatch->DrawCmds();    
     uint32_t prevDrawMode = GL_FILL;
+    uint32_t primitiveType = GL_TRIANGLES;
     for (int i = 0; i < imDrawCmds.size(); i++) {
+    
         if (!imDrawCmds[i].cullFace) {
             glDisable(GL_CULL_FACE);
         }
+        
         if (prevDrawMode != imDrawCmds[i].drawMode) {
             if (imDrawCmds[i].drawMode == DRAW_MODE_WIREFRAME) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 prevDrawMode = GL_LINE;
+                primitiveType = GL_TRIANGLES;
+            }
+            else if (imDrawCmds[i].drawMode == DRAW_MODE_LINES) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                prevDrawMode = GL_FILL;
+                primitiveType = GL_LINES;
             }
             else { // DRAW_MODE_SOLID
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 prevDrawMode = GL_FILL;
+                primitiveType = GL_TRIANGLES;
             }
         }
-        glDrawArrays(GL_TRIANGLES, imDrawCmds[i].offset, imDrawCmds[i].numVerts);
+        
+        glDrawArrays(primitiveType, imDrawCmds[i].offset, imDrawCmds[i].numVerts);
     }
     //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
 

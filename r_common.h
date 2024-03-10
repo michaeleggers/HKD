@@ -55,10 +55,15 @@ struct Quad {
 
 // Representation of a Quad but only stores the four cornerpoints, not whole tris.
 struct FaceQuad {
-	Vertex a;
-	Vertex b;
-	Vertex c;
-	Vertex d;
+	union {
+		struct {
+			Vertex a;
+			Vertex b;
+			Vertex c;
+			Vertex d;
+		};
+		Vertex vertices[4];
+	};
 };
 
 struct Box {

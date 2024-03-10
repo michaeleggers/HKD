@@ -290,13 +290,15 @@ bool Game::RunFrame(double dt)
 
     FaceQuad fqXZ = QuadToFace(&quadXZ);
     FaceQuad fqYZ = QuadToFace(&quadYZ);
-    FaceQuad fqXY = QuadToFace(&quadXY);    
+    FaceQuad fqXY = QuadToFace(&quadXY);
 
-    //Quad quad
-    m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
-    m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
-    m_Renderer->ImDrawTris(quadXY.tris, 2, false);
+    //m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
+    //m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
+    //m_Renderer->ImDrawTris(quadXY.tris, 2, false);
 
+    m_Renderer->ImDrawLines(fqXZ.vertices, 4, true);
+    m_Renderer->ImDrawLines(fqYZ.vertices, 4, true);
+    m_Renderer->ImDrawLines(fqXY.vertices, 4, true);
 
     Box box = CreateBox(glm::vec3(5000.0f, 5000.0f, 5000.0f));    
     m_Renderer->ImDrawTris(box.tris, 12, false);

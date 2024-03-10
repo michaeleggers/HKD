@@ -91,7 +91,30 @@ GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode
 
 GLBatchDrawCmd GLBatch::Add(Vertex* verts, uint32_t numVerts, bool cullFace, DrawMode drawMode)
 {
-    return GLBatchDrawCmd();
+    if (m_VertOffsetIndex + numVerts > m_MaxVerts) {
+        printf("No more space on GPU to upload more vertices!\nSpace available: %d\n", m_MaxVerts - m_VertOffsetIndex);
+        return {};
+    }
+
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, m_VertOffsetIndex * sizeof(Vertex), numVerts * sizeof(Vertex), verts);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    int offset = m_VertOffsetIndex;
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = numVerts,
+        .cullFace = cullFace,
+        .drawMode = drawMode
+    };
+    m_DrawCmds.push_back(drawCmd);
+
+    m_VertOffsetIndex += numVerts;
+
+    return drawCmd;
 }
 
 void GLBatch::Bind()
