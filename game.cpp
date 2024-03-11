@@ -39,6 +39,7 @@ void Game::Init()
     //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
     m_Model3 = CreateModelFromIQM(&iqmModel3, CreateRigidSphereBody(10.0, 0.5f));    
 
+    m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
 
@@ -258,14 +259,17 @@ bool Game::RunFrame(double dt)
     // Draw some primitives in immediate mode
 
     Vertex a = {};
-    a.pos = glm::vec3(-100, -100, 100);
+    a.pos = glm::vec3(-100, -300, 100);
     a.color = glm::vec4(1, 0, 0, 1);
+    a.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Vertex b = {};
-    b.pos = glm::vec3(100, -100, 100);
+    b.pos = glm::vec3(100, -300, 100);
     b.color = glm::vec4(0, 1, 0, 1);
+    b.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Vertex c = {};
-    c.pos = glm::vec3(100, -100, -100);
+    c.pos = glm::vec3(100, -300, -100);
     c.color = glm::vec4(1, 1, 0, 1);
+    c.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Tri myCoolTri = { a, b, c };
     Tri myCoolTri2 = myCoolTri;
     //RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
@@ -284,7 +288,7 @@ bool Game::RunFrame(double dt)
     RotateQuad(&quadYZ, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
     SetQuadColor(&quadYZ, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     Quad quadXY = quadXZ;
-    RotateQuad(&quadXY, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+    RotateQuad(&quadXY, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
     RotateQuad(&quadXY, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
     SetQuadColor(&quadXY, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
@@ -292,16 +296,40 @@ bool Game::RunFrame(double dt)
     FaceQuad fqYZ = QuadToFace(&quadYZ);
     FaceQuad fqXY = QuadToFace(&quadXY);
 
-    //m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
-    //m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
-    //m_Renderer->ImDrawTris(quadXY.tris, 2, false);
+    m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
+    m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
+    m_Renderer->ImDrawTris(quadXY.tris, 2, false);
 
     m_Renderer->ImDrawLines(fqXZ.vertices, 4, true);
     m_Renderer->ImDrawLines(fqYZ.vertices, 4, true);
     m_Renderer->ImDrawLines(fqXY.vertices, 4, true);
 
-    Box box = CreateBox(glm::vec3(5000.0f, 5000.0f, 5000.0f));    
-    m_Renderer->ImDrawTris(box.tris, 12, false);
+    Box box = CreateBox(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec4(1.0f, 0.9f, 0.0f, 1.0));
+    TranslateBox(&box, glm::vec3(100.0f, 100.0f, 100.0f));
+    m_Renderer->ImDrawTris(box.tris, 12, true);
+
+    Box skyBox = CreateBox(glm::vec3(2000.0f, 2000.0f, 2000.0f), glm::vec4(0.4f, 0.1f, 1.0f, 1.0));
+    TranslateBox(&skyBox, glm::vec3(100.0f, 100.0f, 100.0f));
+    m_Renderer->ImDrawTris(skyBox.tris, 12, false);
+
+    // A circle
+#define NUM_POINTS 128    
+    float redIncrement = 1.0f / (float)NUM_POINTS;
+    float sliceAngle = 2 * HKD_PI / (float)NUM_POINTS;
+    float radius = 77.0f;
+    Vertex circleVertices[NUM_POINTS];
+    for (int i = 0; i < NUM_POINTS; i++) {
+        Vertex v = {};
+        v.pos.y = 0.0f;
+        v.pos.x = 200.0f + radius * cosf(i * sliceAngle);
+        v.pos.z = 200.0f + radius * sinf(i * sliceAngle);
+        v.color = glm::vec4(redIncrement*i, 0.4f, 0.2f, 1.0f);
+        circleVertices[i] = v;
+    }
+                            // vert-data    // vert-count  // connect start and end point?
+    m_Renderer->ImDrawLines(circleVertices, NUM_POINTS,    true);
+
+    //Vertex linepoints
 
     // Render AABBs of models
 

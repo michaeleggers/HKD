@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec2 uv;
@@ -19,11 +19,15 @@ layout (std140) uniform Palette {
 };
 
 uniform mat4 model;
+uniform vec3 viewPos;
 
 out vec2 TexCoord;
 out vec3 BaryCentricCoords;
-out vec3 Normal;
+out vec4 Normal;
 out vec4 Color;
+out vec4 ViewPosWorldSpace;
+out vec4 Pos;
+out mat4 ViewMat;
 
 void main() {
     vec4 v = vec4(pos, 1.0);    
@@ -31,6 +35,11 @@ void main() {
     
     TexCoord = uv;
     BaryCentricCoords = bc;
-    Normal = normal;
+    Normal = view * vec4(normal, 0.0f);
+    Normal = view * vec4(normal, 0.0f);
     Color = color;
+    ViewPosWorldSpace = vec4(viewPos, 1.0f);
+    Pos = view * vec4(pos, 1.0);
+    ViewMat = view;
 }
+

@@ -111,7 +111,7 @@ bool GLRender::Init(void)
 
     // Create batches
 
-    // make space for 1Mio triangles
+    // make space for 1Mio vertices
     // TODO: What should be the upper limit?
     // With sizeof(Vertex) = 92bytes => sizeof(Tri) = 276bytes we need ~ 263MB for Models. 
     // A lot for a game in the 2000s! Our models have a tri count of maybe 3000 Tris (without weapon), which
@@ -278,23 +278,31 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ImPrimitivesShader->DrawWireframe((uint32_t)drawWireframe);
     m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
+    m_ImPrimitivesShader->SetVec3("viewPos", camera->m_Pos);    
     std::vector<GLBatchDrawCmd> imDrawCmds = m_ImPrimitiveBatch->DrawCmds();    
     uint32_t prevDrawMode = GL_FILL;
-    uint32_t primitiveType = GL_TRIANGLES;
+    uint32_t primitiveType = GL_TRIANGLES;   
     for (int i = 0; i < imDrawCmds.size(); i++) {
     
         if (!imDrawCmds[i].cullFace) {
             glDisable(GL_CULL_FACE);
         }
+        else {
+            glEnable(GL_CULL_FACE);
+        }
         
         if (prevDrawMode != imDrawCmds[i].drawMode) {
             if (imDrawCmds[i].drawMode == DRAW_MODE_WIREFRAME) {
+                glLineWidth(1.0f);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);
                 prevDrawMode = GL_LINE;
                 primitiveType = GL_TRIANGLES;
             }
             else if (imDrawCmds[i].drawMode == DRAW_MODE_LINES) {
+                glLineWidth(5.0f);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);                
                 prevDrawMode = GL_FILL;
                 primitiveType = GL_LINES;
             }
@@ -306,6 +314,7 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
         }
         
         glDrawArrays(primitiveType, imDrawCmds[i].offset, imDrawCmds[i].numVerts);
+        m_ImPrimitivesShader->ResetShaderSettingBits(SHADER_LINEMODE);
     }
     //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
 
@@ -313,12 +322,18 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
 
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glLineWidth(1.0f);
 
     // Draw Models
 
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
-    m_ModelShader->DrawWireframe((uint32_t)drawWireframe);
+    if (drawWireframe) {
+        m_ModelShader->SetShaderSettingBits(SHADER_WIREFRAME_ON_MESH);
+    }
+    else {
+        m_ModelShader->ResetShaderSettingBits(SHADER_WIREFRAME_ON_MESH);
+    }    
     m_ModelShader->SetViewProjMatrices(view, proj);
     for (int i = 0; i < models.size(); i++) {
         

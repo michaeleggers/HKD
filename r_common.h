@@ -11,11 +11,13 @@ struct Vertex {
 	glm::vec3 pos;
 	glm::vec2 uv;
 	glm::vec3 bc;
-	glm::vec3 normal;
+	glm::vec3 normal = glm::vec3(0.0f, -1.0f, 0.0f); // points *against* the forward direction (because camera is facing to forward by default)
 	glm::vec4 color;
 	uint32_t  blendindices[4];
 	glm::vec4 blendweights;
 };
+
+// Vertex Attribute Layout
 
 #define VERT_POS_OFFSET			 0
 #define VERT_UV_OFFSET			 (VERT_POS_OFFSET + sizeof(glm::vec3))
@@ -25,7 +27,14 @@ struct Vertex {
 #define VERT_BLENDINDICES_OFFSET (VERT_COLOR_OFFSET + sizeof(glm::vec4))
 #define VERT_BLENDWEIGHTS_OFFSET (VERT_BLENDINDICES_OFFSET + 4*sizeof(uint32_t))
 
-#define GOLDEN_RATIO			1.618033988749
+// Global shader settings
+
+#define SHADER_WIREFRAME_ON_MESH (0x00000001 << 0)
+#define SHADER_LINEMODE          (0x00000001 << 1)
+
+#define GOLDEN_RATIO			 1.618033988749
+#define HKD_PI                   3.14159265359
+#define HKD_EPSILON              0.00001
 
 struct Tri {
 	union {

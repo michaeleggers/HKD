@@ -13,6 +13,9 @@ void RotateTri(Tri* tri, glm::vec3 axis, float angle)
 	tri->a.pos = glm::rotate(q, tri->a.pos);
 	tri->b.pos = glm::rotate(q, tri->b.pos);
 	tri->c.pos = glm::rotate(q, tri->c.pos);
+	tri->a.normal = glm::rotate(q, tri->a.normal);
+	tri->b.normal = glm::rotate(q, tri->b.normal);
+	tri->c.normal = glm::rotate(q, tri->c.normal);
 }
 
 void TranslateTri(Tri* tri, glm::vec3 t)
@@ -120,21 +123,27 @@ Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)
 	upperRight.a.pos = glm::vec3(-1.0f * halfWidth, 0.0f, 1.0f * halfHeight) + pos;
 	upperRight.a.color = color;
 	upperRight.a.bc = glm::vec3(1.0f, 0.0f, 0.0f);
+	upperRight.a.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 	upperRight.b.pos = glm::vec3(1.0f * halfWidth, 0.0f, 1.0f * halfHeight) + pos;
 	upperRight.b.color = color;
 	upperRight.b.bc = glm::vec3(0.0f, 1.0f, 0.0f);
+	upperRight.b.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 	upperRight.c.pos = glm::vec3(1.0f * halfWidth, 0.0f, -1.0f * halfHeight) + pos;
 	upperRight.c.color = color;
 	upperRight.c.bc = glm::vec3(0.0f, 0.0f, 1.0f);
+	upperRight.c.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 	lowerLeft.a.pos = glm::vec3(1.0f * halfWidth, 0.0f, -1.0f * halfHeight) + pos;
 	lowerLeft.a.color = color;
 	lowerLeft.a.bc = glm::vec3(1.0f, 0.0f, 0.0f);
+	lowerLeft.a.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 	lowerLeft.b.pos = glm::vec3(-1.0f * halfWidth, 0.0f, -1.0f * halfHeight) + pos;
 	lowerLeft.b.color = color;
 	lowerLeft.b.bc = glm::vec3(0.0f, 1.0f, 0.0f);
+	lowerLeft.b.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 	lowerLeft.c.pos = glm::vec3(-1.0f * halfWidth, 0.0f, 1.0f * halfHeight) + pos;
 	lowerLeft.c.color = color;
 	lowerLeft.c.bc = glm::vec3(0.0f, 0.0f, 1.0f);
+	lowerLeft.c.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 
 	result.a = upperRight;
 	result.b = lowerLeft;
@@ -193,7 +202,7 @@ Box CreateBox(glm::vec3 scale, glm::vec4 color)
 	RotateQuad(&right, up, 90.0f);
 	RotateQuad(&back, up, 180.0f);
 	RotateQuad(&left, up, -90.0f);
-	RotateQuad(&top, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+	RotateQuad(&top, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 	RotateQuad(&bottom, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
 
 	TranslateQuad(&front, glm::vec3(0.0f, -1.0f * halfDepth, 0.0f));

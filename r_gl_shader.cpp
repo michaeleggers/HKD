@@ -9,6 +9,7 @@
 #include "dependencies/glm/ext.hpp"
 
 #include "platform.h"
+#include "r_common.h"
 
 // GLOBAL SHADER BUFFERS (USED BY ALL SHADERS)
 
@@ -16,8 +17,9 @@
 #define BIND_POINT_SETTINGS			  1
 static GLuint g_PaletteBindingPoint = 2;
 
-static GLuint g_ViewProjUBO;
-static GLuint g_SettingsUBO;
+static GLuint   g_ViewProjUBO;
+static GLuint   g_SettingsUBO;
+static uint32_t g_SettingsBits;
 
 bool Shader::Load(const std::string& vertName, const std::string& fragName, uint32_t shaderFeatureBits)
 {
@@ -122,10 +124,35 @@ void Shader::SetMat4(std::string uniformName, glm::mat4 mat4)
 	glUniformMatrix4fv(loc, 1, GL_FALSE, (float*)&mat4);
 }
 
-void Shader::DrawWireframe(uint32_t yesOrNo)
+void Shader::SetVec3(std::string uniformName, glm::vec3 vec3)
 {
+	GLuint loc = glGetUniformLocation(m_ShaderProgram, uniformName.c_str());
+	glUniform3fv(loc, 1, (float*)&vec3);
+}
+
+void Shader::DrawWireframe(uint32_t yesOrNo)
+{		
+	if (yesOrNo) {
+		g_SettingsBits |= SHADER_WIREFRAME_ON_MESH;
+	}
 	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&yesOrNo);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Shader::SetShaderSettingBits(uint32_t bits)
+{
+	g_SettingsBits |= bits;
+	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&g_SettingsBits);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Shader::ResetShaderSettingBits(uint32_t bits)
+{
+	g_SettingsBits = (g_SettingsBits & (~bits));
+	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&g_SettingsBits);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
