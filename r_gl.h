@@ -37,7 +37,7 @@ public:
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) override;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) override;
 	virtual void RenderBegin(void)						override;
-	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) override;
+	virtual void Render(Camera* camera, std::vector<HKD_Model>& models) override;
 	virtual void RenderEnd(void)						override;
 
 	void InitShaders();

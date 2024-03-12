@@ -36,7 +36,7 @@ public:
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) = 0;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) = 0;
 	virtual void RenderBegin(void) = 0;
-	virtual void Render(Camera* camera, std::vector<HKD_Model*>& models) = 0;
+	virtual void Render(Camera* camera, std::vector<HKD_Model>& models) = 0;
 	virtual void RenderEnd(void) = 0;
 
 private:

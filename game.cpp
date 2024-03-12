@@ -49,6 +49,14 @@ void Game::Init()
     //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
+    for (int i = 0; i < 1000; i++) {
+        HKD_Model model = m_Model;
+        model.position = glm::vec3(RandBetween(-1000.0f, 1000.0f), RandBetween(-1000.0f, 1000.0f), 0.0f);
+        model.scale = glm::vec3(20.0f);
+        model.currentFrame = (int)RandBetween(0.0f, (float)(model.numFrames - 1));
+        m_FixitModels.push_back(model);
+    }
+
     // Cameras
 
     m_Camera = Camera(glm::vec3(0, -5, 8.0));
@@ -154,6 +162,9 @@ bool Game::RunFrame(double dt)
 
     for (auto& model : modelsToRender) {
         UpdateModel(model, (float)dt);
+    }
+    for (auto& model : m_FixitModels) {
+        UpdateModel(&model, (float)dt);
     }
 
     // Run physics
@@ -308,8 +319,8 @@ bool Game::RunFrame(double dt)
     TranslateBox(&box, glm::vec3(100.0f, 100.0f, 100.0f));
     m_Renderer->ImDrawTris(box.tris, 12, true);
 
-    Box skyBox = CreateBox(glm::vec3(2000.0f, 2000.0f, 2000.0f), glm::vec4(0.4f, 0.1f, 1.0f, 1.0));
-    TranslateBox(&skyBox, glm::vec3(100.0f, 100.0f, 100.0f));
+    Box skyBox = CreateBox(glm::vec3(5000.0f, 5000.0f, 5000.0f), glm::vec4(0.4f, 0.1f, 1.0f, 1.0));
+    //TranslateBox(&skyBox, glm::vec3(100.0f, 100.0f, 100.0f));
     m_Renderer->ImDrawTris(skyBox.tris, 12, false);
 
     // A circle
@@ -338,7 +349,7 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawTris(modelBox.tris, 12, false, DRAW_MODE_WIREFRAME);
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
-    m_Renderer->Render(&m_Camera, modelsToRender);
+    m_Renderer->Render(&m_Camera, m_FixitModels);
 
     m_Renderer->RenderEnd();
 

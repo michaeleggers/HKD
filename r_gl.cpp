@@ -280,7 +280,7 @@ void GLRender::RenderBegin(void)
     ImGui::NewFrame();
 }
 
-void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
+void GLRender::Render(Camera* camera, std::vector<HKD_Model>& models)
 {    
     // Camera and render settings
 
@@ -369,9 +369,9 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ModelShader->SetViewProjMatrices(view, proj);
     for (int i = 0; i < models.size(); i++) {
         
-        GLModel model = m_Models[models[i]->gpuModelHandle];
-        m_ModelShader->SetMatrixPalette(&models[i]->palette[0], models[i]->numJoints);
-        glm::mat4 modelMatrix = CreateModelMatrix(models[i]);
+        GLModel model = m_Models[models[i].gpuModelHandle];
+        m_ModelShader->SetMatrixPalette(&models[i].palette[0], models[i].numJoints);
+        glm::mat4 modelMatrix = CreateModelMatrix(&models[i]);
         m_ModelShader->SetMat4("model", modelMatrix);
 
         for (int j = 0; j < model.meshes.size(); j++) {
