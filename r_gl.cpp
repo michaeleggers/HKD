@@ -151,16 +151,18 @@ void GLRender::Shutdown(void)
     delete m_ImPrimitivesShader;
 }
 
+// At the moment we don't generate a drawCmd for a model. We just but all of
+// the meshes into a GPU buffer and draw all of them exactly the same way.
 int GLRender::RegisterModel(HKD_Model* model)
 { 
     GLModel gl_model = {};
-    GLBatchDrawCmd drawCmd = m_ModelBatch->Add(&model->tris[0], model->tris.size());
+    int offset = m_ModelBatch->Add(&model->tris[0], model->tris.size());
 
     for (int i = 0; i < model->meshes.size(); i++) {
         HKD_Mesh* mesh = &model->meshes[i];
         GLTexture* texture = (GLTexture*)m_TextureManager->CreateTexture(mesh->textureFileName);        
         GLMesh gl_mesh = {
-            .triOffset = drawCmd.offset/3 + (int)mesh->firstTri,
+            .triOffset = offset/3 + (int)mesh->firstTri,
             .triCount = (int)mesh->numTris,
             .texture = texture
         };
@@ -204,12 +206,29 @@ std::vector<ITexture*> GLRender::Textures(void)
 
 void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
 {    
-    m_ImPrimitiveBatch->Add(tris, numTris, cullFace, drawMode);       
+    int offset = m_ImPrimitiveBatch->Add(tris, numTris, cullFace, drawMode);       
+    
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = 3 * numTris,
+        .cullFace = cullFace,
+        .drawMode = drawMode
+    };
+
+    m_PrimitiveDrawCmds.push_back(drawCmd);
 }
 
-void GLRender::ImDrawVerts(Vertex* verts, uint32_t numVerts)
+// TODO: not done
+void GLRender::ImDrawVerts(Vertex* verts, uint32_t numVerts) 
 {
-    m_ImPrimitiveBatch->Add(verts, numVerts);
+    int offset = m_ImPrimitiveBatch->Add(verts, numVerts);
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = numVerts,
+        .cullFace = false,
+        .drawMode = DRAW_MODE_SOLID
+    };
 }
 
 // We have separate draw cmds from the batch. This function generate unneccessary many
@@ -221,17 +240,29 @@ void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
     }
 
     Vertex* v = verts;
-    m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
+    int offset = m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
     v += 1;
+    int moreVerts = 0;
     for (int i = 2; i < numVerts; i++) {
         m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
-        v++;
+        v++;        
+        moreVerts += 1;
     }
 
     if (close) {
         Vertex endAndStart[] = { *v, verts[0] };
-        m_ImPrimitiveBatch->Add(endAndStart, 2, false, DRAW_MODE_LINES);        
+        m_ImPrimitiveBatch->Add(endAndStart, 2, false, DRAW_MODE_LINES);                
+        moreVerts += 2;
     }
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = numVerts + moreVerts,
+        .cullFace = false,
+        .drawMode = DRAW_MODE_LINES
+    };
+
+    m_PrimitiveDrawCmds.push_back(drawCmd);
 }
 
 void GLRender::RenderBegin(void)
@@ -278,28 +309,29 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
     m_ImPrimitivesShader->DrawWireframe((uint32_t)drawWireframe);
     m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
-    m_ImPrimitivesShader->SetVec3("viewPos", camera->m_Pos);    
-    std::vector<GLBatchDrawCmd> imDrawCmds = m_ImPrimitiveBatch->DrawCmds();    
+    m_ImPrimitivesShader->SetVec3("viewPos", camera->m_Pos);        
     uint32_t prevDrawMode = GL_FILL;
     uint32_t primitiveType = GL_TRIANGLES;   
-    for (int i = 0; i < imDrawCmds.size(); i++) {
+    for (int i = 0; i < m_PrimitiveDrawCmds.size(); i++) {
     
-        if (!imDrawCmds[i].cullFace) {
+        GLBatchDrawCmd drawCmd = m_PrimitiveDrawCmds[i];
+
+        if (!drawCmd.cullFace) {
             glDisable(GL_CULL_FACE);
         }
         else {
             glEnable(GL_CULL_FACE);
         }
         
-        if (prevDrawMode != imDrawCmds[i].drawMode) {
-            if (imDrawCmds[i].drawMode == DRAW_MODE_WIREFRAME) {
+        if (prevDrawMode != drawCmd.drawMode) {
+            if (drawCmd.drawMode == DRAW_MODE_WIREFRAME) {
                 glLineWidth(1.0f);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);
                 prevDrawMode = GL_LINE;
                 primitiveType = GL_TRIANGLES;
             }
-            else if (imDrawCmds[i].drawMode == DRAW_MODE_LINES) {
+            else if (drawCmd.drawMode == DRAW_MODE_LINES) {
                 glLineWidth(5.0f);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);                
@@ -313,7 +345,7 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model*>& models)
             }
         }
         
-        glDrawArrays(primitiveType, imDrawCmds[i].offset, imDrawCmds[i].numVerts);
+        glDrawArrays(primitiveType, drawCmd.offset, drawCmd.numVerts);
         m_ImPrimitivesShader->ResetShaderSettingBits(SHADER_LINEMODE);
     }
     //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
@@ -367,6 +399,7 @@ void GLRender::RenderEnd(void)
     SDL_GL_SwapWindow(m_Window);
 
     m_ImPrimitiveBatch->Reset();
+    m_PrimitiveDrawCmds.clear();
 }
 
 void GLRender::InitShaders()

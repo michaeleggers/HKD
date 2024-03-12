@@ -61,11 +61,11 @@ GLBatch::GLBatch(uint32_t maxVerts)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
+int GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
 {
     if (m_VertOffsetIndex + 3*numTris > m_MaxVerts) {
         printf("No more space on GPU to upload more triangles!\nSpace available: %d\n", m_MaxVerts - m_VertOffsetIndex);
-        return {};
+        return -1;
     }
 
     glBindVertexArray(m_VAO);
@@ -75,25 +75,16 @@ GLBatchDrawCmd GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode
     glBindVertexArray(0);    
 
     int offset = m_VertOffsetIndex;
-
-    GLBatchDrawCmd drawCmd = {
-        .offset = offset,
-        .numVerts = 3*numTris,
-        .cullFace = cullFace,
-        .drawMode = drawMode
-    };
-    m_DrawCmds.push_back(drawCmd);
-
     m_VertOffsetIndex += 3*numTris;
 
-    return drawCmd;
+    return offset;
 }
 
-GLBatchDrawCmd GLBatch::Add(Vertex* verts, uint32_t numVerts, bool cullFace, DrawMode drawMode)
+int GLBatch::Add(Vertex* verts, uint32_t numVerts, bool cullFace, DrawMode drawMode)
 {
     if (m_VertOffsetIndex + numVerts > m_MaxVerts) {
         printf("No more space on GPU to upload more vertices!\nSpace available: %d\n", m_MaxVerts - m_VertOffsetIndex);
-        return {};
+        return -1;
     }
 
     glBindVertexArray(m_VAO);
@@ -103,18 +94,9 @@ GLBatchDrawCmd GLBatch::Add(Vertex* verts, uint32_t numVerts, bool cullFace, Dra
     glBindVertexArray(0);
 
     int offset = m_VertOffsetIndex;
-
-    GLBatchDrawCmd drawCmd = {
-        .offset = offset,
-        .numVerts = numVerts,
-        .cullFace = cullFace,
-        .drawMode = drawMode
-    };
-    m_DrawCmds.push_back(drawCmd);
-
     m_VertOffsetIndex += numVerts;
 
-    return drawCmd;
+    return offset;
 }
 
 void GLBatch::Bind()
@@ -125,8 +107,7 @@ void GLBatch::Bind()
 void GLBatch::Reset()
 {
     m_NumVerts = 0;
-    m_VertOffsetIndex = 0;
-    m_DrawCmds.clear();
+    m_VertOffsetIndex = 0;    
 }
 
 void GLBatch::Kill()
@@ -140,8 +121,4 @@ uint32_t GLBatch::VertCount()
     return m_VertOffsetIndex;
 }
 
-const std::vector<GLBatchDrawCmd>& GLBatch::DrawCmds()
-{
-    return m_DrawCmds;
-}
 

@@ -43,20 +43,24 @@ public:
 	void InitShaders();
 
 private:	
-	SDL_Window*				m_Window;
-	SDL_GLContext			m_SDL_GL_Conext;
+	SDL_Window*					m_Window;
+	SDL_GLContext				m_SDL_GL_Conext;
 
-	GLTextureManager*		m_TextureManager;
+	GLTextureManager*			m_TextureManager;
 
-	GLBatch*				m_ModelBatch;
-	GLBatch*				m_ImPrimitiveBatch;	
-	Shader*					m_ModelShader;
-	std::vector<GLModel>	m_Models;
+	GLBatch*					m_ModelBatch;
+	std::vector<GLBatchDrawCmd> m_ModelDrawCmds;
+	
+	GLBatch*					m_ImPrimitiveBatch;	
+	std::vector<GLBatchDrawCmd> m_PrimitiveDrawCmds;
+	
+	Shader*						m_ModelShader;
+	std::vector<GLModel>		m_Models;
 
-	Shader*					m_ImPrimitivesShader;
+	Shader*						m_ImPrimitivesShader;
 
-	int						m_WindowWidth;
-	int						m_WindowHeight;
+	int							m_WindowWidth;
+	int							m_WindowHeight;
 };
 
 #endif

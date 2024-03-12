@@ -18,6 +18,13 @@ enum DrawMode {
 	DRAW_MODE_LINES
 };
 
+struct GLBatchDrawCmd { // TODO: Rename
+	int		 offset;
+	uint32_t numVerts;
+	bool     cullFace;
+	DrawMode drawMode;
+};
+
 class IRender {
 public:
 	virtual bool Init(void)			= 0;

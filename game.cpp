@@ -313,7 +313,7 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawTris(skyBox.tris, 12, false);
 
     // A circle
-#define NUM_POINTS 128    
+#define NUM_POINTS 6    
     float redIncrement = 1.0f / (float)NUM_POINTS;
     float sliceAngle = 2 * HKD_PI / (float)NUM_POINTS;
     float radius = 77.0f;
