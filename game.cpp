@@ -49,13 +49,20 @@ void Game::Init()
     //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10; i++) {
         HKD_Model model = m_Model;
-        model.position = glm::vec3(RandBetween(-1000.0f, 1000.0f), RandBetween(-1000.0f, 1000.0f), 0.0f);
-        model.scale = glm::vec3(20.0f);
+        model.position = glm::vec3(RandBetween(500.0f, 3000.0f), RandBetween(500.0f, 3000.0f), 0.0f);
+        model.scale = glm::vec3(RandBetween(20.0f, 100.0f));
+        model.orientation = glm::angleAxis(glm::radians(RandBetween(0.0f, 360.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
         model.currentFrame = (int)RandBetween(0.0f, (float)(model.numFrames - 1));
         m_FixitModels.push_back(model);
     }
+
+    // Primitives
+
+    m_Box = CreateBox(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec4(1.0f, 0.9f, 0.0f, 1.0));
+    TranslateBox(&m_Box, glm::vec3(100.0f, 100.0f, 100.0f));
+    m_SkyBox = CreateBox(glm::vec3(7000.0f, 7000.0f, 7000.0f), glm::vec4(0.4f, 0.1f, 1.0f, 1.0));
 
     // Cameras
 
@@ -284,12 +291,12 @@ bool Game::RunFrame(double dt)
     Tri myCoolTri = { a, b, c };
     Tri myCoolTri2 = myCoolTri;
     //RotateTri(&myCoolTri2, glm::vec3(0, 0, 1), 90.0f);
-    Tri subdivTri[64] = {};
-    SubdivTri(&myCoolTri, subdivTri, 3);
+    Tri subdivTri[4] = {};
+    SubdivTri(&myCoolTri, subdivTri, 1);
     //Tri subdivSubdivTri[16] = {};
     //SubdivTri(&myCoolTri, subdivSubdivTri, 2);
 
-    m_Renderer->ImDrawTris(subdivTri, 64, false, DRAW_MODE_WIREFRAME);
+    m_Renderer->ImDrawTris(subdivTri, 4, false, DRAW_MODE_WIREFRAME);
 
     //m_Renderer->ImDrawTris(&myCoolTri2, 1, false);
 
@@ -307,6 +314,8 @@ bool Game::RunFrame(double dt)
     FaceQuad fqYZ = QuadToFace(&quadYZ);
     FaceQuad fqXY = QuadToFace(&quadXY);
 
+    // Use all the facequad points to create an icosahedron 
+
     m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
     m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
     m_Renderer->ImDrawTris(quadXY.tris, 2, false);
@@ -315,13 +324,8 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawLines(fqYZ.vertices, 4, true);
     m_Renderer->ImDrawLines(fqXY.vertices, 4, true);
 
-    Box box = CreateBox(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec4(1.0f, 0.9f, 0.0f, 1.0));
-    TranslateBox(&box, glm::vec3(100.0f, 100.0f, 100.0f));
-    m_Renderer->ImDrawTris(box.tris, 12, true);
-
-    Box skyBox = CreateBox(glm::vec3(5000.0f, 5000.0f, 5000.0f), glm::vec4(0.4f, 0.1f, 1.0f, 1.0));
-    //TranslateBox(&skyBox, glm::vec3(100.0f, 100.0f, 100.0f));
-    m_Renderer->ImDrawTris(skyBox.tris, 12, false);
+    m_Renderer->ImDrawTris(m_Box.tris, 12, true);
+    m_Renderer->ImDrawTris(m_SkyBox.tris, 12, false);
 
     // A circle
 #define NUM_POINTS 6    
@@ -340,16 +344,41 @@ bool Game::RunFrame(double dt)
                             // vert-data    // vert-count  // connect start and end point?
     m_Renderer->ImDrawLines(circleVertices, NUM_POINTS,    true);
 
-    //Vertex linepoints
+    // Draw indexed geometry
+
+    Vertex indexedQuadVerts[4];
+    indexedQuadVerts[0].pos = glm::vec3(0.0f, 200.0f, 0.0f);
+    indexedQuadVerts[0].color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    indexedQuadVerts[1].pos = glm::vec3(400.0f, 200.0f, 700.0f);
+    indexedQuadVerts[1].color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    indexedQuadVerts[2].pos = glm::vec3(900.0f, 200.0f, 0.0f);
+    indexedQuadVerts[2].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    indexedQuadVerts[3].pos = glm::vec3(0.0f, 200.0f, -700.0f);
+    indexedQuadVerts[3].color = glm::vec4(1.0f, 0.5f, 1.0f, 1.0f);
+
+    uint16_t indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    m_Renderer->ImDrawIndexed(indexedQuadVerts, 4, indices, 6, true, DRAW_MODE_SOLID);
 
     // Render AABBs of models
 
     Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
     TransformBox(&modelBox, CreateModelMatrix(&m_Model));
     m_Renderer->ImDrawTris(modelBox.tris, 12, false, DRAW_MODE_WIREFRAME);
+
+    for (int i = 0; i < m_FixitModels.size(); i++) {
+        HKD_Model* m = &m_FixitModels[i];
+        Box b = m->aabbBoxes[m->currentAnimIdx];
+        TransformBox(&b, CreateModelMatrix(m));
+        m_Renderer->ImDrawTris(b.tris, 12, false, DRAW_MODE_WIREFRAME);
+    }
+
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
-    m_Renderer->Render(&m_Camera, m_FixitModels);
+    m_Renderer->Render(&m_Camera, &m_FixitModels[0], m_FixitModels.size());
 
     m_Renderer->RenderEnd();
 

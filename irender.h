@@ -19,10 +19,12 @@ enum DrawMode {
 };
 
 struct GLBatchDrawCmd { // TODO: Rename
-	int		 offset;
-	uint32_t numVerts;
-	bool     cullFace;
-	DrawMode drawMode;
+	int				offset;		// offset into vertex buffer (VBO)
+	int				indexOffset;	// offset into index buffer (iVBO)
+	uint32_t		numVerts;
+	uint32_t		numIndices;
+	bool			cullFace;
+	DrawMode		drawMode;
 };
 
 class IRender {
@@ -33,10 +35,11 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
+	virtual void ImDrawIndexed(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) = 0;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) = 0;
 	virtual void RenderBegin(void) = 0;
-	virtual void Render(Camera* camera, std::vector<HKD_Model>& models) = 0;
+	virtual void Render(Camera* camera, HKD_Model* models, uint32_t numModels) = 0;
 	virtual void RenderEnd(void) = 0;
 
 private:

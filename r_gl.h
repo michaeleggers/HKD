@@ -34,12 +34,14 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle)	override;
 	virtual std::vector<ITexture*> Textures(void)       override;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
+	virtual void ImDrawIndexed(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) override;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) override;
 	virtual void RenderBegin(void)						override;
-	virtual void Render(Camera* camera, std::vector<HKD_Model>& models) override;
+	virtual void Render(Camera* camera, HKD_Model* models, uint32_t numModels) override;
 	virtual void RenderEnd(void)						override;
 
+	void ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryType geomType);
 	void InitShaders();
 
 private:	
@@ -53,6 +55,9 @@ private:
 	
 	GLBatch*					m_ImPrimitiveBatch;	
 	std::vector<GLBatchDrawCmd> m_PrimitiveDrawCmds;
+
+	GLBatch*					m_ImPrimitiveBatchIndexed;
+	std::vector<GLBatchDrawCmd>	m_PrimitiveIndexdDrawCmds;
 	
 	Shader*						m_ModelShader;
 	std::vector<GLModel>		m_Models;

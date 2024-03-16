@@ -118,6 +118,7 @@ bool GLRender::Init(void)
     // is not even close to 1Mio tris.
     m_ModelBatch = new GLBatch(1000 * 1000);
     m_ImPrimitiveBatch = new GLBatch(1000 * 1000);
+    m_ImPrimitiveBatchIndexed = new GLBatch(1000 * 1000, 1000 * 1000);
 
     // Initialize shaders
 
@@ -218,6 +219,27 @@ void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode d
     m_PrimitiveDrawCmds.push_back(drawCmd);
 }
 
+// Draw triangles with indexed geometry :)
+void GLRender::ImDrawIndexed(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, bool cullFace, DrawMode drawMode)
+{
+    int offset = 0;
+    int offsetIndices = 0;
+    if (!m_ImPrimitiveBatchIndexed->Add(verts, numVerts, indices, numIndices, &offset, &offsetIndices, cullFace, drawMode)) {
+        return;
+    }
+
+    GLBatchDrawCmd drawCmd = {        
+        .offset = offset,
+        .indexOffset = offsetIndices,
+        .numVerts = numVerts,
+        .numIndices = numIndices,
+        .cullFace = cullFace,
+        .drawMode = drawMode
+    };
+
+    m_PrimitiveIndexdDrawCmds.push_back(drawCmd);
+}
+
 // TODO: not done
 void GLRender::ImDrawVerts(Vertex* verts, uint32_t numVerts) 
 {
@@ -280,7 +302,58 @@ void GLRender::RenderBegin(void)
     ImGui::NewFrame();
 }
 
-void GLRender::Render(Camera* camera, std::vector<HKD_Model>& models)
+void GLRender::ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryType geomType) 
+{
+    uint32_t prevDrawMode = GL_FILL;
+    uint32_t primitiveType = GL_TRIANGLES;
+    for (int i = 0; i < drawCmds.size(); i++) {
+
+        GLBatchDrawCmd drawCmd = drawCmds[i];
+
+        if (!drawCmd.cullFace) {
+            glDisable(GL_CULL_FACE);
+        }
+        else {
+            glEnable(GL_CULL_FACE);
+        }
+
+        if (prevDrawMode != drawCmd.drawMode) {
+            if (drawCmd.drawMode == DRAW_MODE_WIREFRAME) {
+                glLineWidth(1.0f);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);
+                prevDrawMode = GL_LINE;
+                primitiveType = GL_TRIANGLES;
+            }
+            else if (drawCmd.drawMode == DRAW_MODE_LINES) {
+                glLineWidth(5.0f);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);
+                prevDrawMode = GL_FILL;
+                primitiveType = GL_LINES;
+            }
+            else { // DRAW_MODE_SOLID
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                prevDrawMode = GL_FILL;
+                primitiveType = GL_TRIANGLES;
+            }
+        }
+        
+        if (geomType == GEOM_TYPE_VERTEX_ONLY) {
+            glDrawArrays(primitiveType, drawCmd.offset, drawCmd.numVerts);
+        }
+        else if (geomType == GEOM_TYPE_INDEXED) {
+            uint32_t indexBufferUSOffset = drawCmd.indexOffset * sizeof(uint16_t);
+            glDrawElementsBaseVertex(primitiveType, drawCmd.numIndices, GL_UNSIGNED_SHORT,
+                (GLvoid*)(drawCmd.indexOffset * sizeof(uint16_t)), drawCmd.offset);
+        }
+
+        m_ImPrimitivesShader->ResetShaderSettingBits(SHADER_LINEMODE);
+    }
+}
+
+
+void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
 {    
     // Camera and render settings
 
@@ -304,57 +377,29 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model>& models)
 
     // Draw immediate mode primitives
 
+    // non indexed
+
     m_ImPrimitiveBatch->Bind();
     m_ImPrimitivesShader->Activate();
     m_ImPrimitivesShader->DrawWireframe((uint32_t)drawWireframe);
     m_ImPrimitivesShader->SetViewProjMatrices(view, proj);
     m_ImPrimitivesShader->SetMat4("model", glm::mat4(1));
     m_ImPrimitivesShader->SetVec3("viewPos", camera->m_Pos);        
-    uint32_t prevDrawMode = GL_FILL;
-    uint32_t primitiveType = GL_TRIANGLES;   
-    for (int i = 0; i < m_PrimitiveDrawCmds.size(); i++) {
+    ExecuteDrawCmds(m_PrimitiveDrawCmds, GEOM_TYPE_VERTEX_ONLY);
+
+    // indexed
+
+    m_ImPrimitiveBatchIndexed->Bind();
+
+    // TODO: Maybe we should have dedicated functions for indexed vs non-indexed
+    ExecuteDrawCmds(m_PrimitiveIndexdDrawCmds, GEOM_TYPE_INDEXED);
     
-        GLBatchDrawCmd drawCmd = m_PrimitiveDrawCmds[i];
-
-        if (!drawCmd.cullFace) {
-            glDisable(GL_CULL_FACE);
-        }
-        else {
-            glEnable(GL_CULL_FACE);
-        }
-        
-        if (prevDrawMode != drawCmd.drawMode) {
-            if (drawCmd.drawMode == DRAW_MODE_WIREFRAME) {
-                glLineWidth(1.0f);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);
-                prevDrawMode = GL_LINE;
-                primitiveType = GL_TRIANGLES;
-            }
-            else if (drawCmd.drawMode == DRAW_MODE_LINES) {
-                glLineWidth(5.0f);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                m_ImPrimitivesShader->SetShaderSettingBits(SHADER_LINEMODE);                
-                prevDrawMode = GL_FILL;
-                primitiveType = GL_LINES;
-            }
-            else { // DRAW_MODE_SOLID
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                prevDrawMode = GL_FILL;
-                primitiveType = GL_TRIANGLES;
-            }
-        }
-        
-        glDrawArrays(primitiveType, drawCmd.offset, drawCmd.numVerts);
-        m_ImPrimitivesShader->ResetShaderSettingBits(SHADER_LINEMODE);
-    }
-    //glDrawArrays(GL_TRIANGLES, 0, 3 * m_ImPrimitiveBatch->TriCount());
-
     // Reset to default state
 
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(1.0f);
+
 
     // Draw Models
 
@@ -367,7 +412,7 @@ void GLRender::Render(Camera* camera, std::vector<HKD_Model>& models)
         m_ModelShader->ResetShaderSettingBits(SHADER_WIREFRAME_ON_MESH);
     }    
     m_ModelShader->SetViewProjMatrices(view, proj);
-    for (int i = 0; i < models.size(); i++) {
+    for (int i = 0; i < numModels; i++) {
         
         GLModel model = m_Models[models[i].gpuModelHandle];
         m_ModelShader->SetMatrixPalette(&models[i].palette[0], models[i].numJoints);
@@ -399,7 +444,9 @@ void GLRender::RenderEnd(void)
     SDL_GL_SwapWindow(m_Window);
 
     m_ImPrimitiveBatch->Reset();
+    m_ImPrimitiveBatchIndexed->Reset();
     m_PrimitiveDrawCmds.clear();
+    m_PrimitiveIndexdDrawCmds.clear();
 }
 
 void GLRender::InitShaders()

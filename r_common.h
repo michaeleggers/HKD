@@ -7,6 +7,11 @@
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
+enum GeometryType {
+	GEOM_TYPE_VERTEX_ONLY,
+	GEOM_TYPE_INDEXED
+};
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec2 uv;
