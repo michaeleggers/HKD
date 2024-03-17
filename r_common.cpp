@@ -111,6 +111,64 @@ void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numIterations)
 	free(tmp);
 }
 
+// out_verts are expect to hold 6 vertices
+// out_indices are expected to hold 12 indices
+void SubdivIndexedTri(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, Vertex* out_verts, uint16_t* out_indices)
+{
+	if (numVerts < 3) {
+		return;
+	}
+
+	if (numIndices < 3) {
+		return;
+	}
+
+	glm::vec3 A = verts[0].pos;
+	glm::vec3 B = verts[1].pos;
+	glm::vec3 C = verts[2].pos;
+
+	glm::vec3 mAB = A + 0.5f * (B - A);
+	glm::vec3 mBC = B + 0.5f * (C - B);
+	glm::vec3 mCA = C + 0.5f * (A - C);
+
+	// find highest index
+
+	uint16_t startIndex = 0;
+	for (int i = 0; i < numIndices; i++) {
+		if (indices[i] > startIndex) {
+			startIndex = indices[i];
+		}
+	}
+	startIndex += 1;
+
+	// Put new indices into the buffer
+
+	out_indices[0] = indices[0];
+	out_indices[1] = startIndex++;
+	out_indices[2] = startIndex++;
+
+	out_indices[3] = out_indices[1];
+	out_indices[4] = indices[1];
+	out_indices[5] = startIndex++;
+
+	out_indices[6] = out_indices[5];
+	out_indices[7] = indices[2];
+	out_indices[8] = out_indices[2];
+
+	out_indices[9] = out_indices[8];
+	out_indices[10] = out_indices[1];
+	out_indices[11] = out_indices[5];
+
+	// Now the vertices
+
+	out_verts[0] = verts[0];
+	out_verts[1] = verts[1];
+	out_verts[2] = verts[2];
+	out_verts[3] = { .pos = mAB };
+	out_verts[4] = { .pos = mCA };
+	out_verts[5] = { .pos = mBC };
+}
+
 Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)
 {
 	Quad result = {};

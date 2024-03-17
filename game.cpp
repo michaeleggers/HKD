@@ -363,6 +363,32 @@ bool Game::RunFrame(double dt)
 
     m_Renderer->ImDrawIndexed(indexedQuadVerts, 4, indices, 6, true, DRAW_MODE_SOLID);
 
+    indexedQuadVerts[0].pos = glm::vec3(0.0f, 600.0f, 0.0f);
+    indexedQuadVerts[0].color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    indexedQuadVerts[1].pos = glm::vec3(400.0f, 600.0f, 700.0f);
+    indexedQuadVerts[1].color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    indexedQuadVerts[2].pos = glm::vec3(900.0f, 600.0f, 0.0f);
+    indexedQuadVerts[2].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    indexedQuadVerts[3].pos = glm::vec3(0.0f, 600.0f, -700.0f);
+    indexedQuadVerts[3].color = glm::vec4(1.0f, 0.5f, 1.0f, 1.0f);
+
+    m_Renderer->ImDrawIndexed(indexedQuadVerts, 4, indices, 6, false, DRAW_MODE_SOLID);
+
+    // Indexed Triangle subidvided
+
+    Vertex triangleVerts[3];
+    triangleVerts[0].pos = glm::vec3(100.0f, 100.0f, 100.0f);
+    triangleVerts[1].pos = glm::vec3(500.0f, 100.0f, 600.0f);
+    triangleVerts[2].pos = glm::vec3(900.0f, 100.0f, 100.0f);
+
+    uint16_t triangleIndices[3] = { 0, 1, 2 };
+
+    Vertex subdivIndexedVerts[6];
+    uint16_t subdivIndexedIndices[12];
+    SubdivIndexedTri(triangleVerts, 3, triangleIndices, 3, subdivIndexedVerts, subdivIndexedIndices);
+
+    m_Renderer->ImDrawIndexed(subdivIndexedVerts, 6, subdivIndexedIndices, 12, false, DRAW_MODE_WIREFRAME);
+
     // Render AABBs of models
 
     Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
