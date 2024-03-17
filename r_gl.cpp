@@ -429,7 +429,7 @@ void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
 
         for (int j = 0; j < model.meshes.size(); j++) {
             GLMesh* mesh = &model.meshes[j];            
-            if (mesh->texture != NULL) {
+            if (!mesh->texture->m_Filename.empty()) { // TODO: Checking string of empty is not great.
                 m_ModelShader->SetShaderSettingBits(SHADER_IS_TEXTURED);
                 glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
             }

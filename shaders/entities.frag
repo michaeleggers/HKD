@@ -69,7 +69,7 @@ void main() {
     vec3 normalColor = 0.5*Normal + 0.5;
     vec4 finalColor = vec4(normalColor, 1.0f);
     if ( (drawWireframe & SHADER_IS_TEXTURED) == SHADER_IS_TEXTURED ) {
-        vec4 finalColor = texture(colorTex, TexCoord);
+        finalColor = texture(colorTex, TexCoord);
     }
     
 

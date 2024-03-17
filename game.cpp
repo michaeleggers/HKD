@@ -410,7 +410,9 @@ bool Game::RunFrame(double dt)
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
-    m_Renderer->Render(&m_Camera, &m_IcosphereModel, 1);
+    HKD_Model renderModels[] = { m_IcosphereModel, m_FixitModels[0] };
+
+    m_Renderer->Render(&m_Camera, renderModels, 2);
 
     m_Renderer->RenderEnd();
 
