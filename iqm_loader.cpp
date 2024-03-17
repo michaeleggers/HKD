@@ -143,14 +143,15 @@ IQMModel LoadIQM(const char* file)
 			memcpy(vertB.normal, pNormals + tri->vertex[1] * normalStride, 3 * sizeof(float));
 			memcpy(vertC.normal, pNormals + tri->vertex[2] * normalStride, 3 * sizeof(float));
 
-			memcpy(vertA.blendindices, pBlendIndices + tri->vertex[0] * blendIndexStride, 4);
-			memcpy(vertB.blendindices, pBlendIndices + tri->vertex[1] * blendIndexStride, 4);
-			memcpy(vertC.blendindices, pBlendIndices + tri->vertex[2] * blendIndexStride, 4);
+			if (pHeader->numJoints > 0) {
+				memcpy(vertA.blendindices, pBlendIndices + tri->vertex[0] * blendIndexStride, 4);
+				memcpy(vertB.blendindices, pBlendIndices + tri->vertex[1] * blendIndexStride, 4);
+				memcpy(vertC.blendindices, pBlendIndices + tri->vertex[2] * blendIndexStride, 4);
 
-			memcpy(vertA.blendweights, pBlendWeights + tri->vertex[0] * blendWeightStride, 4);
-			memcpy(vertB.blendweights, pBlendWeights + tri->vertex[1] * blendWeightStride, 4);
-			memcpy(vertC.blendweights, pBlendWeights + tri->vertex[2] * blendWeightStride, 4);
-
+				memcpy(vertA.blendweights, pBlendWeights + tri->vertex[0] * blendWeightStride, 4);
+				memcpy(vertB.blendweights, pBlendWeights + tri->vertex[1] * blendWeightStride, 4);
+				memcpy(vertC.blendweights, pBlendWeights + tri->vertex[2] * blendWeightStride, 4);
+			}
 
 			mesh.vertices.push_back(vertA);
 			mesh.vertices.push_back(vertB);

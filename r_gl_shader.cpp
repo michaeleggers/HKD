@@ -62,7 +62,6 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName, uint
 	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, g_SettingsUBO, 0, sizeof(uint32_t));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
 	// TODO: Animation stuff is not global to all shaders. That is why we check for shader flags here.
 
 	if (shaderFeatureBits & SHADER_FEATURE_MODEL_ANIMATION_BIT) {

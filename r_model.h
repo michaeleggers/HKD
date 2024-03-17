@@ -17,6 +17,7 @@
 
 struct HKD_Mesh {
 	uint32_t	firstTri, numTris;
+	bool		isTextured;
 	std::string	textureFileName;
 };
 

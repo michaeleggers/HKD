@@ -33,11 +33,16 @@ void Game::Init()
     IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
     IQMModel iqmModel3 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
 
+    IQMModel iqmIcosphere = LoadIQM((m_ExePath + "../../assets/models/icosphere/icosphere.iqm").c_str());
+
     // Convert the model to our internal format
 
     m_Model = CreateModelFromIQM(&iqmModel, CreateRigidSphereBody(100.0, 0.0f));
     //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
     m_Model3 = CreateModelFromIQM(&iqmModel3, CreateRigidSphereBody(10.0, 0.5f));    
+
+    m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere, CreateRigidSphereBody(10.0f, 0.5f));
+    m_IcosphereModel.scale = glm::vec3(200.0f, 200.0f, 200.0f);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -48,6 +53,7 @@ void Game::Init()
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
     //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
+    int hRenderIcosphere = m_Renderer->RegisterModel(&m_IcosphereModel);
 
     for (int i = 0; i < 10; i++) {
         HKD_Model model = m_Model;
@@ -404,7 +410,7 @@ bool Game::RunFrame(double dt)
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 
-    m_Renderer->Render(&m_Camera, &m_FixitModels[0], m_FixitModels.size());
+    m_Renderer->Render(&m_Camera, &m_IcosphereModel, 1);
 
     m_Renderer->RenderEnd();
 

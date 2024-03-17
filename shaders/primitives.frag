@@ -22,6 +22,7 @@ float edgeFactor(){
 
 const uint SHADER_WIREFRAME_ON_MESH = 0x00000001 << 0;
 const uint SHADER_LINEMODE          = 0x00000001 << 1;
+const uint SHADER_ANIMATED          = 0x00000001 << 2;
 
 void main() {
 

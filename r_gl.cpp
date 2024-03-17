@@ -405,6 +405,7 @@ void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
 
     m_ModelBatch->Bind();
     m_ModelShader->Activate();
+    m_ModelShader->SetViewProjMatrices(view, proj);
     if (drawWireframe) {
         m_ModelShader->SetShaderSettingBits(SHADER_WIREFRAME_ON_MESH);
     }
@@ -415,18 +416,30 @@ void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
     for (int i = 0; i < numModels; i++) {
         
         GLModel model = m_Models[models[i].gpuModelHandle];
-        m_ModelShader->SetMatrixPalette(&models[i].palette[0], models[i].numJoints);
+        if (models[i].numJoints > 0) {
+            m_ModelShader->SetShaderSettingBits(SHADER_ANIMATED);
+            m_ModelShader->SetMatrixPalette(&models[i].palette[0], models[i].numJoints);
+        }
+        else {
+            m_ModelShader->ResetShaderSettingBits(SHADER_ANIMATED);
+        }
+        
         glm::mat4 modelMatrix = CreateModelMatrix(&models[i]);
         m_ModelShader->SetMat4("model", modelMatrix);
 
         for (int j = 0; j < model.meshes.size(); j++) {
             GLMesh* mesh = &model.meshes[j];            
-            glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
+            if (mesh->texture != NULL) {
+                m_ModelShader->SetShaderSettingBits(SHADER_IS_TEXTURED);
+                glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
+            }
+            else {
+                m_ModelShader->ResetShaderSettingBits(SHADER_IS_TEXTURED);
+            }
             glDrawArrays(GL_TRIANGLES, 3*mesh->triOffset, 3 * mesh->triCount);
         }
     }
-
-
+    m_ModelShader->ResetShaderSettingBits(SHADER_ANIMATED);
 
     //const std::vector<GLBatchDrawCmd>& modelDrawCmds = m_ModelBatch->DrawCmds();
     //for (int i = 0; i < modelDrawCmds.size(); i++) {

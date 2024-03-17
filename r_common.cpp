@@ -169,6 +169,11 @@ void SubdivIndexedTri(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint3
 	out_verts[5] = { .pos = mBC };
 }
 
+void SubdivIndexedTri(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, Vertex* out_verts, uint16_t* out_indices, uint32_t numIterations)
+{
+	// TODO: implement
+}
+
 Quad CreateQuad(glm::vec3 pos, float width, float height, glm::vec4 color)
 {
 	Quad result = {};

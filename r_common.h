@@ -36,6 +36,8 @@ struct Vertex {
 
 #define SHADER_WIREFRAME_ON_MESH (0x00000001 << 0)
 #define SHADER_LINEMODE          (0x00000001 << 1)
+#define SHADER_ANIMATED			 (0x00000001 << 2)
+#define SHADER_IS_TEXTURED		 (0x00000001 << 3)
 
 #define GOLDEN_RATIO			 1.618033988749
 #define HKD_PI                   3.14159265359
@@ -102,6 +104,7 @@ void SetTriColor(Tri* tri, glm::vec4 color);
 void SubdivTri(Tri* tri, Tri out_tris[]);
 void SubdivTri(Tri* tri, Tri out_tris[], uint32_t numIterations);
 void SubdivIndexedTri(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, Vertex* out_verts, uint16_t* out_indices);
+void SubdivIndexedTri(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, Vertex* out_verts, uint16_t* out_indices, uint32_t numIterations);
 Quad CreateQuad(glm::vec3 pos = glm::vec3(0, 0, 0), float width = 1.0f, float height = 1.0f, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 void RotateQuad(Quad* quad, glm::vec3 axis, float angle);
 void TranslateQuad(Quad* quad, glm::vec3 t);

@@ -41,6 +41,12 @@ HKD_Model CreateModelFromIQM(IQMModel* model, btRigidBody* rigidBody)
     for (int i = 0; i < model->meshes.size(); i++) {
         IQMMesh* iqmMesh = &model->meshes[i];
         HKD_Mesh mesh = {};
+        if (iqmMesh->material.empty()) {
+            mesh.isTextured = false;
+        }
+        else {
+            mesh.isTextured = true;
+        }
         mesh.textureFileName = iqmMesh->material;
         mesh.firstTri = iqmMesh->firstTri;
         mesh.numTris = iqmMesh->numTris;
