@@ -37,7 +37,7 @@ std::string hkd_GetExePath(void)
 
 #include <mach-o/dyld.h>
 
-std::string com_GetExePath(void)
+std::string hkd_GetExePath(void)
 {
 	char out_buffer[256];
 	uint32_t buffer_size = 256;

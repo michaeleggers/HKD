@@ -24,8 +24,8 @@ bool GLRender::Init(void)
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -74,7 +74,7 @@ bool GLRender::Init(void)
     SDL_ShowWindow(m_Window);
 
     // GL Vsync on
-    if (SDL_GL_SetSwapInterval(1) != 0) {
+    if (SDL_GL_SetSwapInterval(0) != 0) {
         SDL_Log("Failed to enable vsync!\n");
     }
     else {
@@ -289,7 +289,10 @@ void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
 
 void GLRender::RenderBegin(void)
 {    
-    SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
+    // SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
+    
+    // See: https://wiki.libsdl.org/SDL2/SDL_GL_GetDrawableSize
+    SDL_GL_GetDrawableSize(m_Window, &m_WindowWidth, &m_WindowHeight);
     float windowAspect = (float)m_WindowWidth / (float)m_WindowHeight;
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
 
@@ -470,8 +473,8 @@ void GLRender::InitShaders()
 
     m_ModelShader = new Shader();
     if (!m_ModelShader->Load(
-        exePath + "../../shaders/entities.vert",
-        exePath + "../../shaders/entities.frag",
+        exePath + "/../../shaders/entities.vert",
+        exePath + "/../../shaders/entities.frag",
         SHADER_FEATURE_MODEL_ANIMATION_BIT
     )) {
         printf("Problems initializing model shaders!\n");
@@ -479,8 +482,8 @@ void GLRender::InitShaders()
 
     m_ImPrimitivesShader = new Shader();
     if (!m_ImPrimitivesShader->Load(
-        exePath + "../../shaders/primitives.vert",
-        exePath + "../../shaders/primitives.frag"
+        exePath + "/../../shaders/primitives.vert",
+        exePath + "/../../shaders/primitives.frag"
     )) {
         printf("Problems initializing primitives shader!\n");
     }
@@ -488,8 +491,8 @@ void GLRender::InitShaders()
     // TODO: Just to test if shaders overwrite data from each other. Delete later!
     Shader* foo = new Shader(); 
     if (!foo->Load(
-        exePath + "../../shaders/entities.vert",
-        exePath + "../../shaders/entities.frag",
+        exePath + "/../../shaders/entities.vert",
+        exePath + "/../../shaders/entities.frag",
         SHADER_FEATURE_MODEL_ANIMATION_BIT
     )) {
         printf("Problems initializing model shaders!\n");

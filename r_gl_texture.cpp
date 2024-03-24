@@ -12,7 +12,7 @@ GLTexture::GLTexture(std::string filename)
 {
     std::string exePath = hkd_GetExePath();
     int x, y, n;
-    unsigned char* data = stbi_load((exePath + "../../assets/textures/" + filename).c_str(), &x, &y, &n, 4);
+    unsigned char* data = stbi_load((exePath + "/../../assets/textures/" + filename).c_str(), &x, &y, &n, 4);
 
     if (!data) {
         printf("WARNING: Failed to load texture: %s\n", filename.c_str());

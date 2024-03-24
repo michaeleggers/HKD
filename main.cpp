@@ -56,8 +56,6 @@ int main(int argc, char** argv)
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 #endif
 
-    InitBullet();    
-
     // Init globals
 
     g_GameWantsToQuit = false;

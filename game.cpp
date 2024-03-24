@@ -29,19 +29,19 @@ void Game::Init()
     // Load IQM Model
 
     //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/mrfixit/mrfixit.iqm").c_str());
-    IQMModel iqmModel2 = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel3 = LoadIQM((m_ExePath + "../../assets/models/hana/hana.iqm").c_str());
+    IQMModel iqmModel  = LoadIQM((m_ExePath + "/../../assets/models/mrfixit/mrfixit.iqm").c_str());
+    IQMModel iqmModel2 = LoadIQM((m_ExePath + "/../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
+    IQMModel iqmModel3 = LoadIQM((m_ExePath + "/../../assets/models/hana/hana.iqm").c_str());
 
-    IQMModel iqmIcosphere = LoadIQM((m_ExePath + "../../assets/models/icosphere/icosphere.iqm").c_str());
+    IQMModel iqmIcosphere = LoadIQM((m_ExePath + "/../../assets/models/icosphere/icosphere.iqm").c_str());
 
     // Convert the model to our internal format
 
-    m_Model = CreateModelFromIQM(&iqmModel, CreateRigidSphereBody(100.0, 0.0f));
+    m_Model = CreateModelFromIQM(&iqmModel);
     //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
-    m_Model3 = CreateModelFromIQM(&iqmModel3, CreateRigidSphereBody(10.0, 0.5f));    
+    m_Model3 = CreateModelFromIQM(&iqmModel3);    
 
-    m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere, CreateRigidSphereBody(10.0f, 0.5f));
+    m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
     m_IcosphereModel.scale = glm::vec3(200.0f, 200.0f, 200.0f);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
@@ -81,7 +81,7 @@ void Game::Init()
 }
 
 bool Game::RunFrame(double dt)
-{
+{    
     m_AccumTime += dt;
 
     // Test Mouse input
