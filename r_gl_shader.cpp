@@ -11,6 +11,8 @@
 #include "platform.h"
 #include "r_common.h"
 
+extern std::string g_GameDir;
+
 // GLOBAL SHADER BUFFERS (USED BY ALL SHADERS)
 
 #define BIND_POINT_VIEW_PROJECTION    0
@@ -176,8 +178,9 @@ void Shader::InitGlobalBuffers()
 
 bool Shader::CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader)
 {
+	std::string shaderFilePath = g_GameDir + fileName;
 	HKD_File shaderCode;
-	if (hkd_read_file(fileName.c_str(), &shaderCode) != HKD_FILE_SUCCESS) {
+	if (hkd_read_file(shaderFilePath.c_str(), &shaderCode) != HKD_FILE_SUCCESS) {
 		printf("Could not read file: %s!\n", fileName.c_str());
 		return false;
 	}

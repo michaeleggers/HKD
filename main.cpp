@@ -39,16 +39,14 @@
 #include "physics.h"
 #include "game.h"
 
-static bool g_GameWantsToQuit;
+static bool         g_GameWantsToQuit;
+std::string         g_GameDir;
 
 
 static bool QuitGameFunc(void) {
     g_GameWantsToQuit = true;
-    
     return true;
 }
-
-
 
 int main(int argc, char** argv)
 {
@@ -66,6 +64,13 @@ int main(int argc, char** argv)
     interface.QuitGame = QuitGameFunc;
 
     std::string exePath = hkd_GetExePath();
+    interface.gameDir = exePath;
+    g_GameDir = exePath;
+    if (argc > 0) {
+        interface.gameDir += std::string(argv[1]);
+        g_GameDir += std::string(argv[1]);
+    }
+
 
     IRender* renderer = new GLRender();
     if (!renderer->Init()) {

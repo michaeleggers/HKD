@@ -469,12 +469,10 @@ void GLRender::InitShaders()
 {
     Shader::InitGlobalBuffers();
 
-    std::string exePath = hkd_GetExePath();
-
     m_ModelShader = new Shader();
     if (!m_ModelShader->Load(
-        exePath + "/../../shaders/entities.vert",
-        exePath + "/../../shaders/entities.frag",
+        "shaders/entities.vert",
+        "shaders/entities.frag",
         SHADER_FEATURE_MODEL_ANIMATION_BIT
     )) {
         printf("Problems initializing model shaders!\n");
@@ -482,8 +480,8 @@ void GLRender::InitShaders()
 
     m_ImPrimitivesShader = new Shader();
     if (!m_ImPrimitivesShader->Load(
-        exePath + "/../../shaders/primitives.vert",
-        exePath + "/../../shaders/primitives.frag"
+        "shaders/primitives.vert",
+        "shaders/primitives.frag"
     )) {
         printf("Problems initializing primitives shader!\n");
     }
@@ -491,8 +489,8 @@ void GLRender::InitShaders()
     // TODO: Just to test if shaders overwrite data from each other. Delete later!
     Shader* foo = new Shader(); 
     if (!foo->Load(
-        exePath + "/../../shaders/entities.vert",
-        exePath + "/../../shaders/entities.frag",
+        "shaders/entities.vert",
+        "shaders/entities.frag",
         SHADER_FEATURE_MODEL_ANIMATION_BIT
     )) {
         printf("Problems initializing model shaders!\n");

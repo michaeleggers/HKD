@@ -29,11 +29,11 @@ void Game::Init()
     // Load IQM Model
 
     //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel  = LoadIQM((m_ExePath + "/../../assets/models/mrfixit/mrfixit.iqm").c_str());
-    IQMModel iqmModel2 = LoadIQM((m_ExePath + "/../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel3 = LoadIQM((m_ExePath + "/../../assets/models/hana/hana.iqm").c_str());
+    IQMModel iqmModel  = LoadIQM("models/mrfixit/mrfixit.iqm");
+    IQMModel iqmModel2 = LoadIQM("models/cylinder_two_anims/cylinder_two_anims.iqm");
+    IQMModel iqmModel3 = LoadIQM("models/hana/hana.iqm");
 
-    IQMModel iqmIcosphere = LoadIQM((m_ExePath + "/../../assets/models/icosphere/icosphere.iqm").c_str());
+    IQMModel iqmIcosphere = LoadIQM("models/icosphere/icosphere.iqm");
 
     // Convert the model to our internal format
 

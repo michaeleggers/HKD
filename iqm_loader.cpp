@@ -12,18 +12,21 @@
 
 #include "platform.h"
 
+extern std::string  g_GameDir;
+
+
 IQMModel LoadIQM(const char* file)
 {
 	IQMModel result = {};
-	result.filename = std::string(file);
+	result.filename = g_GameDir + std::string(file);
 
 	HKD_File iqmFile;
-	if (hkd_read_file(file, &iqmFile) != HKD_FILE_SUCCESS) {
+	if (hkd_read_file(result.filename.c_str() , &iqmFile) != HKD_FILE_SUCCESS) {
 		printf("Could not read IQM file: %s\n", file);
 		exit(-1);
 	}
 
-	uint8_t* iqmData = (uint8_t*)iqmFile.data;
+ 	uint8_t* iqmData = (uint8_t*)iqmFile.data;
 
 	IQMHeader* pHeader = (IQMHeader*)iqmFile.data;
 	char* pText = (char*)(iqmData + pHeader->ofsText);
