@@ -69,10 +69,7 @@ add_executable(Game
 	utils.h
 	utils.cpp
 	game.h
-	game.cpp
-
-	shaders/basic.vert
-	shaders/basic.frag
+	game.cpp	
 
     dependencies/stb_image.h
 	dependencies/stb_image_write.h

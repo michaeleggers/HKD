@@ -13,6 +13,13 @@
 #include "r_common.h"
 #include "iqm_loader.h"
 
+enum AnimState {
+	ANIM_STATE_IDLE,
+	ANIM_STATE_WALK,
+	ANIM_STATE_RUN,
+	ANIM_STATE_NONE
+};
+
 struct HKD_Mesh {
 	uint32_t	firstTri, numTris;
 	bool		isTextured;
@@ -44,8 +51,7 @@ struct HKD_Model {
 	std::vector<AABB>		aabbs; // one AABB for each animation (first frame of anim used). 
 	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
 	uint32_t				currentAnimIdx;
-
-	// Physics (TODO: move to Entity later)
+	uint32_t				prevAnimIdx;
 };
 
 HKD_Model CreateModelFromIQM(IQMModel* model);
@@ -54,5 +60,6 @@ void	  ApplyPhysicsToModel(HKD_Model* model);
 void	  UpdateRigidBodyTransform(HKD_Model* model);
 glm::mat4 CreateModelMatrix(HKD_Model* model);
 glm::mat4 CreateModelMatrix(glm::vec3 pos, glm::quat orientation, glm::vec3 scale);
+void	  SetAnimState(HKD_Model* model, AnimState animState);
 
 #endif

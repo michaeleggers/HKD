@@ -356,7 +356,7 @@ void GLRender::ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryTy
 }
 
 
-void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
+void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
 {    
     // Camera and render settings
 
@@ -418,16 +418,16 @@ void GLRender::Render(Camera* camera, HKD_Model* models, uint32_t numModels)
     m_ModelShader->SetViewProjMatrices(view, proj);
     for (int i = 0; i < numModels; i++) {
         
-        GLModel model = m_Models[models[i].gpuModelHandle];
-        if (models[i].numJoints > 0) {
+        GLModel model = m_Models[ models[i]->gpuModelHandle ];
+        if ( models[i]->numJoints > 0 ) {
             m_ModelShader->SetShaderSettingBits(SHADER_ANIMATED);
-            m_ModelShader->SetMatrixPalette(&models[i].palette[0], models[i].numJoints);
+            m_ModelShader->SetMatrixPalette( &models[i]->palette[0], models[i]->numJoints );
         }
         else {
             m_ModelShader->ResetShaderSettingBits(SHADER_ANIMATED);
         }
         
-        glm::mat4 modelMatrix = CreateModelMatrix(&models[i]);
+        glm::mat4 modelMatrix = CreateModelMatrix( models[i] );
         m_ModelShader->SetMat4("model", modelMatrix);
 
         for (int j = 0; j < model.meshes.size(); j++) {

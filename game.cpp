@@ -29,7 +29,8 @@ void Game::Init()
     // Load IQM Model
 
     //IQMModel iqmModel  = LoadIQM((m_ExePath + "../../assets/models/cylinder_two_anims/cylinder_two_anims.iqm").c_str());
-    IQMModel iqmModel  = LoadIQM("models/mrfixit/mrfixit.iqm");
+    IQMModel iqmModel  = LoadIQM("models/multiple_anims/multiple_anims.iqm");
+    IQMModel iqmModelMrFixit = LoadIQM("models/mrfixit/mrfixit.iqm");
     IQMModel iqmModel2 = LoadIQM("models/cylinder_two_anims/cylinder_two_anims.iqm");
     IQMModel iqmModel3 = LoadIQM("models/hana/hana.iqm");
 
@@ -37,9 +38,10 @@ void Game::Init()
 
     // Convert the model to our internal format
 
-    m_Model = CreateModelFromIQM(&iqmModel);
+    m_Model = CreateModelFromIQM(&iqmModelMrFixit);
     //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
     m_Model3 = CreateModelFromIQM(&iqmModel3);    
+    m_Player = CreateModelFromIQM(&iqmModel);
 
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
     m_IcosphereModel.scale = glm::vec3(200.0f, 200.0f, 200.0f);
@@ -47,12 +49,17 @@ void Game::Init()
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
+    m_Player.position = glm::vec3(0, 0, 0);
+    m_Player.scale = glm::vec3(50.0f);
+    SetAnimState(&m_Player, ANIM_STATE_WALK);
+
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
     int hRenderModel = m_Renderer->RegisterModel(&m_Model);
     //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
+    int hPlayerModel = m_Renderer->RegisterModel(&m_Player);
     int hRenderIcosphere = m_Renderer->RegisterModel(&m_IcosphereModel);
 
     for (int i = 0; i < 10; i++) {
@@ -74,10 +81,11 @@ void Game::Init()
 
     m_Camera = Camera(glm::vec3(0, -5, 8.0));
 
-    m_FollowCamera = Camera(m_Model3.position);
+    m_FollowCamera = Camera(m_Player.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    
-    m_FollowCamera.m_Pos.z += 180.0f;
+    m_FollowCamera.m_Pos.z += 100.0f;
     m_FollowCamera.RotateAroundSide(-20.0f);    
+    m_FollowCamera.RotateAroundUp(180.0f);
 }
 
 bool Game::RunFrame(double dt)
@@ -121,8 +129,8 @@ bool Game::RunFrame(double dt)
     float followCamSpeed = 0.5f;
     float followTurnSpeed = 0.2f;
     if (KeyPressed(SDLK_LSHIFT)) {
-        followCamSpeed *= 0.1f;        
-        followTurnSpeed *= 0.1f;
+        followCamSpeed *= 0.35f;        
+        followTurnSpeed *= 0.3f;
     }
 
     // Model rotation
@@ -130,33 +138,46 @@ bool Game::RunFrame(double dt)
     float r = followTurnSpeed * dt;
     if (KeyPressed(SDLK_RIGHT)) {
         glm::quat rot = glm::angleAxis(glm::radians(-r), glm::vec3(0.0f, 0.0f, 1.0f));
-        m_Model3.orientation *= rot;
+        m_Player.orientation *= rot;
         m_FollowCamera.RotateAroundUp(-r);
     }
     if (KeyPressed(SDLK_LEFT)) {
         glm::quat rot = glm::angleAxis(glm::radians(r), glm::vec3(0.0f, 0.0f, 1.0f));
-        m_Model3.orientation *= rot;
+        m_Player.orientation *= rot;
         m_FollowCamera.RotateAroundUp(r);
     }
-    glm::quat orientation = m_Model3.orientation;    
+    glm::quat orientation = m_Player.orientation;
     glm::vec3 forward = glm::rotate(orientation, glm::vec3(0.0f, -1.0f, 0.0f)); // -1 because the model is facing -1 (Outside the screen)
     glm::vec3 side = glm::cross(forward, glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Model translation
 
     float t = (float)dt * followCamSpeed;
+    AnimState playerAnimState = ANIM_STATE_IDLE;
     if (KeyPressed(SDLK_w)) {          
-        m_Model3.position += t * forward;        
+        m_Player.position += t * forward;        
+        playerAnimState = ANIM_STATE_RUN;
     }
     if (KeyPressed(SDLK_s)) {        
-        m_Model3.position -= t * forward;        
+        m_Player.position -= t * forward;
+        playerAnimState = ANIM_STATE_RUN;
     }
     if (KeyPressed(SDLK_d)) {
-        m_Model3.position += t * side;
+        m_Player.position += t * side;
+        playerAnimState = ANIM_STATE_RUN;        
     }
     if (KeyPressed(SDLK_a)) {
-        m_Model3.position -= t * side;
+        m_Player.position -= t * side;
+        playerAnimState = ANIM_STATE_RUN;
     }
+
+    if (playerAnimState == ANIM_STATE_RUN) {
+        if (KeyPressed(SDLK_LSHIFT)) {
+            playerAnimState = ANIM_STATE_WALK;
+        }
+    }
+
+    SetAnimState(&m_Player, playerAnimState);
 
     // Scale small model up
 
@@ -179,6 +200,7 @@ bool Game::RunFrame(double dt)
     for (auto& model : m_FixitModels) {
         UpdateModel(&model, (float)dt);
     }
+    UpdateModel(&m_Player, 0.1f*(float)dt);
 
     // Run physics
 
@@ -186,9 +208,9 @@ bool Game::RunFrame(double dt)
 
     // Fix camera position
 
-    m_FollowCamera.m_Pos.x = m_Model3.position.x;
-    m_FollowCamera.m_Pos.y = m_Model3.position.y;
-    m_FollowCamera.m_Pos.z = m_Model3.position.z + 180.0f;
+    m_FollowCamera.m_Pos.x = m_Player.position.x;
+    m_FollowCamera.m_Pos.y = m_Player.position.y;
+    m_FollowCamera.m_Pos.z = m_Player.position.z + 160.0f;
     m_FollowCamera.m_Pos += (-forward * 200.0f);
 
     // Update camera
@@ -237,7 +259,7 @@ bool Game::RunFrame(double dt)
     int textureID = 0;   
 
     // Display textures
-
+#if 0
     ImGui::Begin("Textures");
 
     for (auto& texture : textures) {
@@ -263,7 +285,9 @@ bool Game::RunFrame(double dt)
     }
 
     ImGui::End();   
+#endif
     
+#if 0
     for (int i = 0; i < showModelInspector.size(); i++) {
         if (showModelInspector[i]) {
             ITexture* texture = textures[i];
@@ -279,7 +303,9 @@ bool Game::RunFrame(double dt)
             ImGui::End();
         }
     }
+#endif
 
+#if 0
     // Draw some primitives in immediate mode
 
     Vertex a = {};
@@ -395,6 +421,9 @@ bool Game::RunFrame(double dt)
 
     m_Renderer->ImDrawIndexed(subdivIndexedVerts, 6, subdivIndexedIndices, 12, false, DRAW_MODE_WIREFRAME);
 
+#endif
+
+#if 0
     // Render AABBs of models
 
     Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
@@ -409,10 +438,11 @@ bool Game::RunFrame(double dt)
     }
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
+#endif
 
-    HKD_Model renderModels[] = { m_IcosphereModel, m_FixitModels[0] };
+    HKD_Model* renderModels[] = { &m_FixitModels[0], &m_Player };
 
-    m_Renderer->Render(&m_Camera, renderModels, 2);
+    m_Renderer->Render(&m_FollowCamera, renderModels, 2);
 
     m_Renderer->RenderEnd();
 

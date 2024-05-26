@@ -38,7 +38,7 @@ public:
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) override;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) override;
 	virtual void RenderBegin(void)						override;
-	virtual void Render(Camera* camera, HKD_Model* models, uint32_t numModels) override;
+	virtual void Render(Camera* camera, HKD_Model** models, uint32_t numModels) override;
 	virtual void RenderEnd(void)						override;
 
 	void ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryType geomType);

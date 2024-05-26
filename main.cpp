@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     std::string exePath = hkd_GetExePath();
     interface.gameDir = exePath;
     g_GameDir = exePath;
-    if (argc > 0) {
+    if (argc > 1) {
         interface.gameDir += std::string(argv[1]);
         g_GameDir += std::string(argv[1]);
     }

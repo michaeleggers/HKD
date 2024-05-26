@@ -126,7 +126,7 @@ void UpdateModel(HKD_Model* model, float dt)
 {
     uint32_t currentFrame = model->currentFrame;    
     uint32_t animIdx = model->currentAnimIdx;    
-    
+
     Anim anim = model->animations[animIdx];
     float msPerFrame = 1000.0f / anim.framerate;
 
@@ -153,15 +153,25 @@ void UpdateModel(HKD_Model* model, float dt)
         model->pctFrameDone -= msPerFrame;
     }
 
-    if (currentFrame >= anim.firstFrame + anim.numFrames) {
-        model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();
+    // For now, we just cylce through all animations. If the current animations has reached its
+    // end, we jump to the next animation.
+
+    if (currentFrame >= anim.firstFrame + anim.numFrames-1) {
+        //model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();
         anim = model->animations[model->currentAnimIdx];
-        currentFrame = anim.firstFrame;
+        currentFrame = anim.firstFrame;        
     }
     model->currentFrame = currentFrame;
     uint32_t nextFrame = (currentFrame + 1) % (anim.firstFrame + anim.numFrames);
+    if (nextFrame < anim.firstFrame) {
+        nextFrame = anim.firstFrame;
+    }
+
+    //printf("currentFrame: %d\n", currentFrame);
+    
 
     // Build the matrix palette
+
 
     // Build the global transform for each bone for the current pose
 
@@ -219,4 +229,21 @@ glm::mat4 CreateModelMatrix(glm::vec3 pos, glm::quat orientation, glm::vec3 scal
     glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
 
     return T * R * S;
+}
+
+void SetAnimState(HKD_Model* model, AnimState animState)
+{
+    AnimState currentState = (AnimState)model->currentAnimIdx;
+
+    if (currentState == animState) {
+        return;
+    }
+    
+    model->currentAnimIdx = (uint32_t)animState;
+    Anim anim = model->animations[model->currentAnimIdx];
+    uint32_t firstFrame = anim.firstFrame;
+    model->currentFrame = firstFrame;
+    
+    //printf("Current anim idx: %d\n", model->currentAnimIdx);
+    //printf("Current frame: %d\n", model->currentFrame);
 }
