@@ -7,8 +7,11 @@
 #include "input.h" 
 #include "physics.h"
 #include "utils.h"
+#include "Shape.h"
+#include "ShapeSphere.h"
 
 #include "imgui.h"
+
 
 static int hkd_Clamp(int val, int clamp) {
     if (val > clamp || val < clamp) return clamp;
@@ -44,7 +47,15 @@ void Game::Init()
     m_Player = CreateModelFromIQM(&iqmModel);
 
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
-    m_IcosphereModel.scale = glm::vec3(200.0f, 200.0f, 200.0f);
+    float icosphereRadius = 200.0f;
+    m_IcosphereModel.scale = glm::vec3(icosphereRadius);
+    Body icosphereBody;
+    icosphereBody.m_Position = glm::vec3(0.0f);
+    icosphereBody.m_Orientation = glm::angleAxis(
+        glm::radians(0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f));
+    icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
+    phys_AddBody(icosphereBody);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -194,17 +205,19 @@ bool Game::RunFrame(double dt)
     //modelsToRender.push_back(&m_Model2);
     modelsToRender.push_back(&m_Model3);
 
+    /*
     for (auto& model : modelsToRender) {
         UpdateModel(model, (float)dt);
     }
     for (auto& model : m_FixitModels) {
         UpdateModel(&model, (float)dt);
     }
+    */
     UpdateModel(&m_Player, 0.1f*(float)dt);
 
     // Run physics
 
-    // TODO :)
+    phys_Update(0.1f * (float)dt);
 
     // Fix camera position
 
@@ -440,9 +453,11 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
-    HKD_Model* renderModels[] = { &m_FixitModels[0], &m_Player };
+    HKD_Model* renderModels[] = { &m_FixitModels[0], &m_Player, &m_IcosphereModel };
 
-    m_Renderer->Render(&m_FollowCamera, renderModels, 2);
+    m_Renderer->Render(
+        &m_FollowCamera,
+        renderModels, sizeof(renderModels)/sizeof(HKD_Model*));
 
     m_Renderer->RenderEnd();
 

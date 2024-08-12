@@ -54,6 +54,19 @@ std::string hkd_GetExePath(void)
 	return std::string(out_buffer);
 }
 
+#elif __linux__
+
+#include <string.h>
+#include <SDL.h>
+
+std::string hkd_GetExePath(void)
+{
+	char out_buffer[256];
+	int  buffer_size = 256;
+	char* basePath = SDL_GetBasePath();
+
+	return std::string(basePath);
+}
 #endif
 
 

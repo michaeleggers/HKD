@@ -1,0 +1,11 @@
+/home/me/repos/HKD/cmake-build-debug/CMakeFiles/Game.dir
+/home/me/repos/HKD/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/me/repos/HKD/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/sdl_headers_copy.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/SDL2main.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/SDL2.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/SDL2-static.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/SDL2_test.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/uninstall.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/edit_cache.dir
+/home/me/repos/HKD/cmake-build-debug/dependencies/SDL2.28.4/CMakeFiles/rebuild_cache.dir

@@ -18,27 +18,41 @@
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
 
+void GLRender::Shutdown(void)
+{
+    // Deinit ImGui
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    // Close and destroy the window
+    SDL_GL_DeleteContext(m_SDL_GL_Conext);
+    SDL_DestroyWindow(m_Window);
+
+    m_ModelBatch->Kill();
+    delete m_ModelBatch;
+
+    m_ImPrimitiveBatch->Kill();
+    delete m_ImPrimitiveBatch;
+    
+    m_ModelShader->Unload();
+    delete m_ModelShader;
+
+    m_ImPrimitivesShader->Unload();
+    delete m_ImPrimitivesShader;
+}
+
 bool GLRender::Init(void)
-{   
+{
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
     // From 2.0.18: Enable native IME.
+/*
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
+*/
 
     // Create an application window with the following settings:
     m_Window = SDL_CreateWindow(
@@ -50,6 +64,22 @@ bool GLRender::Init(void)
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
+    // BEWARE! These flags must be set AFTER SDL_CreateWindow. Otherwise SDL
+    // just doesn't cate about them!
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
     m_SDL_GL_Conext = SDL_GL_CreateContext(m_Window);
     if (!m_SDL_GL_Conext) {
         SDL_Log("Unable to create GL context! SDL-Error: %s\n", SDL_GetError());
@@ -58,10 +88,18 @@ bool GLRender::Init(void)
 
     SDL_GL_MakeCurrent(m_Window, m_SDL_GL_Conext);
 
+    int majorVersion;
+    int minorVersion;
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &majorVersion);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minorVersion);
+    printf("OpenGL Version active: %d.%d\n", majorVersion, minorVersion);
+
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         SDL_Log("Failed to get OpenGL function pointers via GLAD: %s\n", SDL_GetError());
         return false;
     }
+
+    printf("OpenGL Version active (via glGetString): %s\n", glGetString(GL_VERSION));
 
     // Check that the window was successfully created
 
@@ -74,7 +112,7 @@ bool GLRender::Init(void)
     SDL_ShowWindow(m_Window);
 
     // GL Vsync on
-    if (SDL_GL_SetSwapInterval(0) != 0) {
+    if (SDL_GL_SetSwapInterval(1) != 0) {
         SDL_Log("Failed to enable vsync!\n");
     }
     else {
@@ -113,7 +151,7 @@ bool GLRender::Init(void)
 
     // make space for 1Mio vertices
     // TODO: What should be the upper limit?
-    // With sizeof(Vertex) = 92bytes => sizeof(Tri) = 276bytes we need ~ 263MB for Models. 
+    // With sizeof(Vertex) = 92bytes => sizeof(Tri) = 276bytes we need ~ 263MB for Models.
     // A lot for a game in the 2000s! Our models have a tri count of maybe 3000 Tris (without weapon), which
     // is not even close to 1Mio tris.
     m_ModelBatch = new GLBatch(1000 * 1000);
@@ -125,31 +163,6 @@ bool GLRender::Init(void)
     InitShaders();
 
     return true;
-}
-
-void GLRender::Shutdown(void)
-{
-    // Deinit ImGui
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-
-    // Close and destroy the window
-    SDL_GL_DeleteContext(m_SDL_GL_Conext);
-    SDL_DestroyWindow(m_Window);
-
-    m_ModelBatch->Kill();
-    delete m_ModelBatch;
-
-    m_ImPrimitiveBatch->Kill();
-    delete m_ImPrimitiveBatch;
-    
-    m_ModelShader->Unload();
-    delete m_ModelShader;
-
-    m_ImPrimitivesShader->Unload();
-    delete m_ImPrimitivesShader;
 }
 
 // At the moment we don't generate a drawCmd for a model. We just but all of

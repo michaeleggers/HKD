@@ -16,7 +16,7 @@ struct Vertex {
 	glm::vec3 pos;
 	glm::vec2 uv;
 	glm::vec3 bc;
-	glm::vec3 normal = glm::vec3(0.0f, -1.0f, 0.0f); // points *against* the forward direction (because camera is facing to forward by default)
+	glm::vec3 normal; // = glm::vec3(0.0f, -1.0f, 0.0f); // points *against* the forward direction (because camera is facing to forward by default)
 	glm::vec4 color;
 	uint32_t  blendindices[4];
 	glm::vec4 blendweights;
@@ -45,7 +45,7 @@ struct Vertex {
 
 struct Tri {
 	union {
-		struct { Vertex a, b, c; };
+		struct { Vertex a; Vertex b; Vertex c; };
 		Vertex vertices[3];
 	};
 };

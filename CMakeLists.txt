@@ -18,9 +18,24 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
+# set(CMAKE_CXX_FLAGS "-fms-extensions")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	message("############## Using Clang compiler ##############")
+	add_compile_options(-fms-extensions)
+endif()
+
 if (WIN32)
 	# res/app.rc
-	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc)
+	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc
+			TestClass.cpp
+			TestClass.h
+			Shape.cpp
+			Shape.h
+			ShapeSphere.cpp
+			ShapeSphere.h
+			Body.cpp
+			Body.h
+	)
 endif()
 
 if (MSVC)
@@ -34,6 +49,7 @@ add_subdirectory(dependencies/SDL2.28.4)
 # 	${SRC_FILES}
 # 	${HEADER_FILES}
 # )	
+
 
 
 add_executable(Game
@@ -98,6 +114,14 @@ add_executable(Game
 	dependencies/glad/src/glad.c
 
 	${RESOURCE_FILES}
+		TestClass.cpp
+		TestClass.h
+		Shape.cpp
+		Shape.h
+		ShapeSphere.cpp
+		ShapeSphere.h
+		Body.cpp
+		Body.h
 )
 
 target_include_directories(Game

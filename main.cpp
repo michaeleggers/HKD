@@ -38,6 +38,7 @@
 #include "hkd_interface.h"
 #include "physics.h"
 #include "game.h"
+#include "TestClass.h"
 
 static bool         g_GameWantsToQuit;
 std::string         g_GameDir;
@@ -50,6 +51,7 @@ static bool QuitGameFunc(void) {
 
 int main(int argc, char** argv)
 {
+
 #if WIN32
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 #endif
@@ -90,7 +92,6 @@ int main(int argc, char** argv)
     Uint64 endCounter = SDL_GetPerformanceCounter();
     
     while (!ShouldClose() && !g_GameWantsToQuit) {
-
         double ticksPerFrame = (double)endCounter - (double)startCounter;
         double msPerFrame = (ticksPerFrame / (double)ticksPerSecond) * 1000.0;
 
@@ -99,6 +100,9 @@ int main(int argc, char** argv)
         HandleInput();
 
         game.RunFrame(msPerFrame);
+
+        //printf("msPerFrame: %f\n", msPerFrame/1000.0f);
+        //printf("FPS: %f\n", 1000.0f/msPerFrame);
 
         endCounter = SDL_GetPerformanceCounter();
     }
