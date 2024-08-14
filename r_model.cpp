@@ -200,7 +200,7 @@ void UpdateModel(HKD_Model* model, float dt)
 
     // Update the rigid body
     
-    UpdateRigidBodyTransform(model);
+    // UpdateRigidBodyTransform(model);
 }
 
 void ApplyPhysicsToModel(HKD_Model* model)
@@ -210,7 +210,7 @@ void ApplyPhysicsToModel(HKD_Model* model)
 
 void UpdateRigidBodyTransform(HKD_Model* model)
 {
-
+    model->position = model->body.m_Position;
 }
 
 glm::mat4 CreateModelMatrix(HKD_Model* model)

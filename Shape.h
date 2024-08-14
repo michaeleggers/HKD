@@ -5,7 +5,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
-
+#include <glm/glm.hpp>
 
 class Shape {
 public:
@@ -14,6 +14,9 @@ public:
     };
 
     virtual ShapeType GetType() const = 0;
+    virtual glm::vec3 GetCenterOfMass() const { return m_CenterOfMass; };
+
+    glm::vec3 m_CenterOfMass;
 };
 
 

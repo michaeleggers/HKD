@@ -12,6 +12,7 @@
 
 #include "r_common.h"
 #include "iqm_loader.h"
+#include "Body.h"
 
 enum AnimState {
 	ANIM_STATE_IDLE,
@@ -52,6 +53,9 @@ struct HKD_Model {
 	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
 	uint32_t				currentAnimIdx;
 	uint32_t				prevAnimIdx;
+
+	// Physics
+	Body					body;
 };
 
 HKD_Model CreateModelFromIQM(IQMModel* model);

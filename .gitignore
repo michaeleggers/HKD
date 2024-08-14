@@ -4,3 +4,8 @@
 
 **/.DS_Store
 **/.vscode/**
+
+**/*.o/
+
+**/cmake-build-debug/**
+**/cmake-build-release/**

@@ -49,18 +49,21 @@ void Game::Init()
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
     float icosphereRadius = 200.0f;
     m_IcosphereModel.scale = glm::vec3(icosphereRadius);
+    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 0.0f);
     Body icosphereBody;
     icosphereBody.m_Position = glm::vec3(0.0f);
     icosphereBody.m_Orientation = glm::angleAxis(
         glm::radians(0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec3(0.0f, 0.0f, -1.0f));
+    icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
     icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
-    phys_AddBody(icosphereBody);
+    m_IcosphereModel.body = icosphereBody;
+    phys_AddBody(&m_IcosphereModel.body);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
-    m_Player.position = glm::vec3(0, 0, 0);
+    m_Player.position = glm::vec3(0, 7000.0f, 0);
     m_Player.scale = glm::vec3(50.0f);
     SetAnimState(&m_Player, ANIM_STATE_WALK);
 
@@ -213,11 +216,14 @@ bool Game::RunFrame(double dt)
         UpdateModel(&model, (float)dt);
     }
     */
-    UpdateModel(&m_Player, 0.1f*(float)dt);
 
     // Run physics
 
-    phys_Update(0.1f * (float)dt);
+    phys_Update((float)dt / 100.0f);
+
+    UpdateModel(&m_Player, (float)dt);
+    UpdateRigidBodyTransform(&m_IcosphereModel);
+    //UpdateModel(&m_IcosphereModel, (float)dt);
 
     // Fix camera position
 

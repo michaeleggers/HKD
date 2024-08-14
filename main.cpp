@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 
         game.RunFrame(msPerFrame);
 
-        //printf("msPerFrame: %f\n", msPerFrame/1000.0f);
+        printf("msPerFrame: %f\n", msPerFrame);
         //printf("FPS: %f\n", 1000.0f/msPerFrame);
 
         endCounter = SDL_GetPerformanceCounter();
