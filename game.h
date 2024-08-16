@@ -25,6 +25,7 @@ private:
 	HKD_Model		m_Model3;
 	HKD_Model		m_Player;
 	HKD_Model		m_IcosphereModel;
+	HKD_Model		m_IcosphereGroundModel;
 
 	Camera			m_Camera;
 	Camera			m_FollowCamera;

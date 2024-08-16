@@ -18,9 +18,12 @@ public:
     glm::vec3 WorldSpaceToBodySpace(glm::vec3& pt);
     glm::vec3 BodySpaceToWorldSpace(glm::vec3& pt);
 
+    void ApplyImpulseLinear(glm::vec3& impulse);
+
     glm::vec3   m_Position;
     glm::quat   m_Orientation;
     glm::vec3   m_LinearVelocity;
+    float       m_InvMass;
     Shape*      m_Shape;
 };
 

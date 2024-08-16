@@ -1,11 +1,13 @@
 #include "r_gl.h"
 
 #include <SDL.h>
+#include <SDL_egl.h>
 #include <glad/glad.h>
 
 #include "imgui.h"
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <SDL2/SDL_egl.h>
 
 #include "r_common.h"
 #include "platform.h"
@@ -76,7 +78,7 @@ bool GLRender::Init(void)
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    //SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
@@ -508,5 +510,10 @@ void GLRender::InitShaders()
     )) {
         printf("Problems initializing model shaders!\n");
     }
+}
+
+void GLRender::SetWindowTitle(char* windowTitle)
+{
+    SDL_SetWindowTitle(m_Window, windowTitle);
 }
 

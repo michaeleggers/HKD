@@ -41,6 +41,7 @@ public:
 	virtual void RenderBegin(void) = 0;
 	virtual void Render(Camera* camera, HKD_Model** models, uint32_t numModels) = 0;
 	virtual void RenderEnd(void) = 0;
+	virtual void SetWindowTitle(char* windowTitle) = 0;
 
 private:
 

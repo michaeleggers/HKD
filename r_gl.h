@@ -40,6 +40,7 @@ public:
 	virtual void RenderBegin(void)						override;
 	virtual void Render(Camera* camera, HKD_Model** models, uint32_t numModels) override;
 	virtual void RenderEnd(void)						override;
+	virtual void SetWindowTitle(char* windowTitle) override;
 
 	void ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryType geomType);
 	void InitShaders();

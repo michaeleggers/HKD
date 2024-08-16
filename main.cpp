@@ -90,7 +90,8 @@ int main(int argc, char** argv)
     Uint64 ticksPerSecond = SDL_GetPerformanceFrequency();
     Uint64 startCounter = SDL_GetPerformanceCounter();
     Uint64 endCounter = SDL_GetPerformanceCounter();
-    
+
+    float updateIntervalMs = 0.0f;
     while (!ShouldClose() && !g_GameWantsToQuit) {
         double ticksPerFrame = (double)endCounter - (double)startCounter;
         double msPerFrame = (ticksPerFrame / (double)ticksPerSecond) * 1000.0;
@@ -101,8 +102,19 @@ int main(int argc, char** argv)
 
         game.RunFrame(msPerFrame);
 
-        printf("msPerFrame: %f\n", msPerFrame);
+        //printf("msPerFrame: %f\n", msPerFrame);
         //printf("FPS: %f\n", 1000.0f/msPerFrame);
+
+        // Update window title every second.
+        updateIntervalMs += msPerFrame;
+        if (updateIntervalMs >= 1000.0f) {
+            char windowTitle[256];
+            sprintf(windowTitle,
+                    "Device: %s, frametime (ms): %f, FPS: %f",
+                    glGetString(GL_RENDERER), msPerFrame, 1000.0f / msPerFrame);
+            renderer->SetWindowTitle(windowTitle);
+            updateIntervalMs = 0.0f;
+        }
 
         endCounter = SDL_GetPerformanceCounter();
     }

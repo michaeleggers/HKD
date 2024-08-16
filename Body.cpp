@@ -32,3 +32,9 @@ glm::vec3 Body::BodySpaceToWorldSpace(glm::vec3 &pt) {
     glm::vec3 ptWorld = r * pt;
     return GetCenterOfMassWorldSpace() + ptWorld;
 }
+
+void Body::ApplyImpulseLinear(glm::vec3 &impulse) {
+    if (m_InvMass < 0.000001f) return;
+
+    m_LinearVelocity += impulse * m_InvMass;
+}

@@ -57,8 +57,21 @@ void Game::Init()
         glm::vec3(0.0f, 0.0f, -1.0f));
     icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
     icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
+    icosphereBody.m_InvMass = 1.0f / 10.0f;
     m_IcosphereModel.body = icosphereBody;
     phys_AddBody(&m_IcosphereModel.body);
+
+    m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphere);
+    float groundRadius = 10000.0f;
+    m_IcosphereGroundModel.scale = glm::vec3(groundRadius);
+    m_IcosphereGroundModel.position = glm::vec3(0.0f, 0.0f, -10000.0f);
+    Body groundBody;
+    groundBody.m_Position = m_IcosphereGroundModel.position;
+    groundBody.m_LinearVelocity = glm::vec3(0.0f);
+    groundBody.m_Shape = new ShapeSphere(groundRadius);
+    groundBody.m_InvMass = 0.0f;
+    m_IcosphereGroundModel.body = groundBody;
+    phys_AddBody(&m_IcosphereGroundModel.body);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -75,6 +88,7 @@ void Game::Init()
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
     int hPlayerModel = m_Renderer->RegisterModel(&m_Player);
     int hRenderIcosphere = m_Renderer->RegisterModel(&m_IcosphereModel);
+    int hRenderIcosphereGround = m_Renderer->RegisterModel(&m_IcosphereGroundModel);
 
     for (int i = 0; i < 10; i++) {
         HKD_Model model = m_Model;
@@ -223,6 +237,7 @@ bool Game::RunFrame(double dt)
 
     UpdateModel(&m_Player, (float)dt);
     UpdateRigidBodyTransform(&m_IcosphereModel);
+    UpdateRigidBodyTransform(&m_IcosphereGroundModel);
     //UpdateModel(&m_IcosphereModel, (float)dt);
 
     // Fix camera position
@@ -459,11 +474,15 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
-    HKD_Model* renderModels[] = { &m_FixitModels[0], &m_Player, &m_IcosphereModel };
+    HKD_Model* renderModels[] = {
+        &m_Player,
+        &m_IcosphereModel,
+        &m_IcosphereGroundModel
+    };
 
     m_Renderer->Render(
         &m_FollowCamera,
-        renderModels, sizeof(renderModels)/sizeof(HKD_Model*));
+        renderModels, 3);
 
     m_Renderer->RenderEnd();
 
