@@ -49,7 +49,7 @@ void Game::Init()
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
     float icosphereRadius = 20.0f;
     m_IcosphereModel.scale = glm::vec3(icosphereRadius);
-    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 500.0f);
+    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 10000.0f);
     Body icosphereBody;
     icosphereBody.m_Position = m_IcosphereModel.position;
     icosphereBody.m_Orientation = glm::angleAxis(
@@ -207,21 +207,6 @@ bool Game::RunFrame(double dt)
 
     SetAnimState(&m_Player, playerAnimState);
 
-    // Scale small model up
-
-    m_Model.scale = glm::vec3(20.0f);
-    static float sinX = 0.0f;
-    sinX += 0.00001f;
-    m_Model.position.x += 0.001f;
-
-    // Select models that should be rendered:
-
-    std::vector<HKD_Model*> modelsToRender;
-
-    modelsToRender.push_back(&m_Model);
-    //modelsToRender.push_back(&m_Model2);
-    modelsToRender.push_back(&m_Model3);
-
     /*
     for (auto& model : modelsToRender) {
         UpdateModel(model, (float)dt);
@@ -286,14 +271,14 @@ bool Game::RunFrame(double dt)
 
     ImGui::ShowDemoWindow();
 
+    // Display textures
+#if 0
     static std::vector<bool> showModelInspector;
     std::vector<ITexture*> textures = m_Renderer->Textures();
     showModelInspector.resize(textures.size());
 
-    int textureID = 0;   
+    int textureID = 0;
 
-    // Display textures
-#if 0
     ImGui::Begin("Textures");
 
     for (auto& texture : textures) {

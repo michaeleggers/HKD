@@ -31,9 +31,9 @@ void phys_Update(float dt) {
                 continue;
             }
 
-            if (Intersect(bodyA, bodyB)) {
-                bodyA->m_LinearVelocity = glm::vec3(0.0f);
-                bodyB->m_LinearVelocity = glm::vec3(0.0f);
+            Contact contact;
+            if (Intersect(bodyA, bodyB, contact)) {
+                phys_ResolveContact(contact);
             }
         }
     }
@@ -45,3 +45,27 @@ void phys_Update(float dt) {
     }
 }
 
+void phys_ResolveContact(Contact& contact) {
+    Body* bodyA = contact.bodyA;
+    Body* bodyB = contact.bodyB;
+
+    bodyA->m_LinearVelocity = glm::vec3(0.0f);
+    bodyB->m_LinearVelocity = glm::vec3(0.0f);
+
+    float tA = bodyA->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);
+    float tB = bodyB->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);
+
+    glm::vec3 separationDistance = contact.ptOnB_WorldSpace - contact.ptOnA_WorldSpace;
+
+    // Don't separate bodies if they are very close together
+    // to avoid jittering.
+    if ( glm::length(separationDistance) < 1.0f ) {
+        // Only if at least on of them has infinite mass.
+        if (bodyA->m_InvMass <= 0.0f || bodyB->m_InvMass <= 0.0f) {
+            return;
+        }
+    }
+
+    bodyA->m_Position += separationDistance * tA;
+    bodyB->m_Position -= separationDistance * tB;
+}

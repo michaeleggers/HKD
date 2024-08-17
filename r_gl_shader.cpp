@@ -220,7 +220,7 @@ bool Shader::IsValidProgram()
 	if (status != GL_TRUE) {
 		char buffer[512];
 		memset(buffer, 0, 512);
-		glGetProgramInfoLog(m_ShaderProgram, 511, nullptr, buffer);
+		glGetProgramInfoLog(m_ShaderProgram, 512, nullptr, buffer);
 		printf("GLSL compile error:\n%s\n", buffer);
 
 		return false;
