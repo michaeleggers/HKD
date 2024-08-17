@@ -35,6 +35,8 @@ if (WIN32)
 			ShapeSphere.h
 			Body.cpp
 			Body.h
+			Intersections.cpp
+			Intersections.h
 	)
 endif()
 
@@ -122,6 +124,8 @@ add_executable(Game
 		ShapeSphere.h
 		Body.cpp
 		Body.h
+		Intersections.cpp
+		Intersections.h
 )
 
 target_include_directories(Game

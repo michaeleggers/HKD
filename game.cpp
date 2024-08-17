@@ -47,11 +47,11 @@ void Game::Init()
     m_Player = CreateModelFromIQM(&iqmModel);
 
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
-    float icosphereRadius = 200.0f;
+    float icosphereRadius = 20.0f;
     m_IcosphereModel.scale = glm::vec3(icosphereRadius);
-    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 500.0f);
     Body icosphereBody;
-    icosphereBody.m_Position = glm::vec3(0.0f);
+    icosphereBody.m_Position = m_IcosphereModel.position;
     icosphereBody.m_Orientation = glm::angleAxis(
         glm::radians(0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f));
@@ -62,9 +62,9 @@ void Game::Init()
     phys_AddBody(&m_IcosphereModel.body);
 
     m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphere);
-    float groundRadius = 10000.0f;
+    float groundRadius = 10000000.0f;
     m_IcosphereGroundModel.scale = glm::vec3(groundRadius);
-    m_IcosphereGroundModel.position = glm::vec3(0.0f, 0.0f, -10000.0f);
+    m_IcosphereGroundModel.position = glm::vec3(0.0f, 0.0f, -groundRadius);
     Body groundBody;
     groundBody.m_Position = m_IcosphereGroundModel.position;
     groundBody.m_LinearVelocity = glm::vec3(0.0f);
@@ -107,7 +107,7 @@ void Game::Init()
 
     // Cameras
 
-    m_Camera = Camera(glm::vec3(0, -5, 8.0));
+    m_Camera = Camera(glm::vec3(0, -1000.0f, 20.0));
 
     m_FollowCamera = Camera(m_Player.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    
@@ -481,7 +481,7 @@ bool Game::RunFrame(double dt)
     };
 
     m_Renderer->Render(
-        &m_FollowCamera,
+        &m_Camera,
         renderModels, 3);
 
     m_Renderer->RenderEnd();
