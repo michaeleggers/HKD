@@ -24,7 +24,7 @@ private:
 	HKD_Model		m_Model2;
 	HKD_Model		m_Model3;
 	HKD_Model		m_Player;
-	HKD_Model		m_IcosphereModel;
+	std::vector<HKD_Model>	m_IcosphereModels;
 	HKD_Model		m_IcosphereGroundModel;
 
 	Camera			m_Camera;

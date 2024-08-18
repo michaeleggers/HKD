@@ -12,6 +12,8 @@
 
 #include "imgui.h"
 
+#define NUM_BALLS 100
+
 
 static int hkd_Clamp(int val, int clamp) {
     if (val > clamp || val < clamp) return clamp;
@@ -47,20 +49,28 @@ void Game::Init()
     m_Model3 = CreateModelFromIQM(&iqmModel3);    
     m_Player = CreateModelFromIQM(&iqmModel);
 
-    m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
-    float icosphereRadius = 100.0f;
-    m_IcosphereModel.scale = glm::vec3(icosphereRadius);
-    m_IcosphereModel.position = glm::vec3(500.0f, 0.0f, 1000.0f);
-    Body icosphereBody;
-    icosphereBody.m_Position = m_IcosphereModel.position;
-    icosphereBody.m_Orientation = glm::angleAxis(
-        glm::radians(0.0f),
-        glm::vec3(0.0f, 0.0f, -1.0f));
-    icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
-    icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
-    icosphereBody.m_InvMass = 1.0f / 10.0f;
-    m_IcosphereModel.body = icosphereBody;
-    phys_AddBody(&m_IcosphereModel.body);
+    for (int i = 0; i < NUM_BALLS; i++) {
+        HKD_Model icosphereModel = CreateModelFromIQM(&iqmIcosphere);
+        float icosphereRadius = 100.0f;
+        icosphereModel.scale = glm::vec3(icosphereRadius);
+        float posX = RandBetween(-200.0f, 200.0f);
+        float posY = RandBetween(-200.0f, 200.0f);
+        float posZ = RandBetween(600.0f, 3000.0f);
+        icosphereModel.position = glm::vec3(posX, posY, posZ);
+        Body icosphereBody;
+        icosphereBody.m_Position = icosphereModel.position;
+        icosphereBody.m_Orientation = glm::angleAxis(
+            glm::radians(0.0f),
+            glm::vec3(0.0f, 0.0f, -1.0f));
+        icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
+        icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
+        icosphereBody.m_InvMass = 1.0f / 10.0f;
+        icosphereModel.body = icosphereBody;
+        m_IcosphereModels.push_back(icosphereModel);
+    }
+    for (int i = 0; i < NUM_BALLS; i++) {
+        phys_AddBody(&m_IcosphereModels[i].body);
+    }
 
     m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphere);
     float groundRadius = 1000.0f;
@@ -88,7 +98,9 @@ void Game::Init()
     //int hRenderModel2 = m_Renderer->RegisterModel(&m_Model2);
     int hRenderModel3 = m_Renderer->RegisterModel(&m_Model3);
     int hPlayerModel = m_Renderer->RegisterModel(&m_Player);
-    int hRenderIcosphere = m_Renderer->RegisterModel(&m_IcosphereModel);
+    for (int i = 0; i < NUM_BALLS; i++) {
+        int hRenderIcosphere = m_Renderer->RegisterModel(&m_IcosphereModels[i]);
+    }
     int hRenderIcosphereGround = m_Renderer->RegisterModel(&m_IcosphereGroundModel);
 
     for (int i = 0; i < 10; i++) {
@@ -108,7 +120,8 @@ void Game::Init()
 
     // Cameras
 
-    m_Camera = Camera(glm::vec3(0, -3000.0f, 20.0));
+    m_Camera = Camera(glm::vec3(0, -6000.0f, 600.0));
+    m_Camera.RotateAroundSide(-5.0f);
 
     m_FollowCamera = Camera(m_Player.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    
@@ -222,7 +235,9 @@ bool Game::RunFrame(double dt)
     phys_Update((float)dt / 100.0f);
 
     UpdateModel(&m_Player, (float)dt);
-    UpdateRigidBodyTransform(&m_IcosphereModel);
+    for (int i = 0; i < NUM_BALLS; i++) {
+        UpdateRigidBodyTransform(&m_IcosphereModels[i]);
+    }
     UpdateRigidBodyTransform(&m_IcosphereGroundModel);
     //UpdateModel(&m_IcosphereModel, (float)dt);
 
@@ -460,15 +475,16 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
-    HKD_Model* renderModels[] = {
-        &m_Player,
-        &m_IcosphereModel,
-        &m_IcosphereGroundModel
-    };
+    HKD_Model* renderModels[NUM_BALLS + 2];
+    for (int i = 0; i < NUM_BALLS; i++) {
+        renderModels[i] = &m_IcosphereModels[i];
+    }
+    renderModels[NUM_BALLS] = &m_Player;
+    renderModels[NUM_BALLS + 1] = &m_IcosphereGroundModel;
 
     m_Renderer->Render(
         &m_Camera,
-        renderModels, 3);
+        renderModels, NUM_BALLS + 2);
 
     m_Renderer->RenderEnd();
 
