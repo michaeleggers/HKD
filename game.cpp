@@ -38,6 +38,7 @@ void Game::Init()
     IQMModel iqmModel3 = LoadIQM("models/hana/hana.iqm");
 
     IQMModel iqmIcosphere = LoadIQM("models/icosphere/icosphere.iqm");
+    IQMModel iqmIcosphereHighRes = LoadIQM("models/icosphere/icosphere_high_res.iqm");
 
     // Convert the model to our internal format
 
@@ -47,9 +48,9 @@ void Game::Init()
     m_Player = CreateModelFromIQM(&iqmModel);
 
     m_IcosphereModel = CreateModelFromIQM(&iqmIcosphere);
-    float icosphereRadius = 20.0f;
+    float icosphereRadius = 100.0f;
     m_IcosphereModel.scale = glm::vec3(icosphereRadius);
-    m_IcosphereModel.position = glm::vec3(0.0f, 0.0f, 10000.0f);
+    m_IcosphereModel.position = glm::vec3(500.0f, 0.0f, 1000.0f);
     Body icosphereBody;
     icosphereBody.m_Position = m_IcosphereModel.position;
     icosphereBody.m_Orientation = glm::angleAxis(
@@ -62,7 +63,7 @@ void Game::Init()
     phys_AddBody(&m_IcosphereModel.body);
 
     m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphere);
-    float groundRadius = 10000000.0f;
+    float groundRadius = 1000.0f;
     m_IcosphereGroundModel.scale = glm::vec3(groundRadius);
     m_IcosphereGroundModel.position = glm::vec3(0.0f, 0.0f, -groundRadius);
     Body groundBody;
@@ -107,7 +108,7 @@ void Game::Init()
 
     // Cameras
 
-    m_Camera = Camera(glm::vec3(0, -1000.0f, 20.0));
+    m_Camera = Camera(glm::vec3(0, -3000.0f, 20.0));
 
     m_FollowCamera = Camera(m_Player.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    

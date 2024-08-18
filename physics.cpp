@@ -49,8 +49,18 @@ void phys_ResolveContact(Contact& contact) {
     Body* bodyA = contact.bodyA;
     Body* bodyB = contact.bodyB;
 
-    bodyA->m_LinearVelocity = glm::vec3(0.0f);
-    bodyB->m_LinearVelocity = glm::vec3(0.0f);
+    float invMassA = bodyA->m_InvMass;
+    float invMassB = bodyB->m_InvMass;
+
+    glm::vec3 normal = contact.normal;
+    glm::vec3 vab = bodyA->m_LinearVelocity - bodyB->m_LinearVelocity;
+    float impulseJ = -2.0f * glm::dot(vab, normal) / (invMassA + invMassB);
+    glm::vec3 vectorImpulseJ = impulseJ * normal;
+
+    glm::vec3 impulseJA = vectorImpulseJ;
+    glm::vec3 impulseJB = -1.0f * vectorImpulseJ;
+    bodyA->ApplyImpulseLinear(impulseJA);
+    bodyB->ApplyImpulseLinear(impulseJB);
 
     float tA = bodyA->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);
     float tB = bodyB->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);
@@ -59,12 +69,14 @@ void phys_ResolveContact(Contact& contact) {
 
     // Don't separate bodies if they are very close together
     // to avoid jittering.
+    /*
     if ( glm::length(separationDistance) < 1.0f ) {
         // Only if at least on of them has infinite mass.
         if (bodyA->m_InvMass <= 0.0f || bodyB->m_InvMass <= 0.0f) {
             return;
         }
     }
+    */
 
     bodyA->m_Position += separationDistance * tA;
     bodyB->m_Position -= separationDistance * tB;
