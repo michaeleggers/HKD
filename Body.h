@@ -24,6 +24,7 @@ public:
     glm::quat   m_Orientation;
     glm::vec3   m_LinearVelocity;
     float       m_InvMass;
+    float       m_Elasticity;
     Shape*      m_Shape;
 };
 

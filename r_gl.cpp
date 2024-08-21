@@ -29,6 +29,7 @@ void GLRender::Shutdown(void)
     ImGui::DestroyContext();
 
     // Close and destroy the window
+
     SDL_GL_DeleteContext(m_SDL_GL_Conext);
     SDL_DestroyWindow(m_Window);
 
@@ -114,7 +115,7 @@ bool GLRender::Init(void)
     SDL_ShowWindow(m_Window);
 
     // GL Vsync on
-    if (SDL_GL_SetSwapInterval(0) != 0) {
+    if (SDL_GL_SetSwapInterval(1) != 0) {
         SDL_Log("Failed to enable vsync!\n");
     }
     else {

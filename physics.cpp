@@ -51,16 +51,19 @@ void phys_ResolveContact(Contact& contact) {
 
     float invMassA = bodyA->m_InvMass;
     float invMassB = bodyB->m_InvMass;
+    float elasticityA = bodyA->m_Elasticity;
+    float elasticityB = bodyB->m_Elasticity;
+    float combinedElasticity = elasticityA * elasticityB;
 
     glm::vec3 normal = contact.normal;
     glm::vec3 vab = bodyA->m_LinearVelocity - bodyB->m_LinearVelocity;
-    float impulseJ = -2.0f * glm::dot(vab, normal) / (invMassA + invMassB);
+    float impulseJ = -(1.0f + combinedElasticity) * glm::dot(vab, normal) / (invMassA + invMassB);
     glm::vec3 vectorImpulseJ = impulseJ * normal;
 
-    glm::vec3 impulseJA = vectorImpulseJ;
-    glm::vec3 impulseJB = -1.0f * vectorImpulseJ;
-    bodyA->ApplyImpulseLinear(impulseJA);
-    bodyB->ApplyImpulseLinear(impulseJB);
+    glm::vec3 vectorImpulseJA =  1.0f * vectorImpulseJ;
+    glm::vec3 vectorImpulseJB = -1.0f * vectorImpulseJ;
+    bodyA->ApplyImpulseLinear(vectorImpulseJA);
+    bodyB->ApplyImpulseLinear(vectorImpulseJB);
 
     float tA = bodyA->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);
     float tB = bodyB->m_InvMass / (bodyA->m_InvMass + bodyB->m_InvMass);

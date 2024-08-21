@@ -12,7 +12,7 @@
 
 #include "imgui.h"
 
-#define NUM_BALLS 100
+#define NUM_BALLS 2
 
 
 static int hkd_Clamp(int val, int clamp) {
@@ -65,6 +65,7 @@ void Game::Init()
         icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
         icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
         icosphereBody.m_InvMass = 1.0f / 10.0f;
+        icosphereBody.m_Elasticity = 0.0f;
         icosphereModel.body = icosphereBody;
         m_IcosphereModels.push_back(icosphereModel);
     }
@@ -81,6 +82,7 @@ void Game::Init()
     groundBody.m_LinearVelocity = glm::vec3(0.0f);
     groundBody.m_Shape = new ShapeSphere(groundRadius);
     groundBody.m_InvMass = 0.0f;
+    groundBody.m_Elasticity = 1.0f;
     m_IcosphereGroundModel.body = groundBody;
     phys_AddBody(&m_IcosphereGroundModel.body);
 
