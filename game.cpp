@@ -40,7 +40,7 @@ void Game::Init()
     IQMModel iqmModel3 = LoadIQM("models/hana/hana.iqm");
 
     IQMModel iqmIcosphere = LoadIQM("models/icosphere/icosphere.iqm");
-    IQMModel iqmIcosphereHighRes = LoadIQM("models/icosphere/icosphere_high_res.iqm");
+    IQMModel iqmIcosphereHighRes = LoadIQM("models/icosphere/icosphere_low_res.iqm");
 
     // Convert the model to our internal format
 
@@ -73,7 +73,7 @@ void Game::Init()
         phys_AddBody(&m_IcosphereModels[i].body);
     }
 
-    m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphere);
+    m_IcosphereGroundModel = CreateModelFromIQM(&iqmIcosphereHighRes);
     float groundRadius = 1000.0f;
     m_IcosphereGroundModel.scale = glm::vec3(groundRadius);
     m_IcosphereGroundModel.position = glm::vec3(0.0f, 0.0f, -groundRadius);
@@ -122,8 +122,8 @@ void Game::Init()
 
     // Cameras
 
-    m_Camera = Camera(glm::vec3(0, -6000.0f, 600.0));
-    m_Camera.RotateAroundSide(-5.0f);
+    m_Camera = Camera(glm::vec3(0, -1000.0f, 600.0));
+    m_Camera.RotateAroundSide(-15.0f);
 
     m_FollowCamera = Camera(m_Player.position);
     m_FollowCamera.m_Pos.y -= 200.0f;    
@@ -342,9 +342,9 @@ bool Game::RunFrame(double dt)
     }
 #endif
 
-#if 0
+#if 1
     // Draw some primitives in immediate mode
-
+/*
     Vertex a = {};
     a.pos = glm::vec3(-100, -300, 100);
     a.color = glm::vec4(1, 0, 0, 1);
@@ -395,9 +395,10 @@ bool Game::RunFrame(double dt)
 
     m_Renderer->ImDrawTris(m_Box.tris, 12, true);
     m_Renderer->ImDrawTris(m_SkyBox.tris, 12, false);
+    */
 
     // A circle
-#define NUM_POINTS 6    
+#define NUM_POINTS 32
     float redIncrement = 1.0f / (float)NUM_POINTS;
     float sliceAngle = 2 * HKD_PI / (float)NUM_POINTS;
     float radius = 77.0f;
@@ -405,14 +406,15 @@ bool Game::RunFrame(double dt)
     for (int i = 0; i < NUM_POINTS; i++) {
         Vertex v = {};
         v.pos.y = 0.0f;
-        v.pos.x = 200.0f + radius * cosf(i * sliceAngle);
-        v.pos.z = 200.0f + radius * sinf(i * sliceAngle);
+        v.pos.x = 200.0f + 100.0f * cosf(i * sliceAngle);
+        v.pos.z = 200.0f + 200.0f * sinf(i * sliceAngle);
         v.color = glm::vec4(redIncrement*i, 0.4f, 0.2f, 1.0f);
         circleVertices[i] = v;
     }
                             // vert-data    // vert-count  // connect start and end point?
     m_Renderer->ImDrawLines(circleVertices, NUM_POINTS,    true);
 
+    /*
     // Draw indexed geometry
 
     Vertex indexedQuadVerts[4];
@@ -457,10 +459,10 @@ bool Game::RunFrame(double dt)
     SubdivIndexedTri(triangleVerts, 3, triangleIndices, 3, subdivIndexedVerts, subdivIndexedIndices);
 
     m_Renderer->ImDrawIndexed(subdivIndexedVerts, 6, subdivIndexedIndices, 12, false, DRAW_MODE_WIREFRAME);
-
+*/
 #endif
 
-#if 0
+#if 1
     // Render AABBs of models
 
     Box modelBox = m_Model.aabbBoxes[m_Model.currentAnimIdx];
@@ -474,6 +476,35 @@ bool Game::RunFrame(double dt)
         m_Renderer->ImDrawTris(b.tris, 12, false, DRAW_MODE_WIREFRAME);
     }
 
+    Ellipsoid playerCollider = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
+    float redIncrement1 = 1.0f / (float)NUM_POINTS;
+    float sliceAngle1 = 2 * HKD_PI / (float)NUM_POINTS;
+    float radiusA = playerCollider.radiusA;
+    float radiusB = playerCollider.radiusB;
+    Vertex circleVertices1[NUM_POINTS];
+    for (int i = 0; i < NUM_POINTS; i++) {
+        Vertex v = {};
+        v.pos.y = m_Player.position.y;
+        v.pos.x = m_Player.position.x + radiusA * m_Player.scale.x * cosf(i * sliceAngle1);
+        float playerColliderOffsetZ = (m_Player.scale.z * radiusB);
+        v.pos.z = playerColliderOffsetZ + m_Player.position.z + radiusB * m_Player.scale.z * sinf(i * sliceAngle1);
+        v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
+        circleVertices1[i] = v;
+    }
+    m_Renderer->ImDrawLines(circleVertices1, NUM_POINTS, true);
+
+    Vertex circleVertices2[NUM_POINTS];
+    for (int i = 0; i < NUM_POINTS; i++) {
+        Vertex v = {};
+        float playerColliderOffsetZ = (m_Player.scale.z * radiusB);
+        v.pos.z = playerColliderOffsetZ + m_Player.position.z;
+        v.pos.x = m_Player.position.x + radiusA * m_Player.scale.x * cosf(i * sliceAngle1);
+        v.pos.y = m_Player.position.y + radiusA * m_Player.scale.x * sinf(i * sliceAngle1);
+        v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
+        circleVertices2[i] = v;
+    }
+    m_Renderer->ImDrawLines(circleVertices2, NUM_POINTS, true);
+
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
@@ -485,7 +516,7 @@ bool Game::RunFrame(double dt)
     renderModels[NUM_BALLS + 1] = &m_IcosphereGroundModel;
 
     m_Renderer->Render(
-        &m_Camera,
+        &m_FollowCamera,
         renderModels, NUM_BALLS + 2);
 
     m_Renderer->RenderEnd();

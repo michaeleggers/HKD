@@ -97,6 +97,12 @@ struct Box {
 	};
 };
 
+struct Ellipsoid {
+	glm::vec3	center;
+	float		radiusA; // horizontal radius
+	float		radiusB; // vertical radius
+};
+
 void RotateTri(Tri* tri, glm::vec3 axis, float angle);
 void TranslateTri(Tri* tri, glm::vec3 t);
 void TransformTri(Tri* tri, glm::mat4 modelMatrix);
@@ -114,6 +120,8 @@ Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.
 Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
+Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
+
 
 #endif
 

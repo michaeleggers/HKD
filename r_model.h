@@ -51,6 +51,7 @@ struct HKD_Model {
 	std::vector<Anim>		animations;
 	std::vector<AABB>		aabbs; // one AABB for each animation (first frame of anim used). 
 	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
+	std::vector<Ellipsoid>  ellipsoidColliders;
 	uint32_t				currentAnimIdx;
 	uint32_t				prevAnimIdx;
 
