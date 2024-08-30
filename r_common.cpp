@@ -306,6 +306,17 @@ Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	result.radiusA = width / 2.0f;
 	result.radiusB = height / 2.0f;
 
+	float redIncrement = 1.0f / (float)ELLIPSOID_VERT_COUNT;
+	float sliceAngle = 2.0f * HKD_PI / (float)ELLIPSOID_VERT_COUNT;
+	for (int i = 0; i < ELLIPSOID_VERT_COUNT; i++) {
+		Vertex v = {};
+		v.pos.y = 0.0f;
+		v.pos.x = result.radiusA * cosf(i * sliceAngle);
+		v.pos.z = result.radiusB * sinf(i * sliceAngle);
+		v.color = glm::vec4(redIncrement * i, 0.4f, 0.2f, 1.0f);
+		result.vertices[i] = v;
+	}
+
 	return result;
 }
 
@@ -327,3 +338,10 @@ void TransformBox(Box* box, glm::mat4 modelMatrix)
 	}
 }
 
+void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix)
+{
+	for (int i = 0; i < ELLIPSOID_VERT_COUNT; i++) {
+		Vertex* v = &ellipsoid->vertices[i];
+		v->pos = modelMatrix * glm::vec4(v->pos, 1.0f);
+	}
+}

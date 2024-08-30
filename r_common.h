@@ -42,6 +42,7 @@ struct Vertex {
 #define GOLDEN_RATIO			 1.618033988749
 #define HKD_PI                   3.14159265359
 #define HKD_EPSILON              0.00001
+#define ELLIPSOID_VERT_COUNT	 32
 
 struct Tri {
 	union {
@@ -101,6 +102,7 @@ struct Ellipsoid {
 	glm::vec3	center;
 	float		radiusA; // horizontal radius
 	float		radiusB; // vertical radius
+	Vertex		vertices[ELLIPSOID_VERT_COUNT];
 };
 
 void RotateTri(Tri* tri, glm::vec3 axis, float angle);
@@ -121,7 +123,7 @@ Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
-
+void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);
 
 #endif
 

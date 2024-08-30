@@ -494,7 +494,7 @@ bool Game::RunFrame(double dt)
         v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
         circleVertices1[i] = v;
     }
-    m_Renderer->ImDrawLines(circleVertices1, NUM_POINTS, true);
+    //m_Renderer->ImDrawLines(circleVertices1, NUM_POINTS, true);
 
     Vertex circleVertices2[NUM_POINTS];
     for (int i = 0; i < NUM_POINTS; i++) {
@@ -506,7 +506,14 @@ bool Game::RunFrame(double dt)
         v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
         circleVertices2[i] = v;
     }
-    m_Renderer->ImDrawLines(circleVertices2, NUM_POINTS, true);
+    //m_Renderer->ImDrawLines(circleVertices2, NUM_POINTS, true);
+
+    glm::mat4 modelMatPlayer = CreateModelMatrix(&m_Player);
+    glm::mat4 offsetPlayerZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, playerCollider.radiusB));
+    modelMatPlayer *= offsetPlayerZ;
+    TransformEllipsoid(&playerCollider, modelMatPlayer);
+
+    m_Renderer->ImDrawLines(playerCollider.vertices, ELLIPSOID_VERT_COUNT, true);
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
