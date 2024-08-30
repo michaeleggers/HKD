@@ -48,6 +48,7 @@ void Game::Init()
     //m_Model2 = CreateModelFromIQM(&iqmModel2, nullptr);
     m_Model3 = CreateModelFromIQM(&iqmModel3);    
     m_Player = CreateModelFromIQM(&iqmModel);
+    m_Player.isRigidBody = false;
 
     for (int i = 0; i < NUM_BALLS; i++) {
         HKD_Model icosphereModel = CreateModelFromIQM(&iqmIcosphere);
@@ -67,6 +68,7 @@ void Game::Init()
         icosphereBody.m_InvMass = 1.0f / 10.0f;
         icosphereBody.m_Elasticity = 0.0f;
         icosphereModel.body = icosphereBody;
+        icosphereModel.isRigidBody = true;
         m_IcosphereModels.push_back(icosphereModel);
     }
     for (int i = 0; i < NUM_BALLS; i++) {
@@ -84,6 +86,7 @@ void Game::Init()
     groundBody.m_InvMass = 0.0f;
     groundBody.m_Elasticity = 1.0f;
     m_IcosphereGroundModel.body = groundBody;
+    m_IcosphereGroundModel.isRigidBody = true;
     phys_AddBody(&m_IcosphereGroundModel.body);
 
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
@@ -238,9 +241,9 @@ bool Game::RunFrame(double dt)
 
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {
-        UpdateRigidBodyTransform(&m_IcosphereModels[i]);
+        UpdateModel(&m_IcosphereModels[i], (float)dt);
     }
-    UpdateRigidBodyTransform(&m_IcosphereGroundModel);
+    UpdateModel(&m_IcosphereGroundModel, (float)dt);
     //UpdateModel(&m_IcosphereModel, (float)dt);
 
     // Fix camera position

@@ -70,7 +70,8 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
     // We take the aabb of the first frame of an animation and ignore the others.
     // Might be changed later. Hopefully good enough for the start.
 
-    for (int i = 0; i < model->animations.size(); i++) {
+    int i = 0;
+    for (; i < model->animations.size(); i++) {
         Anim a = model->animations[i];
         Frame f = model->frameData[a.firstFrame];
         result.aabbs.push_back({ f.bbmins, f.bbmins });
@@ -79,6 +80,12 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
         Ellipsoid ellipsoid = CreateEllipsoidFromAABB(f.bbmins, f.bbmaxs);
         ellipsoid.center = glm::vec3(0.0f);
         result.ellipsoidColliders.push_back(ellipsoid);
+    }
+
+    if (i > 0) {
+        result.type = HKD_MODEL_TYPE_ANIMATED;
+    } else {
+        result.type = HKD_MODEL_TYPE_STATIC;
     }
 
     result.position     = glm::vec3(0.0f);
@@ -127,83 +134,85 @@ static glm::mat4 InterpolatePoses(Pose a, Pose b, float pct)
 
 void UpdateModel(HKD_Model* model, float dt)
 {
-    uint32_t currentFrame = model->currentFrame;    
-    uint32_t animIdx = model->currentAnimIdx;    
+    if (model->type == HKD_MODEL_TYPE_ANIMATED) {
+        uint32_t currentFrame = model->currentFrame;
+        uint32_t animIdx = model->currentAnimIdx;
 
-    Anim anim = model->animations[animIdx];
-    float msPerFrame = 1000.0f / anim.framerate;
+        Anim anim = model->animations[animIdx];
+        float msPerFrame = 1000.0f / anim.framerate;
 
-    // If the frame took really long then we need to catch up
+        // If the frame took really long then we need to catch up
 
-    while (dt > msPerFrame) {
-        dt -= msPerFrame;
-        currentFrame++;
-        model->pctFrameDone -= msPerFrame;
-    }
-
-    if (model->pctFrameDone < 0.0) {
-        model->pctFrameDone = 0.0;
-    }
-
-    if (dt < 0.0) {
-        dt = 0.0;
-    }
-
-    model->pctFrameDone += dt;
-    
-    if (model->pctFrameDone > msPerFrame) {
-        currentFrame++;
-        model->pctFrameDone -= msPerFrame;
-    }
-
-    // For now, we just cylce through all animations. If the current animations has reached its
-    // end, we jump to the next animation.
-
-    if (currentFrame >= anim.firstFrame + anim.numFrames-1) {
-        //model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();
-        anim = model->animations[model->currentAnimIdx];
-        currentFrame = anim.firstFrame;        
-    }
-    model->currentFrame = currentFrame;
-    uint32_t nextFrame = (currentFrame + 1) % (anim.firstFrame + anim.numFrames);
-    if (nextFrame < anim.firstFrame) {
-        nextFrame = anim.firstFrame;
-    }
-
-    //printf("currentFrame: %d\n", currentFrame);
-    
-
-    // Build the matrix palette
-
-
-    // Build the global transform for each bone for the current pose
-
-    for (int i = 0; i < model->numJoints; i++) {
-        Pose currentPoseTransform = model->poses[currentFrame * model->numJoints + i];        
-        Pose nextPoseTransform = model->poses[nextFrame * model->numJoints + i];
-        glm::mat4 poseMat = InterpolatePoses(currentPoseTransform, nextPoseTransform, model->pctFrameDone/msPerFrame);
-        if (currentPoseTransform.parent >= 0) {
-            model->palette[i] = model->palette[currentPoseTransform.parent] * poseMat;
+        while (dt > msPerFrame) {
+            dt -= msPerFrame;
+            currentFrame++;
+            model->pctFrameDone -= msPerFrame;
         }
-        else {
-            model->palette[i] = poseMat;
+
+        if (model->pctFrameDone < 0.0) {
+            model->pctFrameDone = 0.0;
         }
-    }    
 
-    // Post multiply the global transforms with the global inverse bind transform to get
-    // the vertex from bindspace to local bonespace first and then transform the
-    // vertex to the currents pose global bone space.
+        if (dt < 0.0) {
+            dt = 0.0;
+        }
 
-    for (int i = 0; i < model->numJoints; i++) {
-        glm::mat4 invGlobalMat = model->invBindPoses[i];               
-        model->palette[i] = model->palette[i] * invGlobalMat;
-    }
+        model->pctFrameDone += dt;
 
-    // DONE WITH ANIMATION
+        if (model->pctFrameDone > msPerFrame) {
+            currentFrame++;
+            model->pctFrameDone -= msPerFrame;
+        }
+
+        // For now, we just cylce through all animations. If the current animations has reached its
+        // end, we jump to the next animation.
+
+        if (currentFrame >= anim.firstFrame + anim.numFrames-1) {
+            //model->currentAnimIdx = (model->currentAnimIdx + 1) % model->animations.size();
+            anim = model->animations[model->currentAnimIdx];
+            currentFrame = anim.firstFrame;
+        }
+        model->currentFrame = currentFrame;
+        uint32_t nextFrame = (currentFrame + 1) % (anim.firstFrame + anim.numFrames);
+        if (nextFrame < anim.firstFrame) {
+            nextFrame = anim.firstFrame;
+        }
+
+        //printf("currentFrame: %d\n", currentFrame);
+
+
+        // Build the matrix palette
+
+
+        // Build the global transform for each bone for the current pose
+
+        for (int i = 0; i < model->numJoints; i++) {
+            Pose currentPoseTransform = model->poses[currentFrame * model->numJoints + i];
+            Pose nextPoseTransform = model->poses[nextFrame * model->numJoints + i];
+            glm::mat4 poseMat = InterpolatePoses(currentPoseTransform, nextPoseTransform, model->pctFrameDone/msPerFrame);
+            if (currentPoseTransform.parent >= 0) {
+                model->palette[i] = model->palette[currentPoseTransform.parent] * poseMat;
+            }
+            else {
+                model->palette[i] = poseMat;
+            }
+        }
+
+        // Post multiply the global transforms with the global inverse bind transform to get
+        // the vertex from bindspace to local bonespace first and then transform the
+        // vertex to the currents pose global bone space.
+
+        for (int i = 0; i < model->numJoints; i++) {
+            glm::mat4 invGlobalMat = model->invBindPoses[i];
+            model->palette[i] = model->palette[i] * invGlobalMat;
+        }
+    } // DONE WITH ANIMATION
 
     // Update the rigid body
-    
-    // UpdateRigidBodyTransform(model);
+
+    if (model->isRigidBody) {
+        UpdateRigidBodyTransform(model);
+    }
 }
 
 void ApplyPhysicsToModel(HKD_Model* model)

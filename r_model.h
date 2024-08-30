@@ -32,7 +32,13 @@ struct AABB {
 	glm::vec3 maxs;
 };
 
+enum HKD_ModelType {
+	HKD_MODEL_TYPE_STATIC,
+	HKD_MODEL_TYPE_ANIMATED
+};
+
 struct HKD_Model {
+	HKD_ModelType			type;
 	std::string				filename;
 	std::vector<Tri>		tris;
 	std::vector<HKD_Mesh>	meshes;
@@ -55,7 +61,8 @@ struct HKD_Model {
 	uint32_t				currentAnimIdx;
 	uint32_t				prevAnimIdx;
 
-	// Physics
+	// Rigid Body Physics
+	bool					isRigidBody;
 	Body					body;
 };
 
