@@ -47,6 +47,7 @@ public:
 	void InitShaders();
 	void RegisterColliderModels();
 	GLBatchDrawCmd AddLineToBatch(GLBatch* btach, Vertex* verts, uint32_t numVerts, bool close);
+	GLBatchDrawCmd AddTrisToBatch(GLBatch* batch, Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode);
 
 private:	
 	SDL_Window*					m_Window;

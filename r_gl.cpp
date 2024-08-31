@@ -163,7 +163,7 @@ bool GLRender::Init(void)
     // Batches but for different purposes
     m_ImPrimitiveBatch = new GLBatch(1000 * 1000);
     m_ImPrimitiveBatchIndexed = new GLBatch(1000 * 1000, 1000 * 1000);
-    m_ColliderBatch = new GLBatch(1000);
+    m_ColliderBatch = new GLBatch(1000000);
 
     // Initialize shaders
 
@@ -205,14 +205,13 @@ int GLRender::RegisterModel(HKD_Model* model)
 void GLRender::RegisterColliderModels()
 {
     // Generate vertices for a circle. Used for ellipsoid colliders.
-    Ellipsoid unitCircle = CreateEllipsoidFromAABB(
-        glm::vec3(-1.0f), glm::vec3(1.0f)
-        );
 
-    m_EllipsoidColliderDrawCmd = AddLineToBatch(
+    MeshEllipsoid unitEllipsoid = CreateUnitEllipsoid();
+
+    m_EllipsoidColliderDrawCmd = AddTrisToBatch(
         m_ColliderBatch,
-        unitCircle.vertices, ELLIPSOID_VERT_COUNT,
-        true);
+        unitEllipsoid.tris.data(), unitEllipsoid.tris.size(),
+        true, DRAW_MODE_WIREFRAME);
 }
 
 // Maybe return a void* as GPU handle, because usually APIs that use the handle of
@@ -254,6 +253,19 @@ void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode d
     };
 
     m_PrimitiveDrawCmds.push_back(drawCmd);
+}
+
+GLBatchDrawCmd GLRender::AddTrisToBatch(GLBatch* batch, Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode) {
+    int offset = batch->Add(tris, numTris, cullFace, drawMode);
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = 3 * numTris,
+        .cullFace = cullFace,
+        .drawMode = drawMode
+    };
+
+    return drawCmd;
 }
 
 // Draw triangles with indexed geometry :)
@@ -542,15 +554,18 @@ void GLRender::RenderColliders(Camera* camera, HKD_Model** models, uint32_t numM
         HKD_Model* model = models[i];
         Ellipsoid e = model->ellipsoidColliders[model->currentAnimIdx];
         glm::vec3 pos = model->position;
-        glm::vec3 scale = glm::vec3(e.radiusA * model->scale.x, 1.0f, e.radiusB * model->scale.z);
+        glm::vec3 scale = glm::vec3(e.radiusA * model->scale.x, e.radiusA * model->scale.y, e.radiusB * model->scale.z);
         glm::vec3 offsetToCenterOfMass = pos + glm::vec3(0.0f, 0.0f, e.radiusB * model->scale.z);
         glm::mat4 T = glm::translate(glm::mat4(1.0f), offsetToCenterOfMass);
         glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
         glm::mat4 M = T * S;
         m_ColliderShader->SetMat4("model", M);
-        glDrawArrays(GL_LINES,
-            m_EllipsoidColliderDrawCmd.offset,
-            m_EllipsoidColliderDrawCmd.numVerts);
+        std::vector<GLBatchDrawCmd> drawCmds = {m_EllipsoidColliderDrawCmd};
+        //glDrawArrays(GL_TRIANGLES, m_EllipsoidColliderDrawCmd.offset, m_EllipsoidColliderDrawCmd.numVerts);
+        ExecuteDrawCmds(drawCmds, GEOM_TYPE_VERTEX_ONLY);
+        // glDrawArrays(GL_LINES,
+        //     m_EllipsoidColliderDrawCmd.offset,
+        //     m_EllipsoidColliderDrawCmd.numVerts);
     }
 }
 

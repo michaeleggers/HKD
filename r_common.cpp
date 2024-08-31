@@ -320,6 +320,25 @@ Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	return result;
 }
 
+MeshEllipsoid CreateUnitEllipsoid() {
+	NBox unitNbox = CreateNBox(glm::vec3(1.0f), 2);
+
+	// Project box vertices onto unit sphere
+	for (int i = 0; i < unitNbox.tris.size(); i++) {
+		Tri* tri = &unitNbox.tris[i];
+		tri->a.pos = glm::normalize(tri->a.pos);
+		tri->b.pos = glm::normalize(tri->b.pos);
+		tri->c.pos = glm::normalize(tri->c.pos);
+	}
+
+	MeshEllipsoid result;
+	result.radiusA = 1.0f;
+	result.radiusB = 1.0f;
+	result.tris = unitNbox.tris;
+
+	return result;
+}
+
 void TranslateBox(Box* box, glm::vec3 t)
 {
 	for (int i = 0; i < 6; i++) {
@@ -353,8 +372,9 @@ NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
 	std::vector<Tri> currentTris;
 	currentTris.resize(12);
 	memcpy(currentTris.data(), unitBox.tris, 12*sizeof(Tri));
-	std::vector<Tri> tmp;
+
 	for (int i = 0; i < numSubidvs; i++) {
+		std::vector<Tri> tmp;
 		for (int j = 0; j < currentTris.size(); j++) {
 			Tri out[4];
 			SubdivTri(&currentTris[j], out);

@@ -124,6 +124,7 @@ GLBatch::GLBatch(uint32_t maxVerts, uint32_t maxIndices)
     glBindVertexArray(0);
 }
 
+// TODO: cullFace and drawMode not used!
 int GLBatch::Add(Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode)
 {
     if (m_VertOffsetIndex + 3*numTris > m_MaxVerts) {

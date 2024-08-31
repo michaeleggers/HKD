@@ -111,6 +111,12 @@ struct Ellipsoid {
 	Vertex		vertices[ELLIPSOID_VERT_COUNT];
 };
 
+struct MeshEllipsoid {
+	float radiusA;
+	float radiusB;
+	std::vector<Tri> tris;
+};
+
 void RotateTri(Tri* tri, glm::vec3 axis, float angle);
 void TranslateTri(Tri* tri, glm::vec3 t);
 void TransformTri(Tri* tri, glm::mat4 modelMatrix);
@@ -129,6 +135,7 @@ Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
+MeshEllipsoid CreateUnitEllipsoid();
 void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);
 NBox CreateNBox(glm::vec3 scale, uint32_t numSubdivs);
 
