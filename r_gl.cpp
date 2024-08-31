@@ -206,7 +206,7 @@ void GLRender::RegisterColliderModels()
 {
     // Generate vertices for a circle. Used for ellipsoid colliders.
     Ellipsoid unitCircle = CreateEllipsoidFromAABB(
-        glm::vec3(-100.0f), glm::vec3(100.0f)
+        glm::vec3(-1.0f), glm::vec3(1.0f)
         );
 
     m_EllipsoidColliderDrawCmd = AddLineToBatch(
@@ -542,11 +542,12 @@ void GLRender::RenderColliders(Camera* camera, HKD_Model** models, uint32_t numM
         HKD_Model* model = models[i];
         Ellipsoid e = model->ellipsoidColliders[model->currentAnimIdx];
         glm::vec3 pos = model->position;
-        glm::vec3 scale = model->scale;
-        glm::mat4 T = glm::translate(glm::mat4(1.0f), pos);
+        glm::vec3 scale = glm::vec3(e.radiusA * model->scale.x, 1.0f, e.radiusB * model->scale.z);
+        glm::vec3 offsetToCenterOfMass = pos + glm::vec3(0.0f, 0.0f, e.radiusB * model->scale.z);
+        glm::mat4 T = glm::translate(glm::mat4(1.0f), offsetToCenterOfMass);
         glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
         glm::mat4 M = T * S;
-        m_ColliderShader->SetMat4("model", glm::mat4(1.0f));
+        m_ColliderShader->SetMat4("model", M);
         glDrawArrays(GL_LINES,
             m_EllipsoidColliderDrawCmd.offset,
             m_EllipsoidColliderDrawCmd.numVerts);

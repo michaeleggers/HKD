@@ -513,7 +513,7 @@ bool Game::RunFrame(double dt)
     modelMatPlayer *= offsetPlayerZ;
     TransformEllipsoid(&playerCollider, modelMatPlayer);
 
-    m_Renderer->ImDrawLines(playerCollider.vertices, ELLIPSOID_VERT_COUNT, true);
+    //m_Renderer->ImDrawLines(playerCollider.vertices, ELLIPSOID_VERT_COUNT, true);
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
