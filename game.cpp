@@ -92,7 +92,7 @@ void Game::Init()
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
-    m_Player.position = glm::vec3(0, 7000.0f, 0);
+    m_Player.position = glm::vec3(0, 300.0f, 0);
     m_Player.scale = glm::vec3(50.0f);
     SetAnimState(&m_Player, ANIM_STATE_WALK);
 
@@ -347,7 +347,7 @@ bool Game::RunFrame(double dt)
 
 #if 1
     // Draw some primitives in immediate mode
-/*
+
     Vertex a = {};
     a.pos = glm::vec3(-100, -300, 100);
     a.color = glm::vec4(1, 0, 0, 1);
@@ -398,7 +398,9 @@ bool Game::RunFrame(double dt)
 
     m_Renderer->ImDrawTris(m_Box.tris, 12, true);
     m_Renderer->ImDrawTris(m_SkyBox.tris, 12, false);
-    */
+
+    NBox nbox = CreateNBox(glm::vec3(10.0f), 3);
+    m_Renderer->ImDrawTris(nbox.tris.data(), nbox.tris.size(), false, DRAW_MODE_WIREFRAME);
 
     // A circle
 #define NUM_POINTS 32

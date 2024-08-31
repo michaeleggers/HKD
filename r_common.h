@@ -2,6 +2,7 @@
 #define _RCOMMON_H_
 
 #include <stdint.h>
+#include <vector>
 
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
@@ -98,6 +99,11 @@ struct Box {
 	};
 };
 
+// As Box but with more than 2 tris per side.
+struct NBox {
+	std::vector<Tri> tris;
+};
+
 struct Ellipsoid {
 	glm::vec3	center;
 	float		radiusA; // horizontal radius
@@ -124,6 +130,7 @@ void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);
+NBox CreateNBox(glm::vec3 scale, uint32_t numSubdivs);
 
 #endif
 

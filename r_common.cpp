@@ -345,3 +345,28 @@ void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix)
 		v->pos = modelMatrix * glm::vec4(v->pos, 1.0f);
 	}
 }
+
+NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
+{
+	NBox result;
+	Box unitBox = CreateBoxFromAABB(glm::vec3(-200.0f), glm::vec3(200.0f));
+	std::vector<Tri> currentTris;
+	currentTris.resize(12);
+	memcpy(currentTris.data(), unitBox.tris, 12*sizeof(Tri));
+	std::vector<Tri> tmp;
+	for (int i = 0; i < numSubidvs; i++) {
+		for (int j = 0; j < currentTris.size(); j++) {
+			Tri out[4];
+			SubdivTri(&currentTris[j], out);
+			tmp.push_back(out[0]);
+			tmp.push_back(out[1]);
+			tmp.push_back(out[2]);
+			tmp.push_back(out[3]);
+		}
+		currentTris = tmp;
+	}
+
+	result.tris = currentTris;
+
+	return result;
+}
