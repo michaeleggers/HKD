@@ -68,7 +68,7 @@ bool GLRender::Init(void)
     );
 
     // BEWARE! These flags must be set AFTER SDL_CreateWindow. Otherwise SDL
-    // just doesn't cate about them!
+    // just doesn't cate about them (at least on Linux)!
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -154,16 +154,24 @@ bool GLRender::Init(void)
 
     // make space for 1Mio vertices
     // TODO: What should be the upper limit?
+    // TODO: Shouldn't we just pass in the max size in bytes for GLBatch Ctor?
     // With sizeof(Vertex) = 92bytes => sizeof(Tri) = 276bytes we need ~ 263MB for Models.
     // A lot for a game in the 2000s! Our models have a tri count of maybe 3000 Tris (without weapon), which
     // is not even close to 1Mio tris.
     m_ModelBatch = new GLBatch(1000 * 1000);
+
+    // Batches but for different purposes
     m_ImPrimitiveBatch = new GLBatch(1000 * 1000);
     m_ImPrimitiveBatchIndexed = new GLBatch(1000 * 1000, 1000 * 1000);
+    m_ColliderBatch = new GLBatch(1000);
 
     // Initialize shaders
 
     InitShaders();
+
+    // Create and upload Collider Models to GPU
+
+    RegisterColliderModels();
 
     return true;
 }
@@ -192,6 +200,19 @@ int GLRender::RegisterModel(HKD_Model* model)
     model->gpuModelHandle = gpuModelHandle;
 
     return gpuModelHandle;
+}
+
+void GLRender::RegisterColliderModels()
+{
+    // Generate vertices for a circle. Used for ellipsoid colliders.
+    Ellipsoid unitCircle = CreateEllipsoidFromAABB(
+        glm::vec3(-100.0f), glm::vec3(100.0f)
+        );
+
+    m_EllipsoidColliderDrawCmd = AddLineToBatch(
+        m_ColliderBatch,
+        unitCircle.vertices, ELLIPSOID_VERT_COUNT,
+        true);
 }
 
 // Maybe return a void* as GPU handle, because usually APIs that use the handle of
@@ -278,6 +299,7 @@ void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
     }
 
     Vertex* v = verts;
+    // TODO: DRAW_MODEL_LINES doesn't do anything to the batch!
     int offset = m_ImPrimitiveBatch->Add(v, 2, false, DRAW_MODE_LINES);
     v += 1;
     int moreVerts = 0;
@@ -301,6 +323,39 @@ void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
     };
 
     m_PrimitiveDrawCmds.push_back(drawCmd);
+}
+
+GLBatchDrawCmd GLRender::AddLineToBatch(GLBatch* batch, Vertex* verts, uint32_t numVerts, bool close)
+{
+    if (numVerts < 2) { // This won't work, man.
+        return { -1 };
+    }
+
+    Vertex* v = verts;
+    // TODO: DRAW_MODEL_LINES doesn't do anything to the batch!
+    int offset = batch->Add(v, 2, false, DRAW_MODE_LINES);
+    v += 1;
+    int moreVerts = 0;
+    for (int i = 2; i < numVerts; i++) {
+        batch->Add(v, 2, false, DRAW_MODE_LINES);
+        v++;
+        moreVerts += 1;
+    }
+
+    if (close) {
+        Vertex endAndStart[] = { *v, verts[0] };
+        batch->Add(endAndStart, 2, false, DRAW_MODE_LINES);
+        moreVerts += 2;
+    }
+
+    GLBatchDrawCmd drawCmd = {
+        .offset = offset,
+        .numVerts = numVerts + moreVerts,
+        .cullFace = false,
+        .drawMode = DRAW_MODE_LINES
+    };
+
+    return drawCmd;
 }
 
 void GLRender::RenderBegin(void)
@@ -392,6 +447,7 @@ void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
     ImGui::End();
 
     glm::mat4 view = camera->ViewMatrix();
+    // TODO: Global Setting for perspective values
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 10000.0f);
 
     // Draw immediate mode primitives
@@ -433,8 +489,9 @@ void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
     }    
     m_ModelShader->SetViewProjMatrices(view, proj);
     for (int i = 0; i < numModels; i++) {
-        
+
         GLModel model = m_Models[ models[i]->gpuModelHandle ];
+
         if ( models[i]->numJoints > 0 ) {
             m_ModelShader->SetShaderSettingBits(SHADER_ANIMATED);
             m_ModelShader->SetMatrixPalette( &models[i]->palette[0], models[i]->numJoints );
@@ -447,7 +504,7 @@ void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
         m_ModelShader->SetMat4("model", modelMatrix);
 
         for (int j = 0; j < model.meshes.size(); j++) {
-            GLMesh* mesh = &model.meshes[j];            
+            GLMesh* mesh = &model.meshes[j];
             if (!mesh->texture->m_Filename.empty()) { // TODO: Checking string of empty is not great.
                 m_ModelShader->SetShaderSettingBits(SHADER_IS_TEXTURED);
                 glBindTexture(GL_TEXTURE_2D, mesh->texture->m_gl_Handle);
@@ -468,6 +525,34 @@ void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
     //glDrawArrays(GL_TRIANGLES, 0, 3*m_ModelBatch->TriCount());
 }
 
+void GLRender::RenderColliders(Camera* camera, HKD_Model** models, uint32_t numModels)
+{
+    glm::mat4 view = camera->ViewMatrix();
+    // TODO: Global Setting for perspective values
+    glm::mat4 proj = glm::perspective(
+        glm::radians(45.0f),
+        (float)m_WindowWidth / (float)m_WindowHeight,
+        0.1f, 10000.0f);
+
+    m_ColliderShader->Activate();
+    m_ColliderShader->SetViewProjMatrices(view, proj);
+
+    m_ColliderBatch->Bind();
+    for (int i = 0; i < numModels; i++) {
+        HKD_Model* model = models[i];
+        Ellipsoid e = model->ellipsoidColliders[model->currentAnimIdx];
+        glm::vec3 pos = model->position;
+        glm::vec3 scale = model->scale;
+        glm::mat4 T = glm::translate(glm::mat4(1.0f), pos);
+        glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
+        glm::mat4 M = T * S;
+        m_ColliderShader->SetMat4("model", glm::mat4(1.0f));
+        glDrawArrays(GL_LINES,
+            m_EllipsoidColliderDrawCmd.offset,
+            m_EllipsoidColliderDrawCmd.numVerts);
+    }
+}
+
 void GLRender::RenderEnd(void)
 {
     ImGui::Render();
@@ -485,6 +570,8 @@ void GLRender::InitShaders()
 {
     Shader::InitGlobalBuffers();
 
+    // Models
+
     m_ModelShader = new Shader();
     if (!m_ModelShader->Load(
         "shaders/entities.vert",
@@ -494,12 +581,24 @@ void GLRender::InitShaders()
         printf("Problems initializing model shaders!\n");
     }
 
+    // Immediate mode Primitives: Lines, Tris, ...
+
     m_ImPrimitivesShader = new Shader();
     if (!m_ImPrimitivesShader->Load(
         "shaders/primitives.vert",
         "shaders/primitives.frag"
     )) {
         printf("Problems initializing primitives shader!\n");
+    }
+
+    // Colliders (for now: Ellipsoids, but can also be AABBs, etc.)
+
+    m_ColliderShader = new Shader();
+    if (!m_ColliderShader->Load(
+        "shaders/colliders.vert",
+        "shaders/colliders.frag"
+        )) {
+        printf("Problems initializin colliders shader!\n");
     }
 
     // TODO: Just to test if shaders overwrite data from each other. Delete later!

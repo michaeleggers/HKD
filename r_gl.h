@@ -39,11 +39,14 @@ public:
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) override;
 	virtual void RenderBegin(void)						override;
 	virtual void Render(Camera* camera, HKD_Model** models, uint32_t numModels) override;
+	virtual void RenderColliders(Camera* camera, HKD_Model** models, uint32_t numModels) override;
 	virtual void RenderEnd(void)						override;
 	virtual void SetWindowTitle(char* windowTitle) override;
 
 	void ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryType geomType);
 	void InitShaders();
+	void RegisterColliderModels();
+	GLBatchDrawCmd AddLineToBatch(GLBatch* btach, Vertex* verts, uint32_t numVerts, bool close);
 
 private:	
 	SDL_Window*					m_Window;
@@ -64,6 +67,11 @@ private:
 	std::vector<GLModel>		m_Models;
 
 	Shader*						m_ImPrimitivesShader;
+
+	Shader*						m_ColliderShader;
+	GLBatch*					m_ColliderBatch;
+	// Offsets into collider batch
+	GLBatchDrawCmd				m_EllipsoidColliderDrawCmd;
 
 	int							m_WindowWidth;
 	int							m_WindowHeight;

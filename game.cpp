@@ -529,6 +529,9 @@ bool Game::RunFrame(double dt)
         &m_FollowCamera,
         renderModels, NUM_BALLS + 2);
 
+    HKD_Model* playerColliderModel[] = {&m_Player};
+    m_Renderer->RenderColliders(&m_FollowCamera, playerColliderModel, 1);
+
     m_Renderer->RenderEnd();
 
     return true;
