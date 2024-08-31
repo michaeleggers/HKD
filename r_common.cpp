@@ -349,7 +349,7 @@ void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix)
 NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
 {
 	NBox result;
-	Box unitBox = CreateBoxFromAABB(glm::vec3(-200.0f), glm::vec3(200.0f));
+	Box unitBox = CreateBox(scale, glm::vec4(1.0f));
 	std::vector<Tri> currentTris;
 	currentTris.resize(12);
 	memcpy(currentTris.data(), unitBox.tris, 12*sizeof(Tri));

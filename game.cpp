@@ -399,7 +399,7 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawTris(m_Box.tris, 12, true);
     m_Renderer->ImDrawTris(m_SkyBox.tris, 12, false);
 
-    NBox nbox = CreateNBox(glm::vec3(10.0f), 3);
+    NBox nbox = CreateNBox(glm::vec3(500.0f), 3);
     m_Renderer->ImDrawTris(nbox.tris.data(), nbox.tris.size(), false, DRAW_MODE_WIREFRAME);
 
     // A circle
