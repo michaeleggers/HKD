@@ -57,6 +57,11 @@ struct Plane {
 	float	  d;
 };
 
+struct TriPlane {
+	Plane plane;
+	Tri   tri;
+};
+
 struct Quad {
 	union {
 		struct {

@@ -255,6 +255,16 @@ void GLRender::ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace, DrawMode d
     m_PrimitiveDrawCmds.push_back(drawCmd);
 }
 
+void GLRender::ImDrawTriPlanes(TriPlane* triPlanes, uint32_t numTriPlanes, bool cullFace, DrawMode drawMode)
+{
+    std::vector<Tri> tris;
+    tris.resize(numTriPlanes);
+    for (int i = 0; i < numTriPlanes; i++) {
+        tris[i] = triPlanes[i].tri;
+    }
+    ImDrawTris(tris.data(), numTriPlanes, cullFace, drawMode);
+}
+
 GLBatchDrawCmd GLRender::AddTrisToBatch(GLBatch* batch, Tri* tris, uint32_t numTris, bool cullFace, DrawMode drawMode) {
     int offset = batch->Add(tris, numTris, cullFace, drawMode);
 

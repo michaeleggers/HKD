@@ -35,6 +35,7 @@ public:
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle) = 0;
 	virtual std::vector<ITexture*> Textures() = 0;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
+	virtual void ImDrawTriPlanes(TriPlane* triPlanes, uint32_t numTriPlanes, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
 	virtual void ImDrawIndexed(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) = 0;
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) = 0;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) = 0;

@@ -34,11 +34,18 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    triPlane.plane = {glm::vec3(0.0f, 1.0f, 0.0f), 10.0f};
     Vertex A = {glm::vec3(-100.0f, 10.0f, 0.0f)};
     Vertex B = {glm::vec3(0.0f, 10.0f, 100.0f)};
     Vertex C = {glm::vec3(100.0f, 10.0f, 0.0f)};
+    glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
+    A.color = triPlaneColor;
+    B.color = triPlaneColor;
+    C.color = triPlaneColor;
     triPlane.tri = {A, B, C};
+    triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+    triPlane.tri.a.normal = triPlane.plane.normal;
+    triPlane.tri.b.normal = triPlane.plane.normal;
+    triPlane.tri.c.normal = triPlane.plane.normal;
     m_World.InitWorld(&triPlane, 1);
 
     Plane p = CreatePlaneFromTri(triPlane.tri);
@@ -146,6 +153,23 @@ void Game::Init()
     m_FollowCamera.m_Pos.z += 100.0f;
     m_FollowCamera.RotateAroundSide(-20.0f);    
     m_FollowCamera.RotateAroundUp(180.0f);
+}
+
+static void DrawCoordinateSystem(IRender * renderer) {
+    Vertex origin = {glm::vec3(0.0f)};
+    origin.color = glm::vec4(1.0f);
+    Vertex X = {glm::vec3(100.0f, 0.0f, 0.0f)};
+    X.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    Vertex Y = {glm::vec3(0.0f, 100.0f, 0.0f)};
+    Y.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    Vertex Z = {glm::vec3(0.0f, 0.0f, 100.0f)};
+    Z.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    Vertex OX[] = {origin, X};
+    Vertex OY[] = {origin, Y};
+    Vertex OZ[] = {origin, Z};
+    renderer->ImDrawLines(OX, 2);
+    renderer->ImDrawLines(OY, 2);
+    renderer->ImDrawLines(OZ, 2);
 }
 
 bool Game::RunFrame(double dt)
@@ -360,8 +384,13 @@ bool Game::RunFrame(double dt)
 
     #define NUM_POINTS 32
 
-#if 0
+#if 1
     // Draw some primitives in immediate mode
+
+    // Render World geometry
+
+    m_Renderer->ImDrawTriPlanes(m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size(),
+        false, DRAW_MODE_SOLID);
 
     Vertex a = {};
     a.pos = glm::vec3(-100, -300, 100);
@@ -534,22 +563,7 @@ bool Game::RunFrame(double dt)
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
-    // Render Coordinate system
-
-    Vertex origin = {glm::vec3(0.0f)};
-    origin.color = glm::vec4(1.0f);
-    Vertex X = {glm::vec3(100.0f, 0.0f, 0.0f)};
-    X.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    Vertex Y = {glm::vec3(0.0f, 100.0f, 0.0f)};
-    Y.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-    Vertex Z = {glm::vec3(0.0f, 0.0f, 100.0f)};
-    Z.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    Vertex OX[] = {origin, X};
-    Vertex OY[] = {origin, Y};
-    Vertex OZ[] = {origin, Z};
-    m_Renderer->ImDrawLines(OX, 2);
-    m_Renderer->ImDrawLines(OY, 2);
-    m_Renderer->ImDrawLines(OZ, 2);
+    DrawCoordinateSystem(m_Renderer);
 
     HKD_Model* renderModels[NUM_BALLS + 2];
     for (int i = 0; i < NUM_BALLS; i++) {

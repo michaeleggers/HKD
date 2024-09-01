@@ -9,12 +9,6 @@
 #include <vector>
 #include <stdint.h>
 
-// Static world geometry is made out of these
-struct TriPlane {
-    Plane plane;
-    Tri   tri;
-};
-
 class CWorld {
 public:
     void InitWorld(TriPlane* triPlanes, uint32_t triPlaneCount);
