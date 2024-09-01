@@ -390,3 +390,16 @@ NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
 
 	return result;
 }
+
+Plane CreatePlaneFromTri(Tri tri) {
+	glm::vec3 AB = tri.b.pos - tri.a.pos;
+	glm::vec3 AC = tri.c.pos - tri.a.pos;
+	glm::vec3 normal = glm::normalize(glm::cross(AB, AC));
+	glm::vec3 A = tri.a.pos;
+
+	// Project A onto the normal. That will yield the distance
+	// of the plane from the origin..
+	float d = glm::dot(A, normal);
+
+	return { normal, d };
+}

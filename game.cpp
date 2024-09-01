@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "Shape.h"
 #include "ShapeSphere.h"
+#include "CWorld.h"
 
 #include "imgui.h"
 
@@ -30,6 +31,19 @@ Game::Game(std::string exePath, hkdInterface* interface, IRender* renderer)
 void Game::Init()
 {
     m_AccumTime = 0.0f;
+
+    // Tri that is moved 10 units in y direction
+    TriPlane triPlane{};
+    triPlane.plane = {glm::vec3(0.0f, 1.0f, 0.0f), 10.0f};
+    Vertex A = {glm::vec3(-100.0f, 10.0f, 0.0f)};
+    Vertex B = {glm::vec3(0.0f, 10.0f, 100.0f)};
+    Vertex C = {glm::vec3(100.0f, 10.0f, 0.0f)};
+    triPlane.tri = {A, B, C};
+    m_World.InitWorld(&triPlane, 1);
+
+    Plane p = CreatePlaneFromTri(triPlane.tri);
+    printf("p.normal: %f, %f, %f, plane.d: %f\n",
+        p.normal.x, p.normal.y, p.normal.z, p.d);
 
     // Load IQM Model
 
@@ -92,10 +106,9 @@ void Game::Init()
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
-    m_Player.position = glm::vec3(0, 300.0f, 0);
+    m_Player.position = glm::vec3(100, 300.0f, 0);
     m_Player.scale = glm::vec3(50.0f);
     SetAnimState(&m_Player, ANIM_STATE_WALK);
-
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
 
@@ -345,7 +358,9 @@ bool Game::RunFrame(double dt)
     }
 #endif
 
-#if 1
+    #define NUM_POINTS 32
+
+#if 0
     // Draw some primitives in immediate mode
 
     Vertex a = {};
@@ -403,7 +418,6 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawTris(nbox.tris.data(), nbox.tris.size(), false, DRAW_MODE_WIREFRAME);
 
     // A circle
-#define NUM_POINTS 32
     float redIncrement = 1.0f / (float)NUM_POINTS;
     float sliceAngle = 2 * HKD_PI / (float)NUM_POINTS;
     float radius = 77.0f;
@@ -519,6 +533,23 @@ bool Game::RunFrame(double dt)
 
     //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
+
+    // Render Coordinate system
+
+    Vertex origin = {glm::vec3(0.0f)};
+    origin.color = glm::vec4(1.0f);
+    Vertex X = {glm::vec3(100.0f, 0.0f, 0.0f)};
+    X.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    Vertex Y = {glm::vec3(0.0f, 100.0f, 0.0f)};
+    Y.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    Vertex Z = {glm::vec3(0.0f, 0.0f, 100.0f)};
+    Z.color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    Vertex OX[] = {origin, X};
+    Vertex OY[] = {origin, Y};
+    Vertex OZ[] = {origin, Z};
+    m_Renderer->ImDrawLines(OX, 2);
+    m_Renderer->ImDrawLines(OY, 2);
+    m_Renderer->ImDrawLines(OZ, 2);
 
     HKD_Model* renderModels[NUM_BALLS + 2];
     for (int i = 0; i < NUM_BALLS; i++) {

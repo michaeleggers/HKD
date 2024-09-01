@@ -6,6 +6,7 @@
 #include "irender.h" 
 #include "camera.h"
 #include "hkd_interface.h"
+#include "CWorld.h"
 
 class Game {
 public:
@@ -37,6 +38,8 @@ private:
 	Box m_SkyBox{};
 	
 	double			m_AccumTime;
+
+	CWorld			m_World;
 };
 
 #endif

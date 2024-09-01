@@ -52,6 +52,11 @@ struct Tri {
 	};
 };
 
+struct Plane {
+	glm::vec3 normal;
+	float	  d;
+};
+
 struct Quad {
 	union {
 		struct {
@@ -138,6 +143,7 @@ Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
 MeshEllipsoid CreateUnitEllipsoid(uint32_t numSubdivs);
 void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);
 NBox CreateNBox(glm::vec3 scale, uint32_t numSubdivs);
+Plane CreatePlaneFromTri(Tri tri);
 
 #endif
 

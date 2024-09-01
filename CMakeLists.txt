@@ -37,6 +37,8 @@ if (WIN32)
 			Body.h
 			Intersections.cpp
 			Intersections.h
+			CWorld.cpp
+			CWorld.h
 	)
 endif()
 
@@ -126,6 +128,8 @@ add_executable(Game
 		Body.h
 		Intersections.cpp
 		Intersections.h
+		CWorld.cpp
+		CWorld.h
 )
 
 target_include_directories(Game
