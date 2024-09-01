@@ -206,12 +206,12 @@ void GLRender::RegisterColliderModels()
 {
     // Generate vertices for a circle. Used for ellipsoid colliders.
 
-    MeshEllipsoid unitEllipsoid = CreateUnitEllipsoid();
+    MeshEllipsoid unitEllipsoid = CreateUnitEllipsoid(2);
 
     m_EllipsoidColliderDrawCmd = AddTrisToBatch(
         m_ColliderBatch,
         unitEllipsoid.tris.data(), unitEllipsoid.tris.size(),
-        true, DRAW_MODE_WIREFRAME);
+        false, DRAW_MODE_WIREFRAME);
 }
 
 // Maybe return a void* as GPU handle, because usually APIs that use the handle of

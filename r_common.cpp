@@ -320,8 +320,8 @@ Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	return result;
 }
 
-MeshEllipsoid CreateUnitEllipsoid() {
-	NBox unitNbox = CreateNBox(glm::vec3(1.0f), 2);
+MeshEllipsoid CreateUnitEllipsoid(uint32_t numSubdivs) {
+	NBox unitNbox = CreateNBox(glm::vec3(1.0f), numSubdivs);
 
 	// Project box vertices onto unit sphere
 	for (int i = 0; i < unitNbox.tris.size(); i++) {

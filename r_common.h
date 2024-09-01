@@ -135,7 +135,7 @@ Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
-MeshEllipsoid CreateUnitEllipsoid();
+MeshEllipsoid CreateUnitEllipsoid(uint32_t numSubdivs);
 void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);
 NBox CreateNBox(glm::vec3 scale, uint32_t numSubdivs);
 
