@@ -8,8 +8,6 @@
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
-#include "collision.h"
-
 enum GeometryType {
 	GEOM_TYPE_VERTEX_ONLY,
 	GEOM_TYPE_INDEXED
@@ -146,7 +144,6 @@ Box	 CreateBox(glm::vec3 scale = glm::vec3(1.0f), glm::vec4 color = glm::vec4(0.
 Box  CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void TranslateBox(Box* box, glm::vec3 t);
 void TransformBox(Box* box, glm::mat4 modelMatrix);
-EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs);
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs);
 MeshEllipsoid CreateUnitEllipsoid(uint32_t numSubdivs);
 void TransformEllipsoid(Ellipsoid* ellipsoid, glm::mat4 modelMatrix);

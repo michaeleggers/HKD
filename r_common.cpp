@@ -301,18 +301,6 @@ Box CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	return result;
 }
 
-EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
-{
-	float width = abs(maxs.x - mins.x);
-	float height = abs(maxs.z - mins.z);
-	EllipsoidCollider result{};
-	result.radiusA = width / 2.0f;
-	result.radiusB = height / 2.0f;
-	result.center = glm::vec3(0.0f);
-
-	return result;
-}
-
 Ellipsoid CreateEllipsoidFromAABB(glm::vec3 mins, glm::vec3 maxs)
 {
 	float width = abs(maxs.x - mins.x);

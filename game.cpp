@@ -34,9 +34,9 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    Vertex A = {glm::vec3(-100.0f, 10.0f, 0.0f)};
-    Vertex B = {glm::vec3(0.0f, 10.0f, 100.0f)};
-    Vertex C = {glm::vec3(100.0f, 10.0f, 0.0f)};
+    Vertex A = {glm::vec3(-100.0f, 0.0f, 0.0f)};
+    Vertex B = {glm::vec3(0.0f, 0.0f, 100.0f)};
+    Vertex C = {glm::vec3(100.0f, 0.0f, 0.0f)};
     glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
     A.color = triPlaneColor;
     B.color = triPlaneColor;
@@ -48,7 +48,7 @@ void Game::Init()
     triPlane.tri.c.normal = triPlane.plane.normal;
     m_World.InitWorld(&triPlane, 1);
 
-    Plane p = CreatePlaneFromTri(triPlane.tri);
+    Plane p = triPlane.plane;
     printf("p.normal: %f, %f, %f, plane.d: %f\n",
         p.normal.x, p.normal.y, p.normal.z, p.d);
 
@@ -113,8 +113,17 @@ void Game::Init()
     m_Model.position = glm::vec3(0.0f, 0.0f, 100.0f);
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
+
     m_Player.position = glm::vec3(100, 300.0f, 0);
     m_Player.scale = glm::vec3(50.0f);
+    for (int i = 0; i < m_Player.animations.size(); i++) {
+        EllipsoidCollider* ec = &m_Player.ellipsoidColliders[i];
+        ec->radiusA *= m_Player.scale.x;
+        ec->radiusB *= m_Player.scale.z;
+        glm::vec3 scale = glm::vec3(1.0f / ec->radiusA, 1.0f / ec->radiusA, 1.0f / ec->radiusB);
+        ec->toESpace = glm::scale(glm::mat4(1.0f), scale);
+    }
+
     SetAnimState(&m_Player, ANIM_STATE_WALK);
 
     // Upload this model to the GPU. This will add the model to the model-batch and you get an ID where to find the data in the batch?
@@ -213,7 +222,7 @@ bool Game::RunFrame(double dt)
     float followCamSpeed = 0.5f;
     float followTurnSpeed = 0.2f;
     if (KeyPressed(SDLK_LSHIFT)) {
-        followCamSpeed *= 0.35f;        
+        followCamSpeed *= 0.01f;
         followTurnSpeed *= 0.3f;
     }
 
@@ -236,22 +245,23 @@ bool Game::RunFrame(double dt)
 
     // Model translation
 
+    m_Player.velocity = glm::vec3(0.0f);
     float t = (float)dt * followCamSpeed;
     AnimState playerAnimState = ANIM_STATE_IDLE;
     if (KeyPressed(SDLK_w)) {          
-        m_Player.position += t * forward;        
+        m_Player.velocity += t * forward;
         playerAnimState = ANIM_STATE_RUN;
     }
     if (KeyPressed(SDLK_s)) {        
-        m_Player.position -= t * forward;
+        m_Player.velocity -= t * forward;
         playerAnimState = ANIM_STATE_RUN;
     }
     if (KeyPressed(SDLK_d)) {
-        m_Player.position += t * side;
+        m_Player.velocity += t * side;
         playerAnimState = ANIM_STATE_RUN;        
     }
     if (KeyPressed(SDLK_a)) {
-        m_Player.position -= t * side;
+        m_Player.velocity -= t * side;
         playerAnimState = ANIM_STATE_RUN;
     }
 
@@ -276,6 +286,11 @@ bool Game::RunFrame(double dt)
 
     phys_Update((float)dt / 100.0f);
 
+    // Test collision between player and world geometry
+    EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
+    bool playerCollided = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
+
+    m_Player.position += m_Player.velocity;
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {
         UpdateModel(&m_IcosphereModels[i], (float)dt);
@@ -323,6 +338,7 @@ bool Game::RunFrame(double dt)
     if (KeyPressed(SDLK_DOWN)) {
         m_Camera.RotateAroundSide(-turnSpeed * dt);
     }
+
     // Render stuff
 
     m_Renderer->RenderBegin();
@@ -539,6 +555,11 @@ bool Game::RunFrame(double dt)
         &m_FollowCamera,
         renderModels, NUM_BALLS + 2);
 
+    if (playerCollided) {
+        m_Player.debugColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // red
+    } else {
+        m_Player.debugColor = glm::vec4(1.0f); // white
+    }
     HKD_Model* playerColliderModel[] = {&m_Player};
     m_Renderer->RenderColliders(&m_FollowCamera, playerColliderModel, 1);
 

@@ -29,6 +29,7 @@ public:
 	void SetMatrixPalette(glm::mat4* palette, uint32_t numMatrices);
 	void SetMat4(std::string uniformName, glm::mat4 mat4);
 	void SetVec3(std::string uniformName, glm::vec3 vec3);
+	void SetVec4(std::string uniformName, glm::vec4 vec4);
 	void DrawWireframe(uint32_t yesOrNo);
 	void SetShaderSettingBits(uint32_t bits);
 	void ResetShaderSettingBits(uint32_t bits);

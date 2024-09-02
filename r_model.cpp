@@ -7,6 +7,7 @@
 #include "dependencies/glm/gtx/quaternion.hpp"
 
 #include "r_common.h"
+#include "collision.h"
 
 //glm::vec3 pos;
 //glm::vec3 uv;
@@ -205,6 +206,15 @@ void UpdateModel(HKD_Model* model, float dt)
             glm::mat4 invGlobalMat = model->invBindPoses[i];
             model->palette[i] = model->palette[i] * invGlobalMat;
         }
+
+        // Update Ellipsoid Collider center
+        // TODO: Also entities that aren't animated should have this.
+        EllipsoidCollider* ec = &model->ellipsoidColliders[model->currentAnimIdx];
+        ec->center = model->position + glm::vec3(
+            0.0f,
+            0.0f,
+            ec->radiusB);
+
     } // DONE WITH ANIMATION
 
     // Update the rigid body

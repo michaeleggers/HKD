@@ -131,6 +131,11 @@ void Shader::SetVec3(std::string uniformName, glm::vec3 vec3)
 	glUniform3fv(loc, 1, (float*)&vec3);
 }
 
+void Shader::SetVec4(std::string uniformName, glm::vec4 vec4) {
+	GLuint loc = glGetUniformLocation(m_ShaderProgram, uniformName.c_str());
+	glUniform4fv(loc, 1, (float*)&vec4);
+}
+
 void Shader::DrawWireframe(uint32_t yesOrNo)
 {		
 	if (yesOrNo) {
