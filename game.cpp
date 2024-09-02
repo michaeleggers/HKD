@@ -524,43 +524,6 @@ bool Game::RunFrame(double dt)
         m_Renderer->ImDrawTris(b.tris, 12, false, DRAW_MODE_WIREFRAME);
     }
 
-    Ellipsoid playerCollider = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
-    float redIncrement1 = 1.0f / (float)NUM_POINTS;
-    float sliceAngle1 = 2 * HKD_PI / (float)NUM_POINTS;
-    float radiusA = playerCollider.radiusA;
-    float radiusB = playerCollider.radiusB;
-    Vertex circleVertices1[NUM_POINTS];
-    for (int i = 0; i < NUM_POINTS; i++) {
-        Vertex v = {};
-        v.pos.y = m_Player.position.y;
-        v.pos.x = m_Player.position.x + radiusA * m_Player.scale.x * cosf(i * sliceAngle1);
-        float playerColliderOffsetZ = (m_Player.scale.z * radiusB);
-        v.pos.z = playerColliderOffsetZ + m_Player.position.z + radiusB * m_Player.scale.z * sinf(i * sliceAngle1);
-        v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
-        circleVertices1[i] = v;
-    }
-    //m_Renderer->ImDrawLines(circleVertices1, NUM_POINTS, true);
-
-    Vertex circleVertices2[NUM_POINTS];
-    for (int i = 0; i < NUM_POINTS; i++) {
-        Vertex v = {};
-        float playerColliderOffsetZ = (m_Player.scale.z * radiusB);
-        v.pos.z = playerColliderOffsetZ + m_Player.position.z;
-        v.pos.x = m_Player.position.x + radiusA * m_Player.scale.x * cosf(i * sliceAngle1);
-        v.pos.y = m_Player.position.y + radiusA * m_Player.scale.x * sinf(i * sliceAngle1);
-        v.color = glm::vec4(redIncrement1*i, 0.4f, 0.2f, 1.0f);
-        circleVertices2[i] = v;
-    }
-    //m_Renderer->ImDrawLines(circleVertices2, NUM_POINTS, true);
-
-    glm::mat4 modelMatPlayer = CreateModelMatrix(&m_Player);
-    glm::mat4 offsetPlayerZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, playerCollider.radiusB));
-    modelMatPlayer *= offsetPlayerZ;
-    TransformEllipsoid(&playerCollider, modelMatPlayer);
-
-    //m_Renderer->ImDrawLines(playerCollider.vertices, ELLIPSOID_VERT_COUNT, true);
-
-    //m_Renderer->ImDrawTris(m_Model3.aabbBoxes[m_Model3.currentAnimIdx].tris, 12);
 #endif
 
     DrawCoordinateSystem(m_Renderer);

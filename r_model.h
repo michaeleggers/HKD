@@ -13,6 +13,7 @@
 #include "r_common.h"
 #include "iqm_loader.h"
 #include "Body.h"
+#include "collision.h"
 
 enum AnimState {
 	ANIM_STATE_IDLE,
@@ -57,7 +58,7 @@ struct HKD_Model {
 	std::vector<Anim>		animations;
 	std::vector<AABB>		aabbs; // one AABB for each animation (first frame of anim used). 
 	std::vector<Box>		aabbBoxes; // Actual vertex geometry for each aabb ready to render
-	std::vector<Ellipsoid>  ellipsoidColliders;
+	std::vector<EllipsoidCollider>  ellipsoidColliders;
 	uint32_t				currentAnimIdx;
 	uint32_t				prevAnimIdx;
 

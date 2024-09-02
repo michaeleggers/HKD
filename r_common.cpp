@@ -2,8 +2,11 @@
 
 #include <math.h>
 
-#define GLM_FORCE_RADIANS
+
 #include "r_model.h"
+#include "collision.h"
+
+#define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 #include "dependencies/glm/gtx/quaternion.hpp"
@@ -294,6 +297,18 @@ Box CreateBoxFromAABB(glm::vec3 mins, glm::vec3 maxs)
 	glm::vec3 posFix = mins + glm::vec3(width / 2.0f, depth / 2.0f, height / 2.0f);
 	Box result = CreateBox(glm::vec3(width, depth, height), glm::vec4(1.0, 1.0f, 1.0f, 1.0f));
 	TranslateBox(&result, posFix);
+
+	return result;
+}
+
+EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
+{
+	float width = abs(maxs.x - mins.x);
+	float height = abs(maxs.z - mins.z);
+	EllipsoidCollider result{};
+	result.radiusA = width / 2.0f;
+	result.radiusB = height / 2.0f;
+	result.center = glm::vec3(0.0f);
 
 	return result;
 }

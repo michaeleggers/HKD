@@ -77,9 +77,8 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
         result.aabbs.push_back({ f.bbmins, f.bbmins });
         Box aabbBox = CreateBoxFromAABB(f.bbmins, f.bbmaxs);        
         result.aabbBoxes.push_back(aabbBox);
-        Ellipsoid ellipsoid = CreateEllipsoidFromAABB(f.bbmins, f.bbmaxs);
-        ellipsoid.center = glm::vec3(0.0f);
-        result.ellipsoidColliders.push_back(ellipsoid);
+        EllipsoidCollider ec = CreateEllipsoidColliderFromAABB(f.bbmins, f.bbmaxs);
+        result.ellipsoidColliders.push_back(ec);
     }
 
     if (i > 0) {

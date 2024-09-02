@@ -562,10 +562,16 @@ void GLRender::RenderColliders(Camera* camera, HKD_Model** models, uint32_t numM
     m_ColliderBatch->Bind();
     for (int i = 0; i < numModels; i++) {
         HKD_Model* model = models[i];
-        Ellipsoid e = model->ellipsoidColliders[model->currentAnimIdx];
+        EllipsoidCollider ec = model->ellipsoidColliders[model->currentAnimIdx];
         glm::vec3 pos = model->position;
-        glm::vec3 scale = glm::vec3(e.radiusA * model->scale.x, e.radiusA * model->scale.y, e.radiusB * model->scale.z);
-        glm::vec3 offsetToCenterOfMass = pos + glm::vec3(0.0f, 0.0f, e.radiusB * model->scale.z);
+        glm::vec3 scale = glm::vec3(
+            ec.radiusA * model->scale.x,
+            ec.radiusA * model->scale.y,
+            ec.radiusB * model->scale.z);
+
+        glm::vec3 offsetToCenterOfMass = pos + glm::vec3(
+            0.0f, 0.0f, ec.radiusB * model->scale.z);
+
         glm::mat4 T = glm::translate(glm::mat4(1.0f), offsetToCenterOfMass);
         glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
         glm::mat4 M = T * S;
