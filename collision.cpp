@@ -25,7 +25,6 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
 
 bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
 {
-    Plane p = tp.plane;
     Tri tri = tp.tri;
 
     // Convert to ellipsoid space
@@ -35,13 +34,14 @@ bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriP
     glm::vec3 eSpaceNormal = eSpacePlane.normal;
     glm::vec3 eSpaceVel = ec.toESpace * velocity;
     glm::vec3 eSpacePos = ec.toESpace * ec.center;
+    glm::vec3 eSpacePtOnPlane = eSpaceTri.a.pos;
 
     // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
     // This, it is a unit sphere.
 
     // Signed distance from plane to unit sphere's center
 
-    float sD = glm::dot(eSpaceNormal, eSpacePos) + eSpacePlane.d;
+    float sD = glm::dot(eSpaceNormal, eSpacePos - eSpacePtOnPlane);
     printf("sD: %f\n", sD);
     if (sD >= -1.0f && sD <= 1.0f) {
         return true;
