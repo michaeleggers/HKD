@@ -31,6 +31,7 @@ public:
 	virtual bool Init(void)								override;
 	virtual void Shutdown(void)							override;
 	virtual int  RegisterModel(HKD_Model* model)		override;
+	virtual void SetActiveCamera(Camera* camera) override;
 	virtual std::vector<ITexture*> ModelTextures(int gpuModelHandle)	override;
 	virtual std::vector<ITexture*> Textures(void)       override;
 	virtual void ImDrawTris(Tri* tris, uint32_t numTris, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
@@ -38,6 +39,7 @@ public:
 	virtual void ImDrawIndexed(Vertex* verts, uint32_t numVerts, uint16_t* indices, uint32_t numIndices, bool cullFace = true, DrawMode drawMode = DRAW_MODE_SOLID) override;
 	virtual void ImDrawVerts(Vertex* verts, uint32_t numVerts) override;
 	virtual void ImDrawLines(Vertex* verts, uint32_t numVerts, bool close = false) override;
+	virtual void ImDrawSphere(glm::vec3 pos, float radius, glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) override;
 	virtual void RenderBegin(void)						override;
 	virtual void Render(Camera* camera, HKD_Model** models, uint32_t numModels) override;
 	virtual void RenderColliders(Camera* camera, HKD_Model** models, uint32_t numModels) override;
@@ -55,6 +57,8 @@ private:
 	SDL_GLContext				m_SDL_GL_Conext;
 
 	GLTextureManager*			m_TextureManager;
+
+	Camera*						m_ActiveCamera;
 
 	GLBatch*					m_ModelBatch;
 	std::vector<GLBatchDrawCmd> m_ModelDrawCmds;

@@ -202,6 +202,11 @@ int GLRender::RegisterModel(HKD_Model* model)
     return gpuModelHandle;
 }
 
+void GLRender::SetActiveCamera(Camera* camera)
+{
+    m_ActiveCamera = camera;
+}
+
 void GLRender::RegisterColliderModels()
 {
     // Generate vertices for a circle. Used for ellipsoid colliders.
@@ -345,6 +350,29 @@ void GLRender::ImDrawLines(Vertex* verts, uint32_t numVerts, bool close)
     };
 
     m_PrimitiveDrawCmds.push_back(drawCmd);
+}
+
+void GLRender::ImDrawSphere(glm::vec3 pos, float radius, glm::vec4 color)
+{
+    glm::mat4 view = m_ActiveCamera->ViewMatrix();
+    // TODO: Global Setting for perspective values
+    glm::mat4 proj = glm::perspective(
+        glm::radians(45.0f),
+        (float)m_WindowWidth / (float)m_WindowHeight,
+        0.1f, 10000.0f);
+
+    m_ColliderShader->Activate();
+    m_ColliderShader->SetViewProjMatrices(view, proj);
+
+    m_ColliderBatch->Bind();
+        m_ColliderShader->SetVec4("uDebugColor", color);
+        glm::vec3 scale = glm::vec3(radius);
+        glm::mat4 T = glm::translate(glm::mat4(1.0f), pos);
+        glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
+        glm::mat4 M = T * S;
+        m_ColliderShader->SetMat4("model", M);
+
+        glDrawArrays(GL_TRIANGLES, m_EllipsoidColliderDrawCmd.offset, m_EllipsoidColliderDrawCmd.numVerts);
 }
 
 GLBatchDrawCmd GLRender::AddLineToBatch(GLBatch* batch, Vertex* verts, uint32_t numVerts, bool close)

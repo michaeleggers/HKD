@@ -23,7 +23,7 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
     return result;
 }
 
-bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
+CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
 {
     Tri tri = tp.tri;
 
@@ -44,7 +44,9 @@ bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriP
     float sD = glm::dot(eSpaceNormal, eSpacePos - eSpacePtOnPlane);
     printf("sD: %f\n", sD);
     if (sD >= -1.0f && sD <= 1.0f) {
-        return true;
+        glm::vec3 hitPoint = eSpacePos - sD * eSpaceNormal;
+        hitPoint = glm::inverse(ec.toESpace) * hitPoint;
+        return { true, hitPoint };
     }
 
     // Project velocity along the plane normal
@@ -60,10 +62,20 @@ bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriP
 
     // If both t0, t1 are outside the range [0, 1], then there is no collision!
     if ( (t0 < 0.0f || t0 > 1.0f) && (t1 < 0.0f || t1 > 1.0f) ) {
-        return false;
+        return {false, glm::vec3(0.0f)};
     }
 
-    return true;
+    glm::vec3 eSpaceHitPoint = eSpacePos;
+    if (t0 <= 1.0f) {
+        eSpaceHitPoint += t0 * eSpaceVel + eSpaceNormal;
+    }
+    else if (t1 >= -1.0f) {
+        eSpaceHitPoint += t1 * eSpaceVel + eSpaceNormal;
+    }
+
+    glm::vec3 hitPoint = glm::inverse(ec.toESpace) * eSpaceHitPoint;
+
+    return { true, hitPoint };
 }
 
 Tri TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace) {

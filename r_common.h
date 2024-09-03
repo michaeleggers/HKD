@@ -52,6 +52,13 @@ struct Tri {
 	};
 };
 
+struct Line {
+	union {
+		struct { Vertex a; Vertex b; };
+		Vertex vertices[2];
+	};
+};
+
 struct Plane {
 	glm::vec3 normal;
 	float	  d;

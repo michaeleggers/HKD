@@ -18,8 +18,13 @@ struct EllipsoidCollider {
     glm::mat3   toESpace; // Maps from World to ellipsoid (unit-sphere) space
 };
 
+struct CollisionInfo {
+    bool      didCollide;
+    glm::vec3 hitPoint;
+};
+
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs);
-bool CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp);
+CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp);
 Tri  TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace);
 
 #endif //COLLISION_H

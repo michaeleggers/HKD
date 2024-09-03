@@ -46,7 +46,7 @@ void Game::Init()
     triPlane.tri.a.normal = triPlane.plane.normal;
     triPlane.tri.b.normal = triPlane.plane.normal;
     triPlane.tri.c.normal = triPlane.plane.normal;
-    RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 200.0f);
+    RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 20.0f);
     m_World.InitWorld(&triPlane, 1);
 
     Plane p = triPlane.plane;
@@ -289,7 +289,7 @@ bool Game::RunFrame(double dt)
 
     // Test collision between player and world geometry
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
-    bool playerCollided = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
+    CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
 
     m_Player.position += m_Player.velocity;
     UpdateModel(&m_Player, (float)dt);
@@ -404,8 +404,16 @@ bool Game::RunFrame(double dt)
 #if 1
     // Draw some primitives in immediate mode
 
-    // Render World geometry
+    // Draw Debug Line for player veloctiy vector
+    Line velocityDebugLine = {
+        Vertex(ec.center), Vertex(ec.center + 200.0f * m_Player.velocity)
+    };
+    velocityDebugLine.a.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    velocityDebugLine.b.color = velocityDebugLine.a.color;
+    m_Renderer->ImDrawLines(velocityDebugLine.vertices, 2, false);
 
+
+    // Render World geometry
     m_Renderer->ImDrawTriPlanes(m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size(),
         false, DRAW_MODE_SOLID);
 
@@ -556,8 +564,10 @@ bool Game::RunFrame(double dt)
         &m_FollowCamera,
         renderModels, NUM_BALLS + 2);
 
-    if (playerCollided) {
+    if (collisionInfo.didCollide) {
         m_Player.debugColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // red
+        m_Renderer->SetActiveCamera(&m_FollowCamera);
+        m_Renderer->ImDrawSphere(collisionInfo.hitPoint, 5.0f);
     } else {
         m_Player.debugColor = glm::vec4(1.0f); // white
     }
