@@ -291,7 +291,17 @@ bool Game::RunFrame(double dt)
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
     CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
 
+    // if (collisionInfo.didCollide) {
+    //     if (collisionInfo.t <= 1.0f) {
+    //         m_Player.velocity = collisionInfo.t * collisionInfo.normal;
+    //     } else {
+    //         m_Player.velocity = collisionInfo.t * m_Player.velocity;
+    //     }
+    // }
+
+    // And apply the velocity
     m_Player.position += m_Player.velocity;
+
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {
         UpdateModel(&m_IcosphereModels[i], (float)dt);

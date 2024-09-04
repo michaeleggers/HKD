@@ -23,34 +23,25 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
     return result;
 }
 
-CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
+CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p)
 {
-    Tri tri = tp.tri;
-
-    // Convert to ellipsoid space
-
-    Tri eSpaceTri = TriToEllipsoidSpace(tri, ec.toESpace);
-    Plane eSpacePlane = CreatePlaneFromTri(eSpaceTri);
-    glm::vec3 eSpaceNormal = eSpacePlane.normal;
-    glm::vec3 eSpaceVel = ec.toESpace * velocity;
-    glm::vec3 eSpacePos = ec.toESpace * ec.center;
-    glm::vec3 eSpacePtOnPlane = eSpaceTri.a.pos;
-
-    // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
-    // This, it is a unit sphere.
+    glm::vec3 normal = p.normal;
+    glm::vec3 ptOnPlane = p.d * normal;
+    glm::vec3 basePos = pos;
 
     // Signed distance from plane to unit sphere's center
 
-    float sD = glm::dot(eSpaceNormal, eSpacePos - eSpacePtOnPlane);
+    float sD = glm::dot(normal, basePos - ptOnPlane);
     printf("sD: %f\n", sD);
-    if (sD >= -1.0f && sD <= 1.0f) {
-        glm::vec3 hitPoint = eSpacePos - sD * eSpaceNormal;
-        hitPoint = glm::inverse(ec.toESpace) * hitPoint;
-        return { true, hitPoint };
+    if (sD >= -1.0f && sD <= 1.0f) { // Sphere is already inside the plane.
+        glm::vec3 hitPoint = basePos - sD * normal;
+        printf("STUCK\n");
+
+        return { true, hitPoint, (1.0f - glm::abs(sD)), normal };
     }
 
     // Project velocity along the plane normal
-    float velDotNormal = glm::dot(eSpaceNormal, eSpaceVel);
+    float velDotNormal = glm::dot(normal, velocity);
 
     // Calculate t0, that is the time when the unit sphere hits the
     // front face of the plane.
@@ -62,20 +53,47 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 
     // If both t0, t1 are outside the range [0, 1], then there is no collision!
     if ( (t0 < 0.0f || t0 > 1.0f) && (t1 < 0.0f || t1 > 1.0f) ) {
-        return {false, glm::vec3(0.0f)};
+        return {false, glm::vec3(0.0f), t0, glm::vec3(0.0f) }; // Actually could also be t1?
     }
 
-    glm::vec3 eSpaceHitPoint = eSpacePos;
+    glm::vec3 hitPoint = basePos;
+    float t = 0.0f;
     if (t0 <= 1.0f) {
-        eSpaceHitPoint += t0 * eSpaceVel + eSpaceNormal;
+        hitPoint += t0 * velocity + normal;
+        t = t0;
     }
     else if (t1 >= -1.0f) {
-        eSpaceHitPoint += t1 * eSpaceVel + eSpaceNormal;
+        hitPoint += t1 * velocity + normal;
+        t = t1;
     }
 
-    glm::vec3 hitPoint = glm::inverse(ec.toESpace) * eSpaceHitPoint;
+    return { true, hitPoint, t, normal };
+}
 
-    return { true, hitPoint };
+CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
+{
+    Tri tri = tp.tri;
+
+    // Convert to ellipsoid space
+
+    Tri esTri = TriToEllipsoidSpace(tri, ec.toESpace);
+    Plane esPlane = CreatePlaneFromTri(esTri);
+    glm::vec3 esNormal = esPlane.normal;
+    glm::vec3 esVelocity = ec.toESpace * velocity;
+    glm::vec3 esBasePos = ec.toESpace * ec.center;
+    glm::vec3 esPtOnPlane = esTri.a.pos;
+
+    // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
+    // This, it is a unit sphere.
+
+    CollisionInfo ci = CollideUnitSphereWithPlane(
+        esBasePos, esVelocity, esPlane);
+
+    // Convert back from ellipsoid space to world space.
+    ci.hitPoint = glm::inverse(ec.toESpace) * ci.hitPoint;
+    ci.normal = glm::inverse(ec.toESpace) * ci.normal;
+
+    return ci;
 }
 
 Tri TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace) {
