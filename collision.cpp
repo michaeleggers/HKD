@@ -23,7 +23,47 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
     return result;
 }
 
-CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p)
+glm::vec3 ConstructNormalToTriLineSegment(glm::vec3 a, glm::vec3 b, glm::vec3 planeNormal)
+{
+    glm::vec3 AB = glm::normalize(b - a);
+    glm::vec3 nAB = glm::normalize(glm::cross(AB, planeNormal));
+
+    return nAB;
+}
+
+float SignedDistancePointToPlane(glm::vec3 pt, glm::vec3 ptOnPlane, glm::vec3 planeNormal)
+{
+    glm::vec3 pVec = pt - ptOnPlane;
+    float sD = glm::dot(pVec, planeNormal);
+
+    return sD;
+}
+
+bool IsPointInTriangle(glm::vec3 point, Tri tri, glm::vec3 triNormal)
+{
+    glm::vec3 nAB = ConstructNormalToTriLineSegment(tri.a.pos, tri.b.pos, triNormal);
+    float sdABplane = SignedDistancePointToPlane(point, tri.a.pos, nAB);
+    printf("sdABplane: %f\n", sdABplane);
+    if (sdABplane <= 0.0f) {
+        return false;
+    }
+
+    glm::vec3 nBC = ConstructNormalToTriLineSegment(tri.b.pos, tri.c.pos, triNormal);
+    float sdBCplane = SignedDistancePointToPlane(point, tri.b.pos, nBC);
+    if (sdBCplane <= 0.0f) {
+        return false;
+    }
+
+    glm::vec3 nCA = ConstructNormalToTriLineSegment(tri.c.pos, tri.a.pos, triNormal);
+    float sdCAplane = SignedDistancePointToPlane(point, tri.c.pos, nCA);
+    if (sdCAplane <= 0.0f) {
+        return false;
+    }
+
+    return true;
+}
+
+CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
     glm::vec3 ptOnPlane = p.d * normal;
@@ -38,7 +78,7 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
 
     bool embeddedInPlane = false;
     float t0, t1;
-    if (velDotNormal <= HKD_EPSILON) { // Sphere travelling parallel to the plane
+    if ( glm::abs(velDotNormal) <= 0.001 ) { // Sphere travelling parallel to the plane
         // Distance from unit sphere center to plane is greater than 1 => no intersection!
         if ( D >= 1.0f ) {
             return {false, glm::vec3(0.0f), sD, glm::vec3(0.0f) };
@@ -59,7 +99,7 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         // hits the back face of the plane.
         t1 = (-1.0f - sD) / velDotNormal;
 
-        printf("t0: %f, t1: %f\n", t0, t1);
+        // printf("t0: %f, t1: %f\n", t0, t1);
 
         // t0, t1 marks the intersection interval. Make sure
         // t0 < t1 because depending on what side of the Plane
@@ -76,19 +116,23 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
             return { false };
         }
 
-        glm::vec3 hitPoint = basePos;
-        float t = 0.0f;
-        if (t0 <= 1.0f) {
-            hitPoint += t0 * velocity - normal;
-            t = t0;
-        }
-        else if (t1 >= -1.0f) {
-            hitPoint += t1 * velocity - normal;
-            t = t1;
-        }
+        t0 = glm::clamp(t0, 0.0f, 1.0f);
+        t1 = glm::clamp(t1, 0.0f, 1.0f);
     }
 
-    return { true, glm::vec3(0.0f), 0.0f, normal };
+    // Collision could be at the front side of the plane.
+    // This is only possible when the intersection point is not embedded inside
+    // the plane.
+    if (!embeddedInPlane) {
+        // Check if the intersection is INSIDE the triangle.
+        glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
+        // if (IsPointInTriangle(intersectionPoint, tri, normal)) {
+        //     printf("Point inside triangle!\n");
+        //     return { true };
+        // }
+    }
+
+    return { false, glm::vec3(0.0f), 0.0f, normal };
 }
 
 CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
@@ -108,7 +152,7 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
     // This, it is a unit sphere.
 
     CollisionInfo ci = CollideUnitSphereWithPlane(
-        esBasePos, esVelocity, esPlane);
+        esBasePos, esVelocity, esPlane, esTri);
 
     if (ci.didCollide) {
         glm::vec3 newPos = ci.hitPoint;

@@ -29,5 +29,7 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
 CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p);
 CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp);
 Tri  TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace);
+Plane CreatePlaneFromTri(Tri tri);
+bool IsPointInTriangle(glm::vec3 point, Tri tri, glm::vec3 triNormal);
 
 #endif //COLLISION_H

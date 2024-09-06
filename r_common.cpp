@@ -397,7 +397,12 @@ NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
 Plane CreatePlaneFromTri(Tri tri) {
 	glm::vec3 AB = tri.b.pos - tri.a.pos;
 	glm::vec3 AC = tri.c.pos - tri.a.pos;
-	glm::vec3 normal = glm::normalize(glm::cross(AB, AC));
+	// NOTE: Because we use clockwise order we have to think left-handed
+	// TODO: We should probably considering switching to CCW, because
+	// Blender uses a right-handed system (and we do as well!). So defining
+	// Geometry is a bit awkward at the moment! But IQM seems to
+	// be exported in CW as well, which is a bit weird!
+	glm::vec3 normal = glm::normalize(glm::cross(AC, AB));
 	glm::vec3 A = tri.a.pos;
 
 	// Project A onto the normal. That will yield the distance

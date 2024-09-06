@@ -46,9 +46,8 @@ void Game::Init()
     triPlane.tri.a.normal = triPlane.plane.normal;
     triPlane.tri.b.normal = triPlane.plane.normal;
     triPlane.tri.c.normal = triPlane.plane.normal;
-    RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 20.0f);
+    // RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 20.0f);
     m_World.InitWorld(&triPlane, 1);
-
     Plane p = triPlane.plane;
     printf("p.normal: %f, %f, %f, plane.d: %f\n",
         p.normal.x, p.normal.y, p.normal.z, p.d);
@@ -290,6 +289,11 @@ bool Game::RunFrame(double dt)
     // Test collision between player and world geometry
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
     CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
+    TriPlane tp = m_World.m_TriPlanes[0];
+    Plane p = CreatePlaneFromTri(tp.tri);
+    if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
+        printf("Point in Triangle");
+    }
 
     // if (collisionInfo.didCollide) {
     //     if (collisionInfo.t <= 1.0f) {
@@ -425,7 +429,7 @@ bool Game::RunFrame(double dt)
 
     // Render World geometry
     m_Renderer->ImDrawTriPlanes(m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size(),
-        false, DRAW_MODE_SOLID);
+        true, DRAW_MODE_SOLID);
 
     Vertex a = {};
     a.pos = glm::vec3(-100, -300, 100);
@@ -581,6 +585,8 @@ bool Game::RunFrame(double dt)
     } else {
         m_Player.debugColor = glm::vec4(1.0f); // white
     }
+    m_Renderer->SetActiveCamera(&m_FollowCamera);
+    m_Renderer->ImDrawSphere(ec.center, 7.0f);
     HKD_Model* playerColliderModel[] = {&m_Player};
     m_Renderer->RenderColliders(&m_FollowCamera, playerColliderModel, 1);
 
