@@ -49,7 +49,7 @@ void SubdivTri(Tri* tri, Tri out_tris[])
 	glm::vec3 B = tri->b.pos;
 	glm::vec3 C = tri->c.pos;
 
-	// Vectors from vert to vert in clockwise order
+	// Vectors from vert to vert.
 
 	glm::vec3 AB = B - A;
 	glm::vec3 BC = C - B;
@@ -398,12 +398,8 @@ NBox CreateNBox(glm::vec3 scale, uint32_t numSubidvs)
 Plane CreatePlaneFromTri(Tri tri) {
 	glm::vec3 AB = tri.b.pos - tri.a.pos;
 	glm::vec3 AC = tri.c.pos - tri.a.pos;
-	// NOTE: Because we use clockwise order we have to think left-handed
-	// TODO: We should probably considering switching to CCW, because
-	// Blender uses a right-handed system (and we do as well!). So defining
-	// Geometry is a bit awkward at the moment! But IQM seems to
-	// be exported in CW as well, which is a bit weird!s
-	glm::vec3 normal = glm::normalize(glm::cross(AC, AB));
+
+	glm::vec3 normal = glm::normalize(glm::cross(AB, AC));
 	glm::vec3 A = tri.a.pos;
 
 	// Project A onto the normal. That will yield the distance

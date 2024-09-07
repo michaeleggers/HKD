@@ -432,7 +432,7 @@ bool Game::RunFrame(double dt)
         true, DRAW_MODE_SOLID);
 
     Vertex a = {};
-    a.pos = glm::vec3(-100, -300, 100);
+    a.pos = glm::vec3(100, -300, -100);
     a.color = glm::vec4(1, 0, 0, 1);
     a.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Vertex b = {};
@@ -440,7 +440,7 @@ bool Game::RunFrame(double dt)
     b.color = glm::vec4(0, 1, 0, 1);
     b.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Vertex c = {};
-    c.pos = glm::vec3(100, -300, -100);
+    c.pos = glm::vec3(-100, -300, 100);
     c.color = glm::vec4(1, 1, 0, 1);
     c.normal = glm::vec3(0.0f, -1.0f, 0.0f);
     Tri myCoolTri = { a, b, c };
@@ -451,7 +451,7 @@ bool Game::RunFrame(double dt)
     //Tri subdivSubdivTri[16] = {};
     //SubdivTri(&myCoolTri, subdivSubdivTri, 2);
 
-    m_Renderer->ImDrawTris(subdivTri, 4, false, DRAW_MODE_WIREFRAME);
+    m_Renderer->ImDrawTris(subdivTri, 4, true, DRAW_MODE_WIREFRAME);
 
     //m_Renderer->ImDrawTris(&myCoolTri2, 1, false);
 
