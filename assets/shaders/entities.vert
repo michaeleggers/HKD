@@ -33,7 +33,7 @@ layout (std140) uniform ViewProjMatrices {
 };
 
 layout (std140) uniform Settings {
-    uint drawWireframe;
+    uvec4 bitFields;
 };
 
 layout (std140) uniform Palette {
@@ -49,15 +49,16 @@ out vec3 Normal;
 
 void main() {
     vec4 v = vec4(pos, 1.0);
-    vec4 skinnedPos = (palette[blendindices.x] * v) * blendweights.x;
-    skinnedPos += (palette[blendindices.y] * v) * blendweights.y;
-    skinnedPos += (palette[blendindices.z] * v) * blendweights.z;
-    skinnedPos += (palette[blendindices.w] * v) * blendweights.w;
+    
+    mat4 skinMat = (
+        palette[blendindices.x]*blendweights.x
+     + palette[blendindices.y]*blendweights.y 
+     + palette[blendindices.z]*blendweights.y 
+     + palette[blendindices.w]*blendweights.w);
 
-    // skinnedPos = palette[blendindices.x] * palette[blendindices.y] * palette[blendindices.z] * palette[blendindices.w] * v;
-
-    if ( (drawWireframe & SHADER_ANIMATED) == SHADER_ANIMATED ) {
-        gl_Position = proj * view * model * skinnedPos;
+    uint shaderBits0 = bitFields.x;
+    if ( (shaderBits0 & SHADER_ANIMATED) == SHADER_ANIMATED ) {
+        gl_Position = proj * view * model * skinMat * v;
     }
     else {
         gl_Position = proj * view * model * v;

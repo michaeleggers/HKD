@@ -9,6 +9,10 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <SDL2/SDL_egl.h>
 
+#define GLM_FORCE_RADIANS
+#include "dependencies/glm/glm.hpp"
+#include "dependencies/glm/ext.hpp"
+
 #include "r_common.h"
 #include "platform.h"
 #include "r_itexture.h"
@@ -140,7 +144,7 @@ bool GLRender::Init(void)
     // Some OpenGL global settings
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
+    glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glDepthFunc(GL_LESS);
 
@@ -476,7 +480,6 @@ void GLRender::ExecuteDrawCmds(std::vector<GLBatchDrawCmd>& drawCmds, GeometryTy
     }
 }
 
-
 void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
 {    
     // Camera and render settings
@@ -537,7 +540,6 @@ void GLRender::Render(Camera* camera, HKD_Model** models, uint32_t numModels)
     else {
         m_ModelShader->ResetShaderSettingBits(SHADER_WIREFRAME_ON_MESH);
     }    
-    m_ModelShader->SetViewProjMatrices(view, proj);
     for (int i = 0; i < numModels; i++) {
 
         GLModel model = m_Models[ models[i]->gpuModelHandle ];

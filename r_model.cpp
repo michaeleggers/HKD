@@ -61,7 +61,11 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
             Vertex vertB = IQMVertexToVertex(iqmVertB, glm::vec3(0.0, 1.0, 0.0));
             Vertex vertC = IQMVertexToVertex(iqmVertC, glm::vec3(0.0, 0.0, 1.0));
 
-            Tri tri = { vertA, vertB, vertC };
+            // NOTE: IQM stores its vertices in +z out of screen, y up, r right.
+            // But we use a Blender coordinate system! Note that by doing this
+            // Triangles will appear in CW order in RenderDoc (because it uses
+            // the same "OpenGL" coordinate system.
+            Tri tri = { vertA, vertC, vertB };
 
             result.tris.push_back(tri);
         }

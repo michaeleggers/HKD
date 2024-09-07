@@ -401,7 +401,7 @@ Plane CreatePlaneFromTri(Tri tri) {
 	// TODO: We should probably considering switching to CCW, because
 	// Blender uses a right-handed system (and we do as well!). So defining
 	// Geometry is a bit awkward at the moment! But IQM seems to
-	// be exported in CW as well, which is a bit weird!
+	// be exported in CW as well, which is a bit weird!s
 	glm::vec3 normal = glm::normalize(glm::cross(AC, AB));
 	glm::vec3 A = tri.a.pos;
 

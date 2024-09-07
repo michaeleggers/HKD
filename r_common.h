@@ -45,6 +45,10 @@ struct Vertex {
 #define HKD_EPSILON              0.00001
 #define ELLIPSOID_VERT_COUNT	 32
 
+struct ShaderSettings {
+	glm::uvec4 u32bitMasks; // TODO: This is just to make the Shader happy (Wants 16 bytes by default, not only 4).
+};
+
 struct Tri {
 	union {
 		struct { Vertex a; Vertex b; Vertex c; };

@@ -18,7 +18,7 @@ const uint SHADER_IS_TEXTURED		= 0x00000001 << 3;
 
 
 layout (std140) uniform Settings {
-    uint drawWireframe;
+    uvec4 bitFields;
 };
 
 uniform sampler2D colorTex;
@@ -59,8 +59,9 @@ void main() {
     // color.b = float(lookUp[idxB]) / 255.0f;
     // color.a = 1.0f;
     
+    uint shaderBits0 = bitFields.x;
     vec4 wireframe = vec4(0.0);
-    if ( (drawWireframe & SHADER_WIREFRAME_ON_MESH) == SHADER_WIREFRAME_ON_MESH ) {
+    if ( (shaderBits0 & SHADER_WIREFRAME_ON_MESH) == SHADER_WIREFRAME_ON_MESH ) {
         wireframe = vec4(mix(vec3(1.0), vec3(0.0), edgeFactor()), 1.0);
         wireframe.a = 0.2;
         wireframe.rgb *= wireframe.a;
@@ -68,7 +69,7 @@ void main() {
 
     vec3 normalColor = 0.5*Normal + 0.5;
     vec4 finalColor = vec4(normalColor, 1.0f);
-    if ( (drawWireframe & SHADER_IS_TEXTURED) == SHADER_IS_TEXTURED ) {
+    if ( (shaderBits0 & SHADER_IS_TEXTURED) == SHADER_IS_TEXTURED ) {
         finalColor = texture(colorTex, TexCoord);
     }
     

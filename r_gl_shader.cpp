@@ -61,7 +61,7 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName, uint
 		// TODO: What to do in this case???
 	}
 	glUniformBlockBinding(m_ShaderProgram, m_SettingsUniformIndex, settingsBindingPoint);
-	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, g_SettingsUBO, 0, sizeof(uint32_t));
+	glBindBufferRange(GL_UNIFORM_BUFFER, settingsBindingPoint, g_SettingsUBO, 0, 4 * sizeof(uint32_t));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// TODO: Animation stuff is not global to all shaders. That is why we check for shader flags here.
@@ -149,8 +149,10 @@ void Shader::DrawWireframe(uint32_t yesOrNo)
 void Shader::SetShaderSettingBits(uint32_t bits)
 {
 	g_SettingsBits |= bits;
+	ShaderSettings settings;
+	settings.u32bitMasks.x = g_SettingsBits;
 	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&g_SettingsBits);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(uint32_t), (void*)&settings);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -158,7 +160,7 @@ void Shader::ResetShaderSettingBits(uint32_t bits)
 {
 	g_SettingsBits = (g_SettingsBits & (~bits));
 	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uint32_t), (void*)&g_SettingsBits);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 4*sizeof(uint32_t), (void*)&g_SettingsBits);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -177,7 +179,7 @@ void Shader::InitGlobalBuffers()
 
 	glGenBuffers(1, &g_SettingsUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_SettingsUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
