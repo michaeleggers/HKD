@@ -292,7 +292,10 @@ bool Game::RunFrame(double dt)
     TriPlane tp = m_World.m_TriPlanes[0];
     Plane p = CreatePlaneFromTri(tp.tri);
     if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
-        printf("Point in Triangle");
+        printf("Point in Triangle\n");
+    }
+    else {
+        printf("POINT NOT IN TRIANGLE.\n");
     }
 
     // if (collisionInfo.didCollide) {
@@ -586,7 +589,7 @@ bool Game::RunFrame(double dt)
         m_Player.debugColor = glm::vec4(1.0f); // white
     }
     m_Renderer->SetActiveCamera(&m_FollowCamera);
-    m_Renderer->ImDrawSphere(ec.center, 7.0f);
+    m_Renderer->ImDrawSphere(ec.center, 5.0f);
     HKD_Model* playerColliderModel[] = {&m_Player};
     m_Renderer->RenderColliders(&m_FollowCamera, playerColliderModel, 1);
 

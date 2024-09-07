@@ -23,10 +23,11 @@ EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs
     return result;
 }
 
+// Assumes Triangle in CCW order.
 glm::vec3 ConstructNormalToTriLineSegment(glm::vec3 a, glm::vec3 b, glm::vec3 planeNormal)
 {
     glm::vec3 AB = glm::normalize(b - a);
-    glm::vec3 nAB = glm::normalize(glm::cross(AB, planeNormal));
+    glm::vec3 nAB = glm::normalize(glm::cross(planeNormal, AB));
 
     return nAB;
 }
@@ -43,7 +44,7 @@ bool IsPointInTriangle(glm::vec3 point, Tri tri, glm::vec3 triNormal)
 {
     glm::vec3 nAB = ConstructNormalToTriLineSegment(tri.a.pos, tri.b.pos, triNormal);
     float sdABplane = SignedDistancePointToPlane(point, tri.a.pos, nAB);
-    printf("sdABplane: %f\n", sdABplane);
+    // printf("sdABplane: %f\n", sdABplane);
     if (sdABplane <= 0.0f) {
         return false;
     }
