@@ -471,9 +471,9 @@ bool Game::RunFrame(double dt)
 
     // Use all the facequad points to create an icosahedron 
 
-    m_Renderer->ImDrawTris(quadXZ.tris, 2, false);
-    m_Renderer->ImDrawTris(quadYZ.tris, 2, false);
-    m_Renderer->ImDrawTris(quadXY.tris, 2, false);
+    m_Renderer->ImDrawTris(quadXZ.tris, 2, true);
+    m_Renderer->ImDrawTris(quadYZ.tris, 2, true);
+    m_Renderer->ImDrawTris(quadXY.tris, 2, true);
 
     m_Renderer->ImDrawLines(fqXZ.vertices, 4, true);
     m_Renderer->ImDrawLines(fqYZ.vertices, 4, true);
