@@ -101,14 +101,16 @@ bool GetSmallestRoot(float a, float b, float c, float maxRoot, float* root)
     float r1 = (-b + sqrtD) * denom;
 
     // Make sure we have the lowest solution in r0.
-    // SortValues(r0, r1, SortFloats);
-    SortFloats(&r0, &r1);
+    SortValues(r0, r1, SortFloats);
 
     if (r0 > 0.0f && r0 < maxRoot) {
         *root = r0;
         return true;
     }
 
+    // r0 could be a negative solution. In plain math this is ok,
+    // but we are only interested in values that are between
+    // 0 and maxRoot (which is 1 at maximum).
     if (r1 > 0.0f && r1 < maxRoot) {
         *root = r1;
         return true;
@@ -195,6 +197,11 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // Check if collision with one of the 3 vertices of the  triangle.
     // Can only happen if we did not collide previously with the 'inside'
     // of the triangle's side planes.
+    // The Equation we have to solve is:
+    // ( C(t) - p )^2 = 1, that is when the sphere collided with the tri's vertex.
+    // where C(t) is the current pos of the sphere on its velocity vector:
+    // C(t) = basePos + t * velocity
+    // p is one of the vertices of the tri.
     if (!foundCollision) {
         float a = glm::length2(velocity);
         float newT;
@@ -217,7 +224,7 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         }
 
         // Check point C
-        b = 2.0f * ( glm::dot(velocity, (basePos - tri.c.pos        )) );
+        b = 2.0f * ( glm::dot(velocity, (basePos - tri.c.pos)) );
         c = glm::distance2(tri.c.pos, basePos) - 1.0f;
         // Find smallest solution, if available
         if (GetSmallestRoot(a, b, c, t, &newT)) {
