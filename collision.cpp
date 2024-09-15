@@ -250,18 +250,22 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
             foundCollision = true;
         }
 
-        // Check if the intersection point between sphere and plane we found
-        // earlier lies on one of the 3 triangle's edges.
-        glm::vec3 intersectionPoint = basePos * velocity - normal;
-        if ( IsPointOnLineSegment(intersectionPoint, tri.a.pos, tri.b.pos) ) {
-            foundCollision = true;
-        }
-        if ( IsPointOnLineSegment(intersectionPoint, tri.b.pos, tri.c.pos) ) {
-            foundCollision = true;
-        }
-        if ( IsPointOnLineSegment(intersectionPoint, tri.c.pos, tri.a.pos) ) {
-            foundCollision = true;
-        }
+		// Check sphere against tri's line-segments
+		
+		glm::vec3 e = tri.a.pos - tri.c.pos;
+		float eSquaredLength = glm::length2(e);
+		float vSquaredLength = glm::length2(velocity);
+		glm::vec3 baseToVertex = tri.a.pos - basePos;
+		float eDotVel = glm::dot(e, velocity);
+		float eDotBaseToVertex = glm::dot(e, baseToVertex);
+
+		a = eSquaredLength * (-vSquaredLength) + eDotVel*eDotVel;
+		b = eSquaredLength * 2.0f*glm::dot(velocity, baseToVertex) - 2.0f*( eDotVel * eDotBaseToVertex );
+		c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
+		
+		if (GetSmallestRoot(a, b, c, t, &newT)) {
+			foundCollision = true;
+		}
     }
 
     return { foundCollision, glm::vec3(0.0f), 0.0f, normal };
@@ -275,16 +279,15 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 
     Tri esTri = TriToEllipsoidSpace(tri, ec.toESpace);
     Plane esPlane = CreatePlaneFromTri(esTri);
-    glm::vec3 esNormal = esPlane.normal;
     glm::vec3 esVelocity = ec.toESpace * velocity;
     glm::vec3 esBasePos = ec.toESpace * ec.center;
-    glm::vec3 esPtOnPlane = esTri.a.pos;
 
     // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
     // This, it is a unit sphere.
 
     CollisionInfo ci = CollideUnitSphereWithPlane(
-        esBasePos, esVelocity, esPlane, esTri);
+        esBasePos, esVelocity, esPlane, esTri
+    );
 
     if (ci.didCollide) {
         glm::vec3 newPos = ci.hitPoint;
