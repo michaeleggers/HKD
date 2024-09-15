@@ -65,6 +65,58 @@ bool IsPointInTriangle(glm::vec3 point, Tri tri, glm::vec3 triNormal)
     return true;
 }
 
+// If a > b then the two will be swapped.
+// Otherwise, nothing happens.
+void SortFloats(float* a, float* b)
+{
+    if (*a > *b) {
+        float tmp = *a;
+        *a = *b;
+        *b = tmp;
+    }
+}
+
+void SortDoubles(double* a, double* b) {
+    if (*a > *b) {
+        double tmp = *a;
+        *a = *b;
+        *b = tmp;
+    }
+}
+
+#define SortValues(a, b, t) do { \
+        t(&a, &b); \
+    } while(0); \
+
+bool GetSmallestRoot(float a, float b, float c, float maxRoot, float* root)
+{
+    float D = b*b - 4*a*c;
+    if (D < 0.0f) {
+        return false;
+    }
+
+    float sqrtD = sqrt(D);
+    float denom = 1.0f / (2.0f * a);
+    float r0 = (-b - sqrtD) * denom;
+    float r1 = (-b + sqrtD) * denom;
+
+    // Make sure we have the lowest solution in r0. 
+    SortValues(a, b, SortFloats);
+
+    if (r0 >= 0.0f && r1 < maxRoot) {
+        *root = r0;
+        return true;
+    }
+
+    if (r1 >= 0.0f && r1 < maxRoot) {
+        *root = r1;
+        return true;
+    }
+
+    return false;
+
+}
+
 CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
@@ -136,7 +188,7 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
             t = t0;
         }
         else {
-            printf("Point outside tri side planes.\n");                 
+            printf("Point outside tri side planes.\n");
         }
     }
 
@@ -144,19 +196,18 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // Can only happen if we did not collide previously with the 'inside'
     // of the triangle's side planes.
     if (!foundCollision) {
-        float newT;
-
         float a = glm::length2(velocity);
 
         // Check point A
-        float b = 2.0f * ( glm::dot(velocity    , (basePos - tri.a.pos)) );
+        float b = 2.0f * ( glm::dot(velocity, (basePos - tri.a.pos)) );
         float c = glm::distance2(tri.a.pos, basePos) - 1.0f;
         // Find smallest solution, if available
         float D = b*b - 4.0f*a*c;
         if (D >= 0.0f) {
             foundCollision = true;
-            float rootT0 = (b - D) / (2.0f * a);
-            float rootT1 = (b + D) / (2.0f * a);
+            float sqrtD = glm::sqrt(D);
+            float rootT0 = (-b - sqrtD) / (2.0f * a);
+            float rootT1 = (-b + sqrtD) / (2.0f * a);
             t = glm::min(rootT0, rootT1);
         }
 
@@ -167,8 +218,9 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         D = b*b - 4.0f*a*c;
         if (D >= 0.0f) {
             foundCollision = true;
-            float rootT0 = (b - D) / (2.0f * a);
-            float rootT1 = (b + D) / (2.0f * a);
+            float sqrtD = glm::sqrt(D);
+            float rootT0 = (-b - sqrtD) / (2.0f * a);
+            float rootT1 = (-b + sqrtD) / (2.0f * a);
             float smallestRoot = glm::min(rootT0, rootT1);
             t = smallestRoot;
         }
@@ -180,8 +232,9 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         D = b*b - 4.0f*a*c;
         if (D >= 0.0f) {
             foundCollision = true;
-            float rootT0 = (b - D) / (2.0f * a);
-            float rootT1 = (b + D) / (2.0f * a);
+            float sqrtD = glm::sqrt(D);
+            float rootT0 = (-b - sqrtD) / (2.0f * a);
+            float rootT1 = (-b + sqrtD) / (2.0f * a);
             float smallestRoot = glm::min(rootT0, rootT1);
             t = glm::min(t, smallestRoot);
         }
