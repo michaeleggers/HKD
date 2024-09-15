@@ -264,7 +264,17 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
 		c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
 		
 		if (GetSmallestRoot(a, b, c, t, &newT)) {
-			foundCollision = true;
+			// Now check if hitpoint is withing the line segment.
+			glm::vec3  collisionPt = basePos + newT*velocity;
+			glm::vec3 ass = tri.a.pos - collisionPt;
+			float squaredLengthA = glm::length2(ass);
+			float ratio = squaredLengthA / eSquaredLength;
+			
+			if ( ratio < 1.0f && ratio > 0.0f ) {
+				if (glm::dot(e, ass) >= 0.0f) {
+					foundCollision = true;
+				}
+			}
 		}
     }
 
