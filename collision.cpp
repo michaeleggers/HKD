@@ -119,6 +119,25 @@ bool GetSmallestRoot(float a, float b, float c, float maxRoot, float* root)
     return false;
 }
 
+bool IsPointOnLineSegment(glm::vec3 p, glm::vec3 a, glm::vec3 b) {
+    // Check if the intersection point between sphere and plane we found
+    // earlier lies on one of the 3 triangle's edges.
+    // Firstly, check if the intersection point is on the line.
+    glm::vec3 edge = glm::normalize(b - a);
+    glm::vec3 pVec = glm::normalize(p - a);
+    float edgeDotPVec = glm::dot(edge, pVec);
+    printf("edgeDotPVec = %f\n", edgeDotPVec);
+    if ( edgeDotPVec >= HKD_EPSILON ) { // intersection point lies on line
+        float lenE0 = glm::length(edge);
+        float lenP = glm::length(pVec);
+        if ( lenP < lenE0 ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
@@ -141,7 +160,6 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
             return {false, glm::vec3(0.0f), sD, glm::vec3(0.0f) };
         }
         // else: Sphere is already inside the plane.
-        glm::vec3 hitPoint = basePos - sD * normal;
         t0 = 0.0f;
         t1 = 1.0f;
         embeddedInPlane = true;
@@ -180,17 +198,17 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // Collision could be at the front side of the plane.
     // This is only possible when the intersection point is not embedded inside
     // the plane.
-    glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
     float t = 1.0f;
     if (!embeddedInPlane) {
         // Check if the intersection is INSIDE the triangle.
+        glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
         if (IsPointInTriangle(intersectionPoint, tri, normal)) { // TODO: Rename function!
             foundCollision = true;
-            printf("Point inside tri side planes.\n");
+            // printf("Point inside tri side planes.\n");
             t = t0;
         }
         else {
-            printf("Point outside tri side planes.\n");
+            // printf("Point outside tri side planes.\n");
         }
     }
 
@@ -229,6 +247,19 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         // Find smallest solution, if available
         if (GetSmallestRoot(a, b, c, t, &newT)) {
             t = newT;
+            foundCollision = true;
+        }
+
+        // Check if the intersection point between sphere and plane we found
+        // earlier lies on one of the 3 triangle's edges.
+        glm::vec3 intersectionPoint = basePos * velocity - normal;
+        if ( IsPointOnLineSegment(intersectionPoint, tri.a.pos, tri.b.pos) ) {
+            foundCollision = true;
+        }
+        if ( IsPointOnLineSegment(intersectionPoint, tri.b.pos, tri.c.pos) ) {
+            foundCollision = true;
+        }
+        if ( IsPointOnLineSegment(intersectionPoint, tri.c.pos, tri.a.pos) ) {
             foundCollision = true;
         }
     }
