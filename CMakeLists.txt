@@ -24,6 +24,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options(-fms-extensions)
 endif()
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 if (WIN32)
 	# res/app.rc
 	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc
