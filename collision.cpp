@@ -90,31 +90,31 @@ void SortDoubles(double* a, double* b) {
 
 bool GetSmallestRoot(float a, float b, float c, float maxRoot, float* root)
 {
-    float D = b*b - 4*a*c;
+    float D = b*b - 4.0f*a*c;
     if (D < 0.0f) {
         return false;
     }
 
-    float sqrtD = sqrt(D);
+    float sqrtD = glm::sqrt(D);
     float denom = 1.0f / (2.0f * a);
     float r0 = (-b - sqrtD) * denom;
     float r1 = (-b + sqrtD) * denom;
 
-    // Make sure we have the lowest solution in r0. 
-    SortValues(a, b, SortFloats);
+    // Make sure we have the lowest solution in r0.
+    // SortValues(r0, r1, SortFloats);
+    SortFloats(&r0, &r1);
 
-    if (r0 >= 0.0f && r1 < maxRoot) {
+    if (r0 > 0.0f && r0 < maxRoot) {
         *root = r0;
         return true;
     }
 
-    if (r1 >= 0.0f && r1 < maxRoot) {
+    if (r1 > 0.0f && r1 < maxRoot) {
         *root = r1;
         return true;
     }
 
     return false;
-
 }
 
 CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
@@ -197,46 +197,32 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // of the triangle's side planes.
     if (!foundCollision) {
         float a = glm::length2(velocity);
-
+        float newT;
         // Check point A
         float b = 2.0f * ( glm::dot(velocity, (basePos - tri.a.pos)) );
         float c = glm::distance2(tri.a.pos, basePos) - 1.0f;
         // Find smallest solution, if available
-        float D = b*b - 4.0f*a*c;
-        if (D >= 0.0f) {
+        if (GetSmallestRoot(a, b, c, t, &newT)) {
+            t = newT;
             foundCollision = true;
-            float sqrtD = glm::sqrt(D);
-            float rootT0 = (-b - sqrtD) / (2.0f * a);
-            float rootT1 = (-b + sqrtD) / (2.0f * a);
-            t = glm::min(rootT0, rootT1);
         }
 
         // Check point B
         b = 2.0f * ( glm::dot(velocity, (basePos - tri.b.pos)) );
         c = glm::distance2(tri.b.pos, basePos) - 1.0f;
         // Find smallest solution, if available
-        D = b*b - 4.0f*a*c;
-        if (D >= 0.0f) {
+        if (GetSmallestRoot(a, b, c, t, &newT)) {
+            t = newT;
             foundCollision = true;
-            float sqrtD = glm::sqrt(D);
-            float rootT0 = (-b - sqrtD) / (2.0f * a);
-            float rootT1 = (-b + sqrtD) / (2.0f * a);
-            float smallestRoot = glm::min(rootT0, rootT1);
-            t = smallestRoot;
         }
 
         // Check point C
-        b = 2.0f * ( glm::dot(velocity, (basePos - tri.c.pos)) );
+        b = 2.0f * ( glm::dot(velocity, (basePos - tri.c.pos        )) );
         c = glm::distance2(tri.c.pos, basePos) - 1.0f;
         // Find smallest solution, if available
-        D = b*b - 4.0f*a*c;
-        if (D >= 0.0f) {
+        if (GetSmallestRoot(a, b, c, t, &newT)) {
+            t = newT;
             foundCollision = true;
-            float sqrtD = glm::sqrt(D);
-            float rootT0 = (-b - sqrtD) / (2.0f * a);
-            float rootT1 = (-b + sqrtD) / (2.0f * a);
-            float smallestRoot = glm::min(rootT0, rootT1);
-            t = glm::min(t, smallestRoot);
         }
     }
 
