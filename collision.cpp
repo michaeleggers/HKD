@@ -5,6 +5,7 @@
 #include "r_common.h"
 #include "collision.h"
 #include <stdio.h>
+#include <glm/gtx/norm.hpp>
 
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
 {
@@ -77,9 +78,10 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // Project velocity along the plane normal
     float velDotNormal = glm::dot(normal, velocity);
 
+    bool foundCollision = false;
     bool embeddedInPlane = false;
     float t0, t1;
-    if ( glm::abs(velDotNormal) <= 0.001 ) { // Sphere travelling parallel to the plane
+    if ( glm::abs(velDotNormal) <= HKD_EPSILON ) { // Sphere travelling parallel to the plane
         // Distance from unit sphere center to plane is greater than 1 => no intersection!
         if ( D >= 1.0f ) {
             return {false, glm::vec3(0.0f), sD, glm::vec3(0.0f) };
@@ -114,7 +116,7 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         }
 
         if (t0 > 1.0f || t1 < 0.0f) { // No collision
-            return { false };
+            return {false};
         }
 
         t0 = glm::clamp(t0, 0.0f, 1.0f);
@@ -124,16 +126,68 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     // Collision could be at the front side of the plane.
     // This is only possible when the intersection point is not embedded inside
     // the plane.
+    glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
+    float t = 1.0f;
     if (!embeddedInPlane) {
         // Check if the intersection is INSIDE the triangle.
-        glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
-        // if (IsPointInTriangle(intersectionPoint, tri, normal)) {
-        //     printf("Point inside triangle!\n");
-        //     return { true };
-        // }
+        if (IsPointInTriangle(intersectionPoint, tri, normal)) { // TODO: Rename function!
+            foundCollision = true;
+            printf("Point inside tri side planes.\n");
+            t = t0;
+        }
+        else {
+            printf("Point outside tri side planes.\n");                 
+        }
     }
 
-    return { false, glm::vec3(0.0f), 0.0f, normal };
+    // Check if collision with one of the 3 vertices of the  triangle.
+    // Can only happen if we did not collide previously with the 'inside'
+    // of the triangle's side planes.
+    if (!foundCollision) {
+        float newT;
+
+        float a = glm::length2(velocity);
+
+        // Check point A
+        float b = 2.0f * ( glm::dot(velocity    , (basePos - tri.a.pos)) );
+        float c = glm::distance2(tri.a.pos, basePos) - 1.0f;
+        // Find smallest solution, if available
+        float D = b*b - 4.0f*a*c;
+        if (D >= 0.0f) {
+            foundCollision = true;
+            float rootT0 = (b - D) / (2.0f * a);
+            float rootT1 = (b + D) / (2.0f * a);
+            t = glm::min(rootT0, rootT1);
+        }
+
+        // Check point B
+        b = 2.0f * ( glm::dot(velocity, (basePos - tri.b.pos)) );
+        c = glm::distance2(tri.b.pos, basePos) - 1.0f;
+        // Find smallest solution, if available
+        D = b*b - 4.0f*a*c;
+        if (D >= 0.0f) {
+            foundCollision = true;
+            float rootT0 = (b - D) / (2.0f * a);
+            float rootT1 = (b + D) / (2.0f * a);
+            float smallestRoot = glm::min(rootT0, rootT1);
+            t = smallestRoot;
+        }
+
+        // Check point C
+        b = 2.0f * ( glm::dot(velocity, (basePos - tri.c.pos)) );
+        c = glm::distance2(tri.c.pos, basePos) - 1.0f;
+        // Find smallest solution, if available
+        D = b*b - 4.0f*a*c;
+        if (D >= 0.0f) {
+            foundCollision = true;
+            float rootT0 = (b - D) / (2.0f * a);
+            float rootT1 = (b + D) / (2.0f * a);
+            float smallestRoot = glm::min(rootT0, rootT1);
+            t = glm::min(t, smallestRoot);
+        }
+    }
+
+    return { foundCollision, glm::vec3(0.0f), 0.0f, normal };
 }
 
 CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)

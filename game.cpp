@@ -34,9 +34,9 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    Vertex A = {glm::vec3(100.0f, 200.5443321f, 0.0f)};
-    Vertex B = {glm::vec3(0.0f, 200.5443321f, 100.0f)};
-    Vertex C = {glm::vec3(-100.0f, 200.5443321f, 0.0f)};
+    Vertex A = {glm::vec3(100.0f, 200.5443321f, 50.0f)};
+    Vertex B = {glm::vec3(0.0f, 200.5443321f, 150.0f)};
+    Vertex C = {glm::vec3(-100.0f, 200.5443321f, 50.0f)};
     glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
     A.color = triPlaneColor;
     B.color = triPlaneColor;
@@ -291,12 +291,12 @@ bool Game::RunFrame(double dt)
     CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
     TriPlane tp = m_World.m_TriPlanes[0];
     Plane p = CreatePlaneFromTri(tp.tri);
-    if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
-        printf("Point in Triangle\n");
-    }
-    else {
-        printf("POINT NOT IN TRIANGLE.\n");
-    }
+    // if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
+    //     printf("Point in Triangle\n");
+    // }
+    // else {
+    //     printf("POINT NOT IN TRIANGLE.\n");
+    // }
 
     // if (collisionInfo.didCollide) {
     //     if (collisionInfo.t <= 1.0f) {
@@ -432,7 +432,7 @@ bool Game::RunFrame(double dt)
 
     // Render World geometry
     m_Renderer->ImDrawTriPlanes(m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size(),
-        true, DRAW_MODE_SOLID);
+        false, DRAW_MODE_SOLID);
 
     Vertex a = {};
     a.pos = glm::vec3(100, -300, -100);
