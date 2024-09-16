@@ -138,6 +138,38 @@ bool IsPointOnLineSegment(glm::vec3 p, glm::vec3 a, glm::vec3 b) {
     return false;
 }
 
+bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *root) {
+	// Check sphere against tri's line-segments
+	
+	glm::vec3 e = p0 - p1;
+	float eSquaredLength = glm::length2(e);
+	float vSquaredLength = glm::length2(velocity);
+	glm::vec3 baseToVertex = p0 - sphereBase;
+	float eDotVel = glm::dot(e, velocity);
+	float eDotBaseToVertex = glm::dot(e, baseToVertex);
+
+	float a = eSquaredLength * (-vSquaredLength) + eDotVel*eDotVel;
+	float b = eSquaredLength * 2.0f*glm::dot(velocity, baseToVertex) - 2.0f*( eDotVel * eDotBaseToVertex );
+	float c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
+
+	float newT;
+	if (GetSmallestRoot(a, b, c, maxT, &newT)) {
+		// Now check if hitpoint is withing the line segment.
+		glm::vec3 collisionPt = sphereBase + newT*velocity;
+		glm::vec3 ass = p0 - collisionPt;
+		float squaredLengthA = glm::length2(ass);
+		float ratio = squaredLengthA / eSquaredLength;
+		
+		if ( ratio < 1.0f && ratio > 0.0f ) {
+			if (glm::dot(e, ass) >= 0.0f) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
 CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
@@ -201,11 +233,12 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
     float t = 1.0f;
     if (!embeddedInPlane) {
         // Check if the intersection is INSIDE the triangle.
-        glm::vec3 intersectionPoint = basePos + t0 * velocity - normal;
+        glm::vec3 intersectionPoint = basePos + t0*velocity - normal;
         if (IsPointInTriangle(intersectionPoint, tri, normal)) { // TODO: Rename function!
             foundCollision = true;
             // printf("Point inside tri side planes.\n");
             t = t0;
+			printf("IsPointInTriangle: true\n");
         }
         else {
             // printf("Point outside tri side planes.\n");
@@ -251,31 +284,19 @@ CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plan
         }
 
 		// Check sphere against tri's line-segments
-		
-		glm::vec3 e = tri.a.pos - tri.c.pos;
-		float eSquaredLength = glm::length2(e);
-		float vSquaredLength = glm::length2(velocity);
-		glm::vec3 baseToVertex = tri.a.pos - basePos;
-		float eDotVel = glm::dot(e, velocity);
-		float eDotBaseToVertex = glm::dot(e, baseToVertex);
 
-		a = eSquaredLength * (-vSquaredLength) + eDotVel*eDotVel;
-		b = eSquaredLength * 2.0f*glm::dot(velocity, baseToVertex) - 2.0f*( eDotVel * eDotBaseToVertex );
-		c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
-		
-		if (GetSmallestRoot(a, b, c, t, &newT)) {
-			// Now check if hitpoint is withing the line segment.
-			glm::vec3  collisionPt = basePos + newT*velocity;
-			glm::vec3 ass = tri.a.pos - collisionPt;
-			float squaredLengthA = glm::length2(ass);
-			float ratio = squaredLengthA / eSquaredLength;
-			
-			if ( ratio < 1.0f && ratio > 0.0f ) {
-				if (glm::dot(e, ass) >= 0.0f) {
-					foundCollision = true;
-				}
-			}
+		if ( CheckSweptSphereVsLinesegment(tri.a.pos, tri.b.pos, basePos, velocity, t, &newT) ) {
+			foundCollision = true;
 		}
+
+		if ( CheckSweptSphereVsLinesegment(tri.b.pos, tri.c.pos, basePos, velocity, t, &newT) ) {
+			foundCollision = true;
+		}
+
+		if ( CheckSweptSphereVsLinesegment(tri.c.pos, tri.a.pos, basePos, velocity, t, &newT) ) {
+			foundCollision = true;
+		}
+
     }
 
     return { foundCollision, glm::vec3(0.0f), 0.0f, normal };
