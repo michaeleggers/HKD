@@ -162,6 +162,7 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 		
 		if ( ratio < 1.0f && ratio > 0.0f ) {
 			if (glm::dot(e, ass) >= 0.0f) {
+				*root = newT;
 				return true;
 			}
 		}
