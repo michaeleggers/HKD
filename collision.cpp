@@ -138,7 +138,8 @@ bool IsPointOnLineSegment(glm::vec3 p, glm::vec3 a, glm::vec3 b) {
     return false;
 }
 
-bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *root) {
+bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *root,
+		glm::vec3* hitPoint) {
 	// Check sphere against tri's line-segments
 	
 	glm::vec3 e = p0 - p1;
@@ -163,6 +164,7 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 		if ( ratio < 1.0f && ratio > 0.0f ) {
 			if (glm::dot(e, ass) >= 0.0f) {
 				*root = newT;
+				*hitPoint = p0 + ratio*e;
 				return true;
 			}
 		}
@@ -171,7 +173,7 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	return false;
 }
 
-void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
+void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
     glm::vec3 ptOnPlane = p.d * normal;
@@ -190,7 +192,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
     if ( glm::abs(velDotNormal) <= HKD_EPSILON ) { // Sphere travelling parallel to the plane
         // Distance from unit sphere center to plane is greater than 1 => no intersection!
         if ( D >= 1.0f ) {
-            return {false, glm::vec3(0.0f), sD, glm::vec3(0.0f) };
+            return;
         }
         // else: Sphere is already inside the plane.
         t0 = 0.0f;
@@ -221,7 +223,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
         }
 
         if (t0 > 1.0f || t1 < 0.0f) { // No collision
-            return {false};
+            return;
         }
 
         t0 = glm::clamp(t0, 0.0f, 1.0f);
@@ -231,6 +233,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
     // Collision could be at the front side of the plane.
     // This is only possible when the intersection point is not embedded inside
     // the plane.
+	glm::vec3 hitPoint;
     float t = 1.0f;
     if (!embeddedInPlane) {
         // Check if the intersection is INSIDE the triangle.
@@ -242,7 +245,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
 			printf("IsPointInTriangle: true\n");
         }
         else {
-            // printf("Point outside tri side planes.\n");
+            printf("Point outside tri side planes.\n");
         }
     }
 
@@ -264,6 +267,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
         if (GetSmallestRoot(a, b, c, t, &newT)) {
             t = newT;
             foundCollision = true;
+			hitPoint = tri.a.pos;
         }
 
         // Check point B
@@ -273,6 +277,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
         if (GetSmallestRoot(a, b, c, t, &newT)) {
             t = newT;
             foundCollision = true;
+			hitPoint = tri.b.pos;
         }
 
         // Check point C
@@ -282,25 +287,36 @@ void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm
         if (GetSmallestRoot(a, b, c, t, &newT)) {
             t = newT;
             foundCollision = true;
+			hitPoint = tri.c.pos;	
         }
 
 		// Check sphere against tri's line-segments
 
-		if ( CheckSweptSphereVsLinesegment(tri.a.pos, tri.b.pos, basePos, velocity, t, &newT) ) {
-			foundCollision = true;
+		//if ( CheckSweptSphereVsLinesegment(tri.a.pos, tri.b.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+		//	foundCollision = true;
+		//	t = newT;
+		//}
+
+		//if ( CheckSweptSphereVsLinesegment(tri.b.pos, tri.c.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+		//	foundCollision = true;
+		//	t = newT;
+		//}
+
+		//if ( CheckSweptSphereVsLinesegment(tri.c.pos, tri.a.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+		//	foundCollision = true;
+		//	t = newT;
+		//}
+	}
+
+	if (foundCollision) {
+		if (!ci->didCollide || ci->nearestDistance > t) {
+
+			ci->didCollide = true;
+			ci->nearestDistance = t;
+			ci->hitPoint = hitPoint;
 		}
+	}
 
-		if ( CheckSweptSphereVsLinesegment(tri.b.pos, tri.c.pos, basePos, velocity, t, &newT) ) {
-			foundCollision = true;
-		}
-
-		if ( CheckSweptSphereVsLinesegment(tri.c.pos, tri.a.pos, basePos, velocity, t, &newT) ) {
-			foundCollision = true;
-		}
-
-    }
-
-    return { foundCollision, glm::vec3(0.0f), 0.0f, normal };
 }
 
 CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
@@ -315,20 +331,14 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
     glm::vec3 esBasePos = ec.toESpace * ec.center;
 
     // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
-    // This, it is a unit sphere.
+	// This, it is a unit sphere.
 
-    CollisionInfo ci = CollideUnitSphereWithPlane(
-        esBasePos, esVelocity, esPlane, esTri
+	CollisionInfo ci;
+	ci.didCollide = false;
+	ci.nearestDistance = -9999.9f;
+    CollideUnitSphereWithPlane(
+        &ci, esBasePos, esVelocity, esPlane, esTri
     );
-
-    if (ci.didCollide) {
-        glm::vec3 newPos = ci.hitPoint;
-
-    }
-
-    // Convert back from ellipsoid space to world space.
-    ci.hitPoint = glm::inverse(ec.toESpace) * ci.hitPoint;
-    ci.normal = glm::inverse(ec.toESpace) * ci.normal;
 
     return ci;
 }
