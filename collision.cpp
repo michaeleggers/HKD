@@ -315,6 +315,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
 			ci->didCollide = true;
 			ci->nearestDistance = t;
 			ci->hitPoint = hitPoint;
+			ci->velocity = t * velocity;
 		}
 	}
 
@@ -341,6 +342,19 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
     CollideUnitSphereWithPlane(
         &ci, esBasePos, esPlane, esTri
     );
+	// If there was a collision, we check further until stabilized
+	if (ci.didCollide){
+		int i = 0;
+		while ( ci.didCollide && i > 3 ) {
+			esBasePos += ci.nearestDistance * glm::normalize( ci.velocity );
+			CollideUnitSphereWithPlane(&ci, esBasePos, esPlane, esTri);
+			i++;
+		}
+		ci.velocity = glm::inverse(ec.toESpace) * ci.velocity;	
+	}
+	else {
+		ci.velocity = velocity;
+	}
 
     return ci;
 }

@@ -289,6 +289,7 @@ bool Game::RunFrame(double dt)
     // Test collision between player and world geometry
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
     CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
+	m_Player.velocity = collisionInfo.velocity;
     TriPlane tp = m_World.m_TriPlanes[0];
     Plane p = CreatePlaneFromTri(tp.tri);
     // if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
