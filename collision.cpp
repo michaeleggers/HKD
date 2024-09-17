@@ -173,11 +173,12 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	return false;
 }
 
-void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
+void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
     glm::vec3 ptOnPlane = p.d * normal;
     glm::vec3 basePos = pos;
+	glm::vec3 velocity = ci->velocity;
 
     // Signed distance from plane to unit sphere's center
     float sD = glm::dot(normal, basePos - ptOnPlane);
@@ -336,8 +337,9 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	CollisionInfo ci;
 	ci.didCollide = false;
 	ci.nearestDistance = -9999.9f;
+	ci.velocity = esVelocity;
     CollideUnitSphereWithPlane(
-        &ci, esBasePos, esVelocity, esPlane, esTri
+        &ci, esBasePos, esPlane, esTri
     );
 
     return ci;
