@@ -88,6 +88,12 @@ HKD_Model CreateModelFromIQM(IQMModel* model)
 
     if (i > 0) {
         result.type = HKD_MODEL_TYPE_ANIMATED;
+		// TODO: This is just for testing the collision detection.
+		// Later we actually want to use dedicated colliders for each animation!
+		EllipsoidCollider ec = result.ellipsoidColliders[0];
+		for (int i = 0; i < result.ellipsoidColliders.size(); i++) {
+			result.ellipsoidColliders[i] = ec;
+		}
     } else {
         result.type = HKD_MODEL_TYPE_STATIC;
     }
