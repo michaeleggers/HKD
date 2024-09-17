@@ -171,7 +171,7 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	return false;
 }
 
-CollisionInfo CollideUnitSphereWithPlane(glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
+void CollideUnitSphereWithPlane(CollisionInfo* collisionInfo, glm::vec3 pos, glm::vec3 velocity, Plane p, Tri tri)
 {
     glm::vec3 normal = p.normal;
     glm::vec3 ptOnPlane = p.d * normal;
