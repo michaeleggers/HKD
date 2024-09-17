@@ -292,20 +292,20 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, glm::vec3 velo
 
 		// Check sphere against tri's line-segments
 
-		//if ( CheckSweptSphereVsLinesegment(tri.a.pos, tri.b.pos, basePos, velocity, t, &newT, &hitPoint) ) {
-		//	foundCollision = true;
-		//	t = newT;
-		//}
+		if ( CheckSweptSphereVsLinesegment(tri.a.pos, tri.b.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+			foundCollision = true;
+			t = newT;
+		}
 
-		//if ( CheckSweptSphereVsLinesegment(tri.b.pos, tri.c.pos, basePos, velocity, t, &newT, &hitPoint) ) {
-		//	foundCollision = true;
-		//	t = newT;
-		//}
+		if ( CheckSweptSphereVsLinesegment(tri.b.pos, tri.c.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+			foundCollision = true;
+			t = newT;
+		}
 
-		//if ( CheckSweptSphereVsLinesegment(tri.c.pos, tri.a.pos, basePos, velocity, t, &newT, &hitPoint) ) {
-		//	foundCollision = true;
-		//	t = newT;
-		//}
+		if ( CheckSweptSphereVsLinesegment(tri.c.pos, tri.a.pos, basePos, velocity, t, &newT, &hitPoint) ) {
+			foundCollision = true;
+			t = newT;
+		}
 	}
 
 	if (foundCollision) {
