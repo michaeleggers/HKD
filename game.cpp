@@ -34,9 +34,9 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    Vertex A = {glm::vec3(100.0f, -100.5443321f, 100.0f)};
+    Vertex A = {glm::vec3(100.0f, -100.5443321f, 50.0f)};
     Vertex B = {glm::vec3(0.0f, 200.5443321f, 200.0f)};
-    Vertex C = {glm::vec3(-100.0f, -100.5443321f, 100.0f)};
+    Vertex C = {glm::vec3(-100.0f, -100.5443321f, 50.0f)};
     glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
     A.color = triPlaneColor;
     B.color = triPlaneColor;

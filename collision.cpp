@@ -243,10 +243,10 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
             foundCollision = true;
             // printf("Point inside tri side planes.\n");
             t = t0;
-			printf("IsPointInTriangle: true\n");
+			//printf("IsPointInTriangle: true\n");
         }
         else {
-            printf("Point outside tri side planes.\n");
+            //printf("Point outside tri side planes.\n");
         }
     }
 
@@ -310,12 +310,11 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
 	}
 
 	if (foundCollision) {
-		if (!ci->didCollide || ci->nearestDistance > t) {
-
+		if ( !ci->didCollide || (ci->nearestDistance > t) ) {
 			ci->didCollide = true;
-			ci->nearestDistance = t;
+			ci->nearestDistance = t * glm::length( velocity );
 			ci->hitPoint = hitPoint;
-			ci->velocity = t * velocity;
+			ci->velocity = glm::vec3( 0.0f );
 		}
 	}
 
@@ -334,21 +333,23 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 
     // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
 	// This, it is a unit sphere.
-
+    
 	CollisionInfo ci;
 	ci.didCollide = false;
-	ci.nearestDistance = -9999.9f;
+	ci.nearestDistance = 9999.9f;
 	ci.velocity = esVelocity;
     CollideUnitSphereWithPlane(
         &ci, esBasePos, esPlane, esTri
     );
 	// If there was a collision, we check further until stabilized
 	if (ci.didCollide){
-		int i = 0;
-		while ( ci.didCollide && i > 3 ) {
-			esBasePos += ci.nearestDistance * glm::normalize( ci.velocity );
+		int i = 5;
+		//printf("DID COLLIDE\n");
+		while ( ci.didCollide && i > 0 ) {
+			printf("ci.nearestDistance: %f\n", ci.nearestDistance);
+			esBasePos += ci.velocity;
 			CollideUnitSphereWithPlane(&ci, esBasePos, esPlane, esTri);
-			i++;
+			i--;
 		}
 		ci.velocity = glm::inverse(ec.toESpace) * ci.velocity;	
 	}
