@@ -138,14 +138,14 @@ bool IsPointOnLineSegment(glm::vec3 p, glm::vec3 a, glm::vec3 b) {
     return false;
 }
 
-bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *root,
+bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *newT,
 		glm::vec3* hitPoint) {
 	// Check sphere against tri's line-segments
 	
 	glm::vec3 e = p1 - p0;
 	float eSquaredLength = glm::length2(e);
 	float vSquaredLength = glm::length2(velocity);
-	glm::vec3 baseToVertex = p1 - sphereBase;
+	glm::vec3 baseToVertex = p0 - sphereBase;
 	float eDotVel = glm::dot(e, velocity);
 	float eDotBaseToVertex = glm::dot(e, baseToVertex);
 
@@ -153,16 +153,13 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	float b = eSquaredLength * 2.0f*glm::dot(velocity, baseToVertex) - 2.0f*( eDotVel * eDotBaseToVertex );
 	float c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
 
-	float newT;
-	if (GetSmallestRoot(a, b, c, maxT, &newT)) {
+	float t;
+	if (GetSmallestRoot(a, b, c, maxT, &t)) {
 		// Now check if hitpoint is withing the line segment.
-		glm::vec3 collisionPt = sphereBase + newT*velocity;
-		glm::vec3 p0toCol = collisionPt - p0;
-		float ratio = glm::length2( p0toCol ) / eSquaredLength;
-		if ( ratio < 1.0f && ratio > 0.0f ) {
-			*root = newT;
-			*hitPoint = p0 + ratio*e;
-			printf("ratio: %f\n", ratio);
+		float f = (eDotVel*t - eDotBaseToVertex) / eSquaredLength;
+		if (f >= 0.0f && f <= 1.0f) {
+			*newT = t;
+			*hitPoint = p0 + f*e;
 			return true;
 		}
 	}
@@ -241,12 +238,12 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
         if ( IsPointInTriangle(intersectionPoint, tri, normal) ) { // TODO: Rename function!
             foundCollision = true;
 			hitPoint = intersectionPoint;
-            printf("Point inside tri side planes.\n");
+            //printf("Point inside tri side planes.\n");
             t = t0;
 			//printf("IsPointInTriangle: true\n");
         }
         else {
-            printf("Point outside tri side planes.\n");
+            //printf("Point outside tri side planes.\n");
         }
     }
 
