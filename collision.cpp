@@ -142,10 +142,10 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 		glm::vec3* hitPoint) {
 	// Check sphere against tri's line-segments
 	
-	glm::vec3 e = p0 - p1;
+	glm::vec3 e = p1 - p0;
 	float eSquaredLength = glm::length2(e);
 	float vSquaredLength = glm::length2(velocity);
-	glm::vec3 baseToVertex = p0 - sphereBase;
+	glm::vec3 baseToVertex = p1 - sphereBase;
 	float eDotVel = glm::dot(e, velocity);
 	float eDotBaseToVertex = glm::dot(e, baseToVertex);
 
@@ -157,16 +157,13 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	if (GetSmallestRoot(a, b, c, maxT, &newT)) {
 		// Now check if hitpoint is withing the line segment.
 		glm::vec3 collisionPt = sphereBase + newT*velocity;
-		glm::vec3 ass = p0 - collisionPt;
-		float squaredLengthA = glm::length2(ass);
-		float ratio = squaredLengthA / eSquaredLength;
-		
+		glm::vec3 p0toCol = collisionPt - p0;
+		float ratio = glm::length2( p0toCol ) / eSquaredLength;
 		if ( ratio < 1.0f && ratio > 0.0f ) {
-			if (glm::dot(e, ass) >= 0.0f) {
-				*root = newT;
-				*hitPoint = p0 + ratio*e;
-				return true;
-			}
+			*root = newT;
+			*hitPoint = p0 + ratio*e;
+			printf("ratio: %f\n", ratio);
+			return true;
 		}
 	}
 	
@@ -190,12 +187,13 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
     bool foundCollision = false;
     bool embeddedInPlane = false;
     float t0, t1;
-    if ( glm::abs(velDotNormal) <= HKD_EPSILON ) { // Sphere travelling parallel to the plane
-        // Distance from unit sphere center to plane is greater than 1 => no intersection!
-        if ( D >= 1.0f ) {
-            return;
-        }
-        // else: Sphere is already inside the plane.
+    if ( glm::abs(velDotNormal) <= HKD_EPSILON ) { // Sphere travelling parallel to the plane or it is in the plane
+
+		// Distance from unit sphere center to plane is greater than 1 => no intersection!
+		if ( D > 1.0f ) {
+			return;
+		}
+		
         t0 = 0.0f;
         t1 = 1.0f;
         embeddedInPlane = true;
@@ -224,6 +222,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
         }
 
         if (t0 > 1.0f || t1 < 0.0f) { // No collision
+			ci->didCollide = false;
             return;
         }
 
@@ -239,14 +238,15 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
     if (!embeddedInPlane) {
         // Check if the intersection is INSIDE the triangle.
         glm::vec3 intersectionPoint = basePos + t0*velocity - normal;
-        if (IsPointInTriangle(intersectionPoint, tri, normal)) { // TODO: Rename function!
+        if ( IsPointInTriangle(intersectionPoint, tri, normal) ) { // TODO: Rename function!
             foundCollision = true;
-            // printf("Point inside tri side planes.\n");
+			hitPoint = intersectionPoint;
+            printf("Point inside tri side planes.\n");
             t = t0;
 			//printf("IsPointInTriangle: true\n");
         }
         else {
-            //printf("Point outside tri side planes.\n");
+            printf("Point outside tri side planes.\n");
         }
     }
 
@@ -310,11 +310,11 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
 	}
 
 	if (foundCollision) {
+		float distanceToHitpoint = t * glm::length( velocity ); // furthest the sphere can travel along its velocity vector until collision happens
 		if ( !ci->didCollide || (ci->nearestDistance > t) ) {
 			ci->didCollide = true;
-			ci->nearestDistance = t * glm::length( velocity );
+			ci->nearestDistance = distanceToHitpoint;
 			ci->hitPoint = hitPoint;
-			ci->velocity = glm::vec3( 0.0f );
 		}
 	}
 
@@ -338,24 +338,15 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	ci.didCollide = false;
 	ci.nearestDistance = 9999.9f;
 	ci.velocity = esVelocity;
+	ci.hitPoint = glm::vec3( 0.0f );
     CollideUnitSphereWithPlane(
-        &ci, esBasePos, esPlane, esTri
-    );
-	// If there was a collision, we check further until stabilized
-	if (ci.didCollide){
-		int i = 5;
-		//printf("DID COLLIDE\n");
-		while ( ci.didCollide && i > 0 ) {
-			printf("ci.nearestDistance: %f\n", ci.nearestDistance);
-			esBasePos += ci.velocity;
-			CollideUnitSphereWithPlane(&ci, esBasePos, esPlane, esTri);
-			i--;
-		}
-		ci.velocity = glm::inverse(ec.toESpace) * ci.velocity;	
+        &ci, esBasePos, esPlane, esTri );
+	if (ci.didCollide) {
+		
+		ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
+		//printf("hitpoint: %f, %f, %f\n", ci.hitPoint.x, ci.hitPoint.y, ci.hitPoint.z);
 	}
-	else {
-		ci.velocity = velocity;
-	}
+
 
     return ci;
 }

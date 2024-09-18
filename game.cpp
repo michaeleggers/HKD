@@ -34,9 +34,9 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    Vertex A = {glm::vec3(100.0f, -100.5443321f, 50.0f)};
-    Vertex B = {glm::vec3(0.0f, 200.5443321f, 200.0f)};
-    Vertex C = {glm::vec3(-100.0f, -100.5443321f, 50.0f)};
+    Vertex A = {glm::vec3(200.0f, 300.5443321f, 50.0f)};
+    Vertex B = {glm::vec3(100.0f, 200.5443321f, 200.0f)};
+    Vertex C = {glm::vec3(0.0f, 300.5443321f, 50.0f)};
     glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
     A.color = triPlaneColor;
     B.color = triPlaneColor;
@@ -289,7 +289,6 @@ bool Game::RunFrame(double dt)
     // Test collision between player and world geometry
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
     CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
-	m_Player.velocity = collisionInfo.velocity;
     TriPlane tp = m_World.m_TriPlanes[0];
     Plane p = CreatePlaneFromTri(tp.tri);
     // if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {
@@ -483,7 +482,7 @@ bool Game::RunFrame(double dt)
     m_Renderer->ImDrawLines(fqYZ.vertices, 4, true);
     m_Renderer->ImDrawLines(fqXY.vertices, 4, true);
 
-    m_Renderer->ImDrawTris(m_Box.tris, 12, true);
+    //m_Renderer->ImDrawTris(m_Box.tris, 12, true);
     m_Renderer->ImDrawTris(m_SkyBox.tris, 12, false);
 
     NBox nbox = CreateNBox(glm::vec3(500.0f, 200.0f, 700.0f), 1);
@@ -586,11 +585,12 @@ bool Game::RunFrame(double dt)
         m_Player.debugColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // red
         m_Renderer->SetActiveCamera(&m_FollowCamera);
         m_Renderer->ImDrawSphere(collisionInfo.hitPoint, 5.0f);
+		printf("hitpoint: %f, %f, %f\n", collisionInfo.hitPoint.x, collisionInfo.hitPoint.y, collisionInfo.hitPoint.z);
     } else {
         m_Player.debugColor = glm::vec4(1.0f); // white
     }
     m_Renderer->SetActiveCamera(&m_FollowCamera);
-    m_Renderer->ImDrawSphere(ec.center, 5.0f);
+    //m_Renderer->ImDrawSphere(ec.center, 5.0f);
     HKD_Model* playerColliderModel[] = {&m_Player};
     m_Renderer->RenderColliders(&m_FollowCamera, playerColliderModel, 1);
 
