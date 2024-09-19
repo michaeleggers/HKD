@@ -138,8 +138,11 @@ bool IsPointOnLineSegment(glm::vec3 p, glm::vec3 a, glm::vec3 b) {
     return false;
 }
 
-bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereBase, glm::vec3 velocity, float maxT, float *newT,
-		glm::vec3* hitPoint) {
+bool CheckSweptSphereVsLinesegment(
+		glm::vec3 p0, glm::vec3 p1, 
+		glm::vec3 sphereBase, glm::vec3 velocity, 
+		float maxT, float *out_newT,
+		glm::vec3* out_hitPoint) {
 	// Check sphere against tri's line-segments
 	
 	glm::vec3 e = p1 - p0;
@@ -154,12 +157,13 @@ bool CheckSweptSphereVsLinesegment(glm::vec3 p0, glm::vec3 p1, glm::vec3 sphereB
 	float c = eSquaredLength * ( 1.0f - glm::length2(baseToVertex) ) + eDotBaseToVertex*eDotBaseToVertex;
 
 	float t;
-	if (GetSmallestRoot(a, b, c, maxT, &t)) {
+	if ( GetSmallestRoot(a, b, c, maxT, &t) ) {
 		// Now check if hitpoint is withing the line segment.
 		float f = (eDotVel*t - eDotBaseToVertex) / eSquaredLength;
 		if (f >= 0.0f && f <= 1.0f) {
-			*newT = t;
-			*hitPoint = p0 + f*e;
+			*out_newT = t;
+			*out_hitPoint = p0 + f*e;
+
 			return true;
 		}
 	}
