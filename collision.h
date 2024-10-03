@@ -27,7 +27,7 @@ struct CollisionInfo {
 
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs);
 void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri tri);
-void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri* tris, int triCount);
+void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri* tris, int triCount, int depth, int maxDepth);
 CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane* triPlanes, int triPlaneCount);
 Tri  TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace);
 Plane CreatePlaneFromTri(Tri tri);

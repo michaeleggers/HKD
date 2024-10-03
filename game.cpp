@@ -33,7 +33,7 @@ void Game::Init()
     m_AccumTime = 0.0f;
 	
 	std::vector<TriPlane> worldTris{};
-	int const numWorldTris = 10;
+	int const numWorldTris = 1000;
 	for (int i = 0; i < numWorldTris; i++) {
 		TriPlane triPlane{};
 		float x1 = RandBetween(-5000.0f, 500.0f);

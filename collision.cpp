@@ -344,7 +344,7 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	ci.velocity = esVelocity;
 	ci.hitPoint = glm::vec3( 0.0f );
 	
-	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, tris.data(), tris.size());
+	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, tris.data(), tris.size(), 0, 5);
 
 	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
 	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
@@ -353,8 +353,12 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 }
 
 // Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
-void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri* tris, int triCount)
+void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri* tris, int triCount, int depth, int maxDepth)
 {
+	if ( depth > maxDepth ) {
+		return;
+	}
+
 	if ( glm::length(ci->velocity) <= HKD_EPSILON ) {
 		return; 
 	}
@@ -393,9 +397,8 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri
 			//
 			// Do this until: either not hit anything OR veclocity vector gets very small.
 			
-			ci->didCollide = false;
 			ci->velocity = newVelocity; // glm::vec3(0.0f);
-			CollideEllipsoidWithTriPlaneRec(ci, newPos, tris, triCount);
+			CollideEllipsoidWithTriPlaneRec(ci, newPos, tris, triCount, depth + 1, maxDepth);
 		}
 	}
 }
