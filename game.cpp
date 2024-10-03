@@ -31,45 +31,35 @@ Game::Game(std::string exePath, hkdInterface* interface, IRender* renderer)
 void Game::Init()
 {
     m_AccumTime = 0.0f;
-
-    // Tri that is moved 10 units in y direction
-    TriPlane triPlane{};
-    Vertex A = {glm::vec3(200.0f, 200.5443321f, 20.0f)};
-    Vertex B = {glm::vec3(100.0f, 200.5443321f, 200.0f)};
-    Vertex C = {glm::vec3(0.0f, 200.5443321f, 20.0f)};
-    glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
-    A.color = triPlaneColor;
-    B.color = triPlaneColor;
-    C.color = triPlaneColor;
-    triPlane.tri = {A, C, B};
-    triPlane.plane = CreatePlaneFromTri(triPlane.tri);
-    triPlane.tri.a.normal = triPlane.plane.normal;
-    triPlane.tri.b.normal = triPlane.plane.normal;
-    triPlane.tri.c.normal = triPlane.plane.normal;
-
-	TriPlane triPlane2{};
 	
-    A = {glm::vec3(200.0f, 200.5443321f, 20.0f)};
-    B = {glm::vec3(100.0f, -200.5443321f, 200.0f)};
-    C = {glm::vec3(0.0f, -200.5443321f, 20.0f)};
-    triPlaneColor = glm::vec4(0.9f, 0.3f, 1.0f, 1.0f);
-    A.color = triPlaneColor;
-    B.color = triPlaneColor;
-    C.color = triPlaneColor;
-    triPlane2.tri = {A, C, B};
-    triPlane2.plane = CreatePlaneFromTri(triPlane.tri);
-    triPlane2.tri.a.normal = triPlane.plane.normal;
-    triPlane2.tri.b.normal = triPlane.plane.normal;
-    triPlane2.tri.c.normal = triPlane.plane.normal;
-    // RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 20.0f);
-	TriPlane triPlanes[] = {
-		triPlane, triPlane2
-	};
-    m_World.InitWorld(triPlanes, 2);
-
-    Plane p = triPlane.plane;
-    printf("p.normal: %f, %f, %f, plane.d: %f\n",
-        p.normal.x, p.normal.y, p.normal.z, p.d);
+	std::vector<TriPlane> worldTris{};
+	int const numWorldTris = 10;
+	for (int i = 0; i < numWorldTris; i++) {
+		TriPlane triPlane{};
+		float x1 = RandBetween(-5000.0f, 500.0f);
+		float x2 = RandBetween(-5000.0f, 500.0f);
+		float x3 = RandBetween(-5000.0f, 500.0f);
+		float y1 = RandBetween(-5000.0f, 500.0f);
+		float y2 = RandBetween(-5000.0f, 500.0f);
+		float y3 = RandBetween(-5000.0f, 500.0f);
+		float z1 = RandBetween(-1000.0f, 5000.0f);
+		float z2 = RandBetween(-1000.0f, 5000.0f);
+		float z3 = RandBetween(-1000.0f, 5000.0f);
+		Vertex A = {glm::vec3(x1, y1, z1)};
+		Vertex B = {glm::vec3(x2, y2, z2)};
+		Vertex C = {glm::vec3(x3, y3, z3)};
+		glm::vec4 triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+		A.color = triPlaneColor;
+		B.color = triPlaneColor;
+		C.color = triPlaneColor;
+		triPlane.tri = {A, B, C};
+		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+		triPlane.tri.a.normal = triPlane.plane.normal;
+		triPlane.tri.b.normal = triPlane.plane.normal;
+		triPlane.tri.c.normal = triPlane.plane.normal;
+		worldTris.push_back( triPlane );	
+	}
+    m_World.InitWorld(worldTris.data(), worldTris.size());
 
     // Load IQM Model
 
