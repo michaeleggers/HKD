@@ -46,8 +46,27 @@ void Game::Init()
     triPlane.tri.a.normal = triPlane.plane.normal;
     triPlane.tri.b.normal = triPlane.plane.normal;
     triPlane.tri.c.normal = triPlane.plane.normal;
+
+	TriPlane triPlane2{};
+	
+    A = {glm::vec3(200.0f, 200.5443321f, 20.0f)};
+    B = {glm::vec3(100.0f, -200.5443321f, 200.0f)};
+    C = {glm::vec3(0.0f, -200.5443321f, 20.0f)};
+    triPlaneColor = glm::vec4(0.9f, 0.3f, 1.0f, 1.0f);
+    A.color = triPlaneColor;
+    B.color = triPlaneColor;
+    C.color = triPlaneColor;
+    triPlane2.tri = {A, C, B};
+    triPlane2.plane = CreatePlaneFromTri(triPlane.tri);
+    triPlane2.tri.a.normal = triPlane.plane.normal;
+    triPlane2.tri.b.normal = triPlane.plane.normal;
+    triPlane2.tri.c.normal = triPlane.plane.normal;
     // RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 20.0f);
-    m_World.InitWorld(&triPlane, 1);
+	TriPlane triPlanes[] = {
+		triPlane, triPlane2
+	};
+    m_World.InitWorld(triPlanes, 2);
+
     Plane p = triPlane.plane;
     printf("p.normal: %f, %f, %f, plane.d: %f\n",
         p.normal.x, p.normal.y, p.normal.z, p.d);
@@ -288,7 +307,8 @@ bool Game::RunFrame(double dt)
 
     // Test collision between player and world geometry
     EllipsoidCollider ec = m_Player.ellipsoidColliders[m_Player.currentAnimIdx];
-    CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(ec, m_Player.velocity, m_World.m_TriPlanes[0]);
+    CollisionInfo collisionInfo = CollideEllipsoidWithTriPlane(
+			ec, m_Player.velocity, m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size());
     TriPlane tp = m_World.m_TriPlanes[0];
     Plane p = CreatePlaneFromTri(tp.tri);
     // if (IsPointInTriangle(ec.center, tp.tri, p.normal)) {

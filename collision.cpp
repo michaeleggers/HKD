@@ -322,27 +322,30 @@ void CollideUnitSphereWithTri(CollisionInfo* ci, glm::vec3 pos, Tri tri)
 
 }
 
-CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane tp)
+CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane* triPlanes, int triPlaneCount)
 {
-    Tri tri = tp.tri;
 
     // Convert to ellipsoid space
-
-    Tri esTri = TriToEllipsoidSpace(tri, ec.toESpace);
-    Plane esPlane = CreatePlaneFromTri(esTri);
-    glm::vec3 esVelocity = ec.toESpace * velocity;
-    glm::vec3 esBasePos = ec.toESpace * ec.center;
-
-    // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
-	// This, it is a unit sphere.
+	std::vector<Tri> tris;
+	for (int i = 0; i < triPlaneCount; i++) {
+		Tri tri = triPlanes[ i ]->tri;
+		Tri esTri = TriToEllipsoidSpace(tri, ec.toESpace);
+		tris.push_back(esTri);
+	}  
     
+	glm::vec3 esVelocity = ec.toESpace * velocity;
+    glm::vec3 esBasePos = ec.toESpace * ec.center;
+	
+    // From now on the Radius of the ellipsoid is 1.0 in X, Y, Z.
+	// Thus, it is a unit sphere.
+	
 	CollisionInfo ci;
 	ci.didCollide = false;
 	ci.nearestDistance = 9999.9f;
 	ci.velocity = esVelocity;
 	ci.hitPoint = glm::vec3( 0.0f );
 	
-	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esTri);
+	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, tris.data(), tris.size());
 
 	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
 	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
@@ -351,7 +354,7 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 }
 
 // Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
-void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri tri)
+void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri* tris, int triCount)
 {
 	if ( glm::length(ci->velocity) <= HKD_EPSILON ) {
 		return; 
