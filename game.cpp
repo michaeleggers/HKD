@@ -34,9 +34,9 @@ void Game::Init()
 
     // Tri that is moved 10 units in y direction
     TriPlane triPlane{};
-    Vertex A = {glm::vec3(200.0f, -300.5443321f, 50.0f)};
+    Vertex A = {glm::vec3(200.0f, 200.5443321f, 20.0f)};
     Vertex B = {glm::vec3(100.0f, 200.5443321f, 200.0f)};
-    Vertex C = {glm::vec3(0.0f, -300.5443321f, 50.0f)};
+    Vertex C = {glm::vec3(0.0f, 200.5443321f, 20.0f)};
     glm::vec4 triPlaneColor = glm::vec4(0.1f, 0.3f, 1.0f, 1.0f);
     A.color = triPlaneColor;
     B.color = triPlaneColor;
@@ -87,7 +87,7 @@ void Game::Init()
         icosphereBody.m_LinearVelocity = glm::vec3(0.0f);
         icosphereBody.m_Shape = new ShapeSphere(icosphereRadius);
         icosphereBody.m_InvMass = 1.0f / 10.0f;
-        icosphereBody.m_Elasticity = 0.0f;
+        icosphereBody.m_Elasticity = .5f;
         icosphereModel.body = icosphereBody;
         icosphereModel.isRigidBody = true;
         m_IcosphereModels.push_back(icosphereModel);

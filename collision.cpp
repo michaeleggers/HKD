@@ -374,14 +374,14 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri
 	
 		// Project original velocity vector onto the sliding plane which gives a new destination point.
 		glm::vec3 wantedPos = esBasePos + ci->velocity;
-		glm::vec3 planePointToWantedPos = slidingPlane.p - wantedPos;
+		glm::vec3 planePointToWantedPos = wantedPos - slidingPlane.p;
 		float distance = glm::dot(planePointToWantedPos, slidingPlane.normal);
 		glm::vec3 newDestinationPoint = wantedPos - distance * slidingPlane.normal;
 		
 		// Create new velocity vector that goes from hit point to new destination point.
 		glm::vec3 newVelocity = newDestinationPoint - ci->hitPoint;
 		printf("Nearest distance: %f\n", ci->nearestDistance);
-		glm::vec3 newPos = esBasePos + glm::abs(ci->nearestDistance) * ci->velocity;
+		glm::vec3 newPos = esBasePos + ci->nearestDistance * ci->velocity;
 
 		// Recursively call collision code again with new position and velocity vector.
 		// ATTENTION: This means we test ALL of the triangles all over again. This will explode
@@ -390,7 +390,7 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, Tri
 		// Do this until: either not hit anything OR veclocity vector gets very small.
 		
 		ci->didCollide = false;
-		ci->velocity = glm::vec3(0.0f);
+		ci->velocity = newVelocity; // glm::vec3(0.0f);
 		CollideEllipsoidWithTriPlaneRec(ci, newPos, tri);
 	}
 
