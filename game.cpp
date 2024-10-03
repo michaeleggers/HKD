@@ -41,7 +41,7 @@ void Game::Init()
     A.color = triPlaneColor;
     B.color = triPlaneColor;
     C.color = triPlaneColor;
-    triPlane.tri = {A, B, C};
+    triPlane.tri = {A, C, B};
     triPlane.plane = CreatePlaneFromTri(triPlane.tri);
     triPlane.tri.a.normal = triPlane.plane.normal;
     triPlane.tri.b.normal = triPlane.plane.normal;
@@ -308,6 +308,7 @@ bool Game::RunFrame(double dt)
 
     // And apply the velocity
     m_Player.position += m_Player.velocity;
+    //m_Player.position += collisionInfo.velocity;
 
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {

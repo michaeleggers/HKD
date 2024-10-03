@@ -66,6 +66,7 @@ struct Line {
 struct Plane {
 	glm::vec3 normal;
 	float	  d;
+	glm::vec3 p;
 };
 
 struct TriPlane {

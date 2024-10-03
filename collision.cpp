@@ -171,8 +171,9 @@ bool CheckSweptSphereVsLinesegment(
 	return false;
 }
 
-void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri tri)
+void CollideUnitSphereWithTri(CollisionInfo* ci, glm::vec3 pos, Tri tri)
 {
+	Plane p = CreatePlaneFromTri(tri);
     glm::vec3 normal = p.normal;
     glm::vec3 ptOnPlane = p.d * normal;
     glm::vec3 basePos = pos;
@@ -314,7 +315,7 @@ void CollideUnitSphereWithPlane(CollisionInfo* ci, glm::vec3 pos, Plane p, Tri t
 		float distanceToHitpoint = t * glm::length( velocity ); // furthest the sphere can travel along its velocity vector until collision happens
 		if ( !ci->didCollide || (ci->nearestDistance > t) ) {
 			ci->didCollide = true;
-			ci->nearestDistance = distanceToHitpoint;
+			ci->nearestDistance = t;
 			ci->hitPoint = hitPoint;
 		}
 	}
@@ -340,16 +341,59 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	ci.nearestDistance = 9999.9f;
 	ci.velocity = esVelocity;
 	ci.hitPoint = glm::vec3( 0.0f );
-    CollideUnitSphereWithPlane(
-        &ci, esBasePos, esPlane, esTri );
-	if (ci.didCollide) {
-		
-		ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
-		//printf("hitpoint: %f, %f, %f\n", ci.hitPoint.x, ci.hitPoint.y, ci.hitPoint.z);
+	
+	CollideEllipsoidWithTriPlaneRec(ec, &ci, esBasePos, esTri);
+
+	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
+	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
+
+	return ci;
+}
+
+// Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
+void CollideEllipsoidWithTriPlaneRec(EllipsoidCollider ec, CollisionInfo* ci, glm::vec3 esBasePos, Tri tri)
+{
+	if ( glm::length(ci->velocity) <= HKD_EPSILON ) {
+		return; 
 	}
 
+    CollideUnitSphereWithTri(
+        ci, esBasePos, tri );
+	if (ci->didCollide) {
+		
+		//ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
+		//printf("hitpoint: %f, %f, %f\n", ci.hitPoint.x, ci.hitPoint.y, ci.hitPoint.z);
 
-    return ci;
+		// Move the sphere as close to the hitpoint as possible.
+			
+
+		// Calculate the sliding plane based on this new position.
+		Plane slidingPlane{};
+		slidingPlane.normal = glm::normalize(esBasePos - ci->hitPoint);
+		slidingPlane.p = ci->hitPoint;
+	
+		// Project original velocity vector onto the sliding plane which gives a new destination point.
+		glm::vec3 wantedPos = esBasePos + ci->velocity;
+		glm::vec3 planePointToWantedPos = slidingPlane.p - wantedPos;
+		float distance = glm::dot(planePointToWantedPos, slidingPlane.normal);
+		glm::vec3 newDestinationPoint = wantedPos - distance * slidingPlane.normal;
+		
+		// Create new velocity vector that goes from hit point to new destination point.
+		glm::vec3 newVelocity = newDestinationPoint - ci->hitPoint;
+		printf("Nearest distance: %f\n", ci->nearestDistance);
+		glm::vec3 newPos = esBasePos + glm::abs(ci->nearestDistance) * ci->velocity;
+
+		// Recursively call collision code again with new position and velocity vector.
+		// ATTENTION: This means we test ALL of the triangles all over again. This will explode
+		// if we don't do some sort of culling in the future!!!
+		//
+		// Do this until: either not hit anything OR veclocity vector gets very small.
+		
+		//ci.didCollide = false;
+		ci->velocity = newVelocity;
+		//ci = CollideEllipsoidWithTriPlaneRec(ec, ci, newPos, tri);
+
+	}
 }
 
 Tri TriToEllipsoidSpace(Tri tri, glm::mat3 toESPace) {
