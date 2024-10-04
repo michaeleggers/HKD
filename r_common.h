@@ -42,7 +42,7 @@ struct Vertex {
 
 #define GOLDEN_RATIO			 1.618033988749
 #define HKD_PI                   3.14159265359
-#define HKD_EPSILON              0.00001
+#define HKD_EPSILON              0.000000001f
 #define ELLIPSOID_VERT_COUNT	 32
 
 struct ShaderSettings {

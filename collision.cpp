@@ -343,7 +343,7 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	ci.velocity = esVelocity;
 	ci.hitPoint = glm::vec3( 0.0f );
 	
-	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 5);
+	CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 10);
 
 	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
 	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
@@ -351,12 +351,11 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	return ci;
 }
 
-#define VERY_CLOSE_DIST 0.0005f
+#define VERY_CLOSE_DIST 0.1f
 // Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
 void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm::vec3 velocity, Tri* tris, int triCount, int depth, int maxDepth)
 {
 	if ( depth > maxDepth ) {
-		ci->velocity = velocity;
 		return;
 	}
 
@@ -378,7 +377,7 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm
 			glm::vec3 vNorm = glm::normalize(velocity);
 			float vLength = ci->nearestDistance - VERY_CLOSE_DIST;
 			ci->hitPoint -= vLength * vNorm;
-			ci->nearestDistance = VERY_CLOSE_DIST;
+			ci->nearestDistance -= VERY_CLOSE_DIST;
 		}
 
 		// Calculate the sliding plane based on this new position.
@@ -397,7 +396,7 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm
 		glm::vec3 newVelocity = newDestinationPoint - ci->hitPoint;
 		//printf("Nearest distance: %f\n", ci->nearestDistance);
 
-		if ( glm::length(newVelocity) < VERY_CLOSE_DIST ) {
+		if ( glm::length(newVelocity) < 0.05f ) {
 			ci->velocity = glm::vec3(0.0f);
 			return; 
 		}
