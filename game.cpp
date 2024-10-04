@@ -33,7 +33,7 @@ void Game::Init()
     m_AccumTime = 0.0f;
 	
 	std::vector<TriPlane> worldTris{};
-	int const numWorldTris = 1000;
+/*	int const numWorldTris = 1000;
 	for (int i = 0; i < numWorldTris; i++) {
 		TriPlane triPlane{};
 		float x1 = RandBetween(-5000.0f, 500.0f);
@@ -59,6 +59,21 @@ void Game::Init()
 		triPlane.tri.c.normal = triPlane.plane.normal;
 		worldTris.push_back( triPlane );	
 	}
+	*/
+		TriPlane triPlane{};
+		Vertex A = {glm::vec3(-300.0f, 0.0f, 0.0f)};
+		Vertex B = {glm::vec3(0.0f, 0.0f, 300.0f)};
+		Vertex C = {glm::vec3(300.0f, 0.0f, 0.0f)};
+		glm::vec4 triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+		A.color = triPlaneColor;
+		B.color = triPlaneColor;
+		C.color = triPlaneColor;
+		triPlane.tri = {A, B, C};
+		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+		triPlane.tri.a.normal = triPlane.plane.normal;
+		triPlane.tri.b.normal = triPlane.plane.normal;
+		triPlane.tri.c.normal = triPlane.plane.normal;
+		worldTris.push_back( triPlane );	
     m_World.InitWorld(worldTris.data(), worldTris.size());
 
     // Load IQM Model
@@ -231,7 +246,7 @@ bool Game::RunFrame(double dt)
     float followCamSpeed = 0.5f;
     float followTurnSpeed = 0.2f;
     if (KeyPressed(SDLK_LSHIFT)) {
-        followCamSpeed *= 0.01f;
+        followCamSpeed *= 0.1f;
         followTurnSpeed *= 0.3f;
     }
 
