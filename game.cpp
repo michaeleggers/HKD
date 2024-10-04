@@ -74,6 +74,20 @@ void Game::Init()
 		triPlane.tri.b.normal = triPlane.plane.normal;
 		triPlane.tri.c.normal = triPlane.plane.normal;
 		worldTris.push_back( triPlane );	
+
+		triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+		A.color = triPlaneColor;
+		B.color = triPlaneColor;
+		C.color = triPlaneColor;
+		Tri tri = { A, B, C };
+		RotateTri(&tri, glm::vec3(0.0f, 0.0f, 1.0f), 50.0f);
+		triPlane.tri = tri;
+		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+		triPlane.tri.a.normal = triPlane.plane.normal;
+		triPlane.tri.b.normal = triPlane.plane.normal;
+		triPlane.tri.c.normal = triPlane.plane.normal;
+		worldTris.push_back( triPlane );	
+
     m_World.InitWorld(worldTris.data(), worldTris.size());
 
     // Load IQM Model
@@ -334,6 +348,7 @@ bool Game::RunFrame(double dt)
     // And apply the velocity
     //m_Player.position += m_Player.velocity;
     m_Player.position += collisionInfo.velocity;
+	printf("Applied velocity to player: %f, %f, %f\n", collisionInfo.velocity);
 
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {
@@ -611,7 +626,7 @@ bool Game::RunFrame(double dt)
         m_Player.debugColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // red
         m_Renderer->SetActiveCamera(&m_FollowCamera);
         m_Renderer->ImDrawSphere(collisionInfo.hitPoint, 5.0f);
-		printf("hitpoint: %f, %f, %f\n", collisionInfo.hitPoint.x, collisionInfo.hitPoint.y, collisionInfo.hitPoint.z);
+		//printf("hitpoint: %f, %f, %f\n", collisionInfo.hitPoint.x, collisionInfo.hitPoint.y, collisionInfo.hitPoint.z);
     } else {
         m_Player.debugColor = glm::vec4(1.0f); // white
     }

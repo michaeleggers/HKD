@@ -351,10 +351,12 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	return ci;
 }
 
+#define VERY_CLOSE_DIST 0.0005f
 // Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
 void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm::vec3 velocity, Tri* tris, int triCount, int depth, int maxDepth)
 {
 	if ( depth > maxDepth ) {
+		ci->velocity = velocity;
 		return;
 	}
 
@@ -371,7 +373,13 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm
 		//printf("hitpoint: %f, %f, %f\n", ci.hitPoint.x, ci.hitPoint.y, ci.hitPoint.z);
 
 		// Move the sphere as close to the hitpoint as possible.
-			
+		//printf("Nearest distance before check: %f\n", ci->nearestDistance);	
+		if ( ci->nearestDistance >= VERY_CLOSE_DIST ) {
+			glm::vec3 vNorm = glm::normalize(velocity);
+			float vLength = ci->nearestDistance - VERY_CLOSE_DIST;
+			ci->hitPoint -= vLength * vNorm;
+			ci->nearestDistance = VERY_CLOSE_DIST;
+		}
 
 		// Calculate the sliding plane based on this new position.
 		Plane slidingPlane{};
@@ -379,17 +387,17 @@ void CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm
 		slidingPlane.p = ci->hitPoint;
 	
 		// Project original velocity vector onto the sliding plane which gives a new destination point.
-		glm::vec3 wantedPos = esBasePos + ci->velocity;
+		glm::vec3 wantedPos = esBasePos + velocity;
 		glm::vec3 planePointToWantedPos = wantedPos - slidingPlane.p;
 		float distance = glm::dot(planePointToWantedPos, slidingPlane.normal);
 		glm::vec3 newDestinationPoint = wantedPos - distance * slidingPlane.normal;
 		
 		// Create new velocity vector that goes from hit point to new destination point.
-		glm::vec3 newPos = esBasePos + ci->nearestDistance * ci->velocity;
+		glm::vec3 newPos = esBasePos + ci->nearestDistance * velocity;
 		glm::vec3 newVelocity = newDestinationPoint - ci->hitPoint;
-		printf("Nearest distance: %f\n", ci->nearestDistance);
+		//printf("Nearest distance: %f\n", ci->nearestDistance);
 
-		if ( glm::length(newVelocity) <= HKD_EPSILON ) {
+		if ( glm::length(newVelocity) < VERY_CLOSE_DIST ) {
 			ci->velocity = glm::vec3(0.0f);
 			return; 
 		}
