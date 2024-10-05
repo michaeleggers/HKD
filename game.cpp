@@ -60,35 +60,49 @@ void Game::Init()
 		worldTris.push_back( triPlane );	
 	}
 	*/
-		TriPlane triPlane{};
-		Vertex A = {glm::vec3(-300.0f, 0.0f, 0.0f)};
-		Vertex B = {glm::vec3(0.0f, 0.0f, 300.0f)};
-		Vertex C = {glm::vec3(300.0f, 0.0f, 0.0f)};
-		glm::vec4 triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
-		A.color = triPlaneColor;
-		B.color = triPlaneColor;
-		C.color = triPlaneColor;
-		triPlane.tri = {A, B, C};
-		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
-		triPlane.tri.a.normal = triPlane.plane.normal;
-		triPlane.tri.b.normal = triPlane.plane.normal;
-		triPlane.tri.c.normal = triPlane.plane.normal;
-		worldTris.push_back( triPlane );	
+	TriPlane triPlane{};
+	Vertex A = {glm::vec3(0.0f, 0.0f, 0.0f)};
+	Vertex B = {glm::vec3(0.0f, 0.0f, 300.0f)};
+	Vertex C = {glm::vec3(-300.0f, 0.0f, 0.0f)};
+	glm::vec4 triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+	A.color = triPlaneColor;
+	B.color = triPlaneColor;
+	C.color = triPlaneColor;
+	Tri tri = {A, B, C};
+	triPlane.tri = tri;
+	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+	triPlane.tri.a.normal = triPlane.plane.normal;
+	triPlane.tri.b.normal = triPlane.plane.normal;
+	triPlane.tri.c.normal = triPlane.plane.normal;
+	worldTris.push_back( triPlane );	
 
-		triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
-		A.color = triPlaneColor;
-		B.color = triPlaneColor;
-		C.color = triPlaneColor;
-		Tri tri = { A, B, C };
-		RotateTri(&tri, glm::vec3(0.0f, 0.0f, 1.0f), 130.0f);
-		triPlane.tri = tri;
-		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
-		triPlane.tri.a.normal = triPlane.plane.normal;
-		triPlane.tri.b.normal = triPlane.plane.normal;
-		triPlane.tri.c.normal = triPlane.plane.normal;
-		worldTris.push_back( triPlane );	
+	triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+	A.color = triPlaneColor;
+	B.color = triPlaneColor;
+	C.color = triPlaneColor;
+	tri = { A, B, C };
+	triPlane.tri = tri;
+	RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), 130.0f);
+	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+	triPlane.tri.a.normal = triPlane.plane.normal;
+	triPlane.tri.b.normal = triPlane.plane.normal;
+	triPlane.tri.c.normal = triPlane.plane.normal;
+	//worldTris.push_back( triPlane );	
 
-    m_World.InitWorld(worldTris.data(), worldTris.size());
+	triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+	A.color = triPlaneColor;
+	B.color = triPlaneColor;
+	C.color = triPlaneColor;
+	tri = { A, C, B };
+	triPlane.tri = tri;
+	RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+	triPlane.tri.a.normal = triPlane.plane.normal;
+	triPlane.tri.b.normal = triPlane.plane.normal;
+	triPlane.tri.c.normal = triPlane.plane.normal;
+	worldTris.push_back( triPlane );	
+    
+	m_World.InitWorld(worldTris.data(), worldTris.size());
 
     // Load IQM Model
 

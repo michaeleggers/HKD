@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <glm/gtx/norm.hpp>
 
-#define VERY_CLOSE_DIST 0.01f
+#define VERY_CLOSE_DIST 0.0001f
 
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
 {
