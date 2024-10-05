@@ -80,7 +80,7 @@ void Game::Init()
 		B.color = triPlaneColor;
 		C.color = triPlaneColor;
 		Tri tri = { A, B, C };
-		RotateTri(&tri, glm::vec3(0.0f, 0.0f, 1.0f), 50.0f);
+		RotateTri(&tri, glm::vec3(0.0f, 0.0f, 1.0f), 130.0f);
 		triPlane.tri = tri;
 		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
 		triPlane.tri.a.normal = triPlane.plane.normal;
@@ -158,6 +158,10 @@ void Game::Init()
         EllipsoidCollider* ec = &m_Player.ellipsoidColliders[i];
         ec->radiusA *= m_Player.scale.x;
         ec->radiusB *= m_Player.scale.z;
+        ec->center = m_Player.position + glm::vec3(
+            0.0f,
+            0.0f,
+            ec->radiusB);
         glm::vec3 scale = glm::vec3(1.0f / ec->radiusA, 1.0f / ec->radiusA, 1.0f / ec->radiusB);
         ec->toESpace = glm::scale(glm::mat4(1.0f), scale);
     }
@@ -308,6 +312,8 @@ bool Game::RunFrame(double dt)
             playerAnimState = ANIM_STATE_WALK;
         }
     }
+	//m_Player.velocity = t * glm::normalize(m_Player.velocity);
+	//printf("player vel: %f, %f, %f\n", m_Player.velocity.x, m_Player.velocity.y, m_Player.velocity.z);
 
     SetAnimState(&m_Player, playerAnimState);
 
@@ -347,10 +353,12 @@ bool Game::RunFrame(double dt)
 
     // And apply the velocity
     //m_Player.position += m_Player.velocity;
-	m_Player.ellipsoidColliders[m_Player.currentAnimIdx].center = collisionInfo.basePos;
+	for (int i = 0; i < m_Player.animations.size(); i++) {
+		m_Player.ellipsoidColliders[ i ].center = collisionInfo.basePos;
+	}
     m_Player.position.x = collisionInfo.basePos.x;
 	m_Player.position.y = collisionInfo.basePos.y;
-
+	m_Player.position.z = collisionInfo.basePos.z - ec.radiusB;
 
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {

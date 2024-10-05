@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <glm/gtx/norm.hpp>
 
+#define VERY_CLOSE_DIST 0.01f
+
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
 {
     float width = glm::abs(maxs.x - mins.x);
@@ -179,9 +181,9 @@ void CollideUnitSphereWithTri(CollisionInfo* ci, Tri tri)
     glm::vec3 basePos = ci->basePos;
 	glm::vec3 velocity = ci->velocity;
 
+	if ( glm::dot( glm::normalize(velocity), normal ) >= 0.0f ) return;
     // Signed distance from plane to unit sphere's center
     float sD = glm::dot(normal, basePos - ptOnPlane);
-    float D = glm::abs(sD);
 
     // Project velocity along the plane normal
     float velDotNormal = glm::dot(normal, velocity);
@@ -189,10 +191,10 @@ void CollideUnitSphereWithTri(CollisionInfo* ci, Tri tri)
     bool foundCollision = false;
     bool embeddedInPlane = false;
     float t0, t1;
-    if ( glm::abs(velDotNormal) <= HKD_EPSILON ) { // Sphere travelling parallel to the plane or it is in the plane
+    if ( glm::abs(velDotNormal) == 0.0f ) { // Sphere travelling parallel to the plane or it is in the plane
 
 		// Distance from unit sphere center to plane is greater than 1 => no intersection!
-		if ( D > 1.0f ) {
+		if ( glm::abs(sD) >= 1.0f ) {
 			return;
 		}
 		
@@ -316,6 +318,10 @@ void CollideUnitSphereWithTri(CollisionInfo* ci, Tri tri)
 			ci->didCollide = true;
 			ci->nearestDistance = distanceToHitpoint;
 			ci->hitPoint = hitPoint;
+			if (embeddedInPlane) {
+				//ci->nearestDistance = -VERY_CLOSE_DIST;
+				//ci->hitPoint -= VERY_CLOSE_DIST*p.normal;
+			}
 		}
 	}
 
@@ -344,7 +350,7 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	ci.hitPoint = glm::vec3( 0.0f );
 	ci.basePos = esBasePos;
 
-	glm::vec3 newPos = CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 10);
+	glm::vec3 newPos = CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 5);
 
 	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
 	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
@@ -353,7 +359,6 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 	return ci;
 }
 
-#define VERY_CLOSE_DIST 0.001f
 // Assume all data in ci to be in ellipsoid space, that is, a unit-sphere. Same goes for esBasePos.
 glm::vec3 CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos, glm::vec3 velocity, Tri* tris, int triCount, int depth, int maxDepth)
 {
@@ -370,16 +375,19 @@ glm::vec3 CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos
 		CollideUnitSphereWithTri( ci, tri );
 	}
 
-	if ( !ci->didCollide )
+	if ( !ci->didCollide ) {
 		return esBasePos + velocity;
+	} else {
+		printf("DID COLLIDE\n");
+	}
 
 	glm::vec3 destinationPos = esBasePos + velocity;
 	glm::vec3 newBasePos = esBasePos;
 
-	if ( ci->nearestDistance  >= VERY_CLOSE_DIST ) {
+	if ( ci->nearestDistance >= VERY_CLOSE_DIST ) {
 		glm::vec3 v = velocity;
 		glm::vec3 vNorm = glm::normalize( v );
-		float length = ci->nearestDistance - VERY_CLOSE_DIST;
+		float length = glm::abs(ci->nearestDistance - VERY_CLOSE_DIST); // abs should not be neccessary
 		newBasePos = ci->basePos + length * vNorm; 
 		ci->hitPoint -= VERY_CLOSE_DIST * vNorm;
 	}

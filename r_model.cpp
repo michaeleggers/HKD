@@ -219,12 +219,13 @@ void UpdateModel(HKD_Model* model, float dt)
 
         // Update Ellipsoid Collider center
         // TODO: Also entities that aren't animated should have this.
+		/*
         EllipsoidCollider* ec = &model->ellipsoidColliders[model->currentAnimIdx];
         ec->center = model->position + glm::vec3(
             0.0f,
             0.0f,
             ec->radiusB);
-
+		*/
     } // DONE WITH ANIMATION
 
     // Update the rigid body
