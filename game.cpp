@@ -347,8 +347,10 @@ bool Game::RunFrame(double dt)
 
     // And apply the velocity
     //m_Player.position += m_Player.velocity;
-    m_Player.position += collisionInfo.velocity;
-	printf("Applied velocity to player: %f, %f, %f\n", collisionInfo.velocity);
+	m_Player.ellipsoidColliders[m_Player.currentAnimIdx].center = collisionInfo.basePos;
+    m_Player.position.x = collisionInfo.basePos.x;
+	m_Player.position.y = collisionInfo.basePos.y;
+
 
     UpdateModel(&m_Player, (float)dt);
     for (int i = 0; i < NUM_BALLS; i++) {
