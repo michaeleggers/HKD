@@ -352,6 +352,14 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 
 	glm::vec3 newPos = CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 5);
 
+	glm::vec3 gravity = glm::vec3(0.0f, 0.0f, -3.0f);
+	glm::vec3 esGravity = ec.toESpace * gravity;
+	ci.velocity = esGravity;
+	ci.basePos = newPos;
+	ci.nearestDistance = 0.0f;
+	ci.didCollide = false;
+	newPos = CollideEllipsoidWithTriPlaneRec(&ci, newPos, esGravity, tris.data(), tris.size(), 0, 5);
+
 	ci.velocity = glm::inverse( ec.toESpace ) * ci.velocity;
 	ci.hitPoint = glm::inverse( ec.toESpace ) * ci.hitPoint;
 	ci.basePos = glm::inverse( ec.toESpace ) * newPos;

@@ -103,16 +103,17 @@ void Game::Init()
 	worldTris.push_back( triPlane );	
    
 	// Floor with wall
-	float stepHeight = 50.0f;
+	float stepHeight = 10.0f;
+	glm::vec4 colorFloor = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
 	triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
 	Tri floorTri;
 	A = {glm::vec3(0.0f, 0.0f, stepHeight)};
 	B = {glm::vec3(0.0f, 300.0f, stepHeight)};
 	C = {glm::vec3(-300.0f, 300.0f, stepHeight)};
-	A.color = triPlaneColor;
-	B.color = triPlaneColor;
-	C.color = triPlaneColor;
-	floorTri = { A, C, B };
+	A.color = colorFloor;
+	B.color = colorFloor;
+	C.color = colorFloor;
+	floorTri = { A, B, C };
 	triPlane.tri = floorTri;
 	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
 	triPlane.tri.a.normal = triPlane.plane.normal;
@@ -146,6 +147,21 @@ void Game::Init()
 
 	TranslateTri( &wallTri, glm::vec3( 0.0f, -100.0f, stepHeight ) );
 	triPlane.tri = wallTri;
+	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+	triPlane.tri.a.normal = triPlane.plane.normal;
+	triPlane.tri.b.normal = triPlane.plane.normal;
+	triPlane.tri.c.normal = triPlane.plane.normal;
+	worldTris.push_back( triPlane );	
+
+	Tri groundTri;
+	A = {glm::vec3(2000.0f, -100000.0f, -20.0f)};
+	B = {glm::vec3(2000.0f, 1000.0f, -20.0f)};
+	C = {glm::vec3(-1000.0f, 1000.0f, -20.0f)};
+	A.color = triPlaneColor;
+	B.color = triPlaneColor;
+	C.color = triPlaneColor;
+	groundTri = { A, B, C };
+	triPlane.tri = groundTri;
 	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
 	triPlane.tri.a.normal = triPlane.plane.normal;
 	triPlane.tri.b.normal = triPlane.plane.normal;
@@ -547,7 +563,7 @@ bool Game::RunFrame(double dt)
 
     // Render World geometry
     m_Renderer->ImDrawTriPlanes(m_World.m_TriPlanes.data(), m_World.m_TriPlanes.size(),
-        false, DRAW_MODE_SOLID);
+        true, DRAW_MODE_SOLID);
 
     Vertex a = {};
     a.pos = glm::vec3(100, -300, -100);
