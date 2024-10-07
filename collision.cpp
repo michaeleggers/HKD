@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <glm/gtx/norm.hpp>
 
-#define VERY_CLOSE_DIST 0.0001f
+// NOTE: This distance depends very much on the size of the level geometry!
+#define VERY_CLOSE_DIST 0.01f
 
 EllipsoidCollider CreateEllipsoidColliderFromAABB(glm::vec3 mins, glm::vec3 maxs)
 {
@@ -385,8 +386,6 @@ glm::vec3 CollideEllipsoidWithTriPlaneRec(CollisionInfo* ci, glm::vec3 esBasePos
 
 	if ( !ci->didCollide ) {
 		return esBasePos + velocity;
-	} else {
-		printf("DID COLLIDE\n");
 	}
 
 	glm::vec3 destinationPos = esBasePos + velocity;

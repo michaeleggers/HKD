@@ -19,6 +19,8 @@
 #define MAP_PARSER_IMPLEMENTATION
 #include "map_parser.h"
 
+#include "polysoup.h"
+
 static int hkd_Clamp(int val, int clamp) {
     if (val > clamp || val < clamp) return clamp;
     return val;
@@ -63,6 +65,8 @@ void Game::Init()
 		worldTris.push_back( triPlane );	
 	}
 	*/
+
+#if 0
 	TriPlane triPlane{};
 	Vertex A = {glm::vec3(0.0f, 0.0f, 0.0f)};
 	Vertex B = {glm::vec3(0.0f, 0.0f, 300.0f)};
@@ -172,6 +176,40 @@ void Game::Init()
 	worldTris.push_back( triPlane );	
 
 	m_World.InitWorld(worldTris.data(), worldTris.size());
+#endif
+
+
+	// Load world triangles from Quake .MAP file
+
+	MapVersion mapVersion = QUAKE; // TODO: Change to MAP_TYPE_QUAKE
+	
+	std::string mapData = loadTextFile(m_ExePath + "../assets/maps/E1M1.MAP");
+	size_t inputLength = mapData.length();
+	Map map = getMap(&mapData[0], inputLength, mapVersion);	
+	std::vector<MapPolygon> polysoup = createPolysoup(map);
+	std::vector<MapPolygon> tris = triangulate(polysoup);
+	
+	glm::vec4 triColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
+	for (int i = 0; i < tris.size(); i++) {
+		MapPolygon mapPoly = tris[ i ];
+		Vertex A = { glm::vec3(mapPoly.vertices[0].x, mapPoly.vertices[0].y, mapPoly.vertices[0].z) };
+		Vertex B = { glm::vec3(mapPoly.vertices[1].x, mapPoly.vertices[1].y, mapPoly.vertices[1].z) };
+		Vertex C = { glm::vec3(mapPoly.vertices[2].x, mapPoly.vertices[2].y, mapPoly.vertices[2].z) };
+		A.color = triColor;
+		B.color = triColor;
+		C.color = triColor;
+		Tri tri = { A, B, C };
+
+		TriPlane triPlane{};
+		triPlane.tri = tri;
+		triPlane.plane = CreatePlaneFromTri(triPlane.tri);
+		triPlane.tri.a.normal = triPlane.plane.normal;
+		triPlane.tri.b.normal = triPlane.plane.normal;
+		triPlane.tri.c.normal = triPlane.plane.normal;
+		worldTris.push_back( triPlane );	
+
+	}
+	m_World.InitWorld( worldTris.data(), worldTris.size() );
 
     // Load IQM Model
 
@@ -235,8 +273,8 @@ void Game::Init()
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
 
-    m_Player.position = glm::vec3(100, 300.0f, 0);
-    m_Player.scale = glm::vec3(50.0f);
+    m_Player.position = glm::vec3(-8.0f, 936, -200);
+    m_Player.scale = glm::vec3(40.0f);
     for (int i = 0; i < m_Player.animations.size(); i++) {
         EllipsoidCollider* ec = &m_Player.ellipsoidColliders[i];
         ec->radiusA *= m_Player.scale.x;
