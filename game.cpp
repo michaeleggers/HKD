@@ -16,6 +16,9 @@
 #define NUM_BALLS 2
 
 
+#define MAP_PARSER_IMPLEMENTATION
+#include "map_parser.h"
+
 static int hkd_Clamp(int val, int clamp) {
     if (val > clamp || val < clamp) return clamp;
     return val;
@@ -63,12 +66,12 @@ void Game::Init()
 	TriPlane triPlane{};
 	Vertex A = {glm::vec3(0.0f, 0.0f, 0.0f)};
 	Vertex B = {glm::vec3(0.0f, 0.0f, 300.0f)};
-	Vertex C = {glm::vec3(-300.0f, 0.0f, 0.0f)};
+	Vertex C = {glm::vec3(-3000.0f, 0.0f, 0.0f)};
 	glm::vec4 triPlaneColor = glm::vec4( RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), RandBetween(0.0f, 1.0f), 1.0f);
 	A.color = triPlaneColor;
 	B.color = triPlaneColor;
 	C.color = triPlaneColor;
-	Tri tri = {A, B, C};
+	Tri tri = {A, C, B};
 	triPlane.tri = tri;
 	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
 	triPlane.tri.a.normal = triPlane.plane.normal;
@@ -93,9 +96,9 @@ void Game::Init()
 	A.color = triPlaneColor;
 	B.color = triPlaneColor;
 	C.color = triPlaneColor;
-	tri = { A, C, B };
+	tri = { A, B, C };
 	triPlane.tri = tri;
-	RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+	RotateTri(&triPlane.tri, glm::vec3(0.0f, 0.0f, 1.0f), -110.0f);
 	triPlane.plane = CreatePlaneFromTri(triPlane.tri);
 	triPlane.tri.a.normal = triPlane.plane.normal;
 	triPlane.tri.b.normal = triPlane.plane.normal;

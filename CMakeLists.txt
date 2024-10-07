@@ -92,6 +92,9 @@ add_executable(Game
 	physics.cpp
 	utils.h
 	utils.cpp
+	polysoup.h
+	polysoup.cpp
+	map_parser.h
 	game.h
 	game.cpp	
 
