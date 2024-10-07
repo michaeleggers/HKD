@@ -181,9 +181,9 @@ void Game::Init()
 
 	// Load world triangles from Quake .MAP file
 
-	MapVersion mapVersion = QUAKE; // TODO: Change to MAP_TYPE_QUAKE
+	MapVersion mapVersion = VALVE_220; // TODO: Change to MAP_TYPE_QUAKE
 	
-	std::string mapData = loadTextFile(m_ExePath + "../assets/maps/E1M1.MAP");
+	std::string mapData = loadTextFile(m_ExePath + "../assets/maps/room.map");
 	size_t inputLength = mapData.length();
 	Map map = getMap(&mapData[0], inputLength, mapVersion);	
 	std::vector<MapPolygon> polysoup = createPolysoup(map);
@@ -273,8 +273,8 @@ void Game::Init()
     m_Model3.orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     m_Model3.position = glm::vec3(100, 0, 0);
 
-    m_Player.position = glm::vec3(-8.0f, 936, -200);
-    m_Player.scale = glm::vec3(40.0f);
+    m_Player.position = glm::vec3(-48.0f, 352.0f, 48.0f);
+    m_Player.scale = glm::vec3(22.0f);
     for (int i = 0; i < m_Player.animations.size(); i++) {
         EllipsoidCollider* ec = &m_Player.ellipsoidColliders[i];
         ec->radiusA *= m_Player.scale.x;
@@ -385,7 +385,7 @@ bool Game::RunFrame(double dt)
     float followCamSpeed = 0.5f;
     float followTurnSpeed = 0.2f;
     if (KeyPressed(SDLK_LSHIFT)) {
-        followCamSpeed *= 0.1f;
+        followCamSpeed *= 0.3f;
         followTurnSpeed *= 0.3f;
     }
 
@@ -492,8 +492,8 @@ bool Game::RunFrame(double dt)
 
     m_FollowCamera.m_Pos.x = m_Player.position.x;
     m_FollowCamera.m_Pos.y = m_Player.position.y;
-    m_FollowCamera.m_Pos.z = m_Player.position.z + 160.0f;
-    m_FollowCamera.m_Pos += (-forward * 200.0f);
+    m_FollowCamera.m_Pos.z = m_Player.position.z + 70.0f;
+    m_FollowCamera.m_Pos += (-forward * 80.0f);
 
     // Update camera
     float camSpeed = 0.5f;
