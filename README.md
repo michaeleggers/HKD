@@ -50,3 +50,8 @@ what style I am going to use. I know this is not ideal...
 If you don't like them, I am okay with it! I am also open to discuss
 some other code-styles. But we should agree on at least some small
 principles.
+
+# Using CMake to generate Makefiles / Visual Studio Project
+- Create a ```build``` folder inside the root folder of this repo and go inside it.
+- Run ```cmake ..```. This generates a Makefile on UNIX systems by default. On Windows, usually
+a Visual Studio Solution. Use ```cmake -G``` to see what generator is used.
