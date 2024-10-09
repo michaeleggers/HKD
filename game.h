@@ -21,20 +21,13 @@ private:
 	hkdInterface* m_Interface;
 	std::string		m_ExePath;
 
-	HKD_Model		m_Model;
-	HKD_Model		m_Model2;
-	HKD_Model		m_Model3;
 	HKD_Model		m_Player;
-	std::vector<HKD_Model>	m_IcosphereModels;
-	HKD_Model		m_IcosphereGroundModel;
 
 	Camera			m_Camera;
 	Camera			m_FollowCamera;
 
 	std::vector<HKD_Model*> m_Models;
-	std::vector<HKD_Model> m_FixitModels;
 
-	Box m_Box{};
 	Box m_SkyBox{};
 	
 	double			m_AccumTime;

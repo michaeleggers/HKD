@@ -328,7 +328,7 @@ void CollideUnitSphereWithTri(CollisionInfo* ci, Tri tri)
 
 }
 
-CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, TriPlane* triPlanes, int triPlaneCount)
+CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 velocity, glm::vec3 gravity, TriPlane* triPlanes, int triPlaneCount)
 {
     // Convert to ellipsoid space
 	std::vector<Tri> tris;
@@ -353,7 +353,6 @@ CollisionInfo CollideEllipsoidWithTriPlane(EllipsoidCollider ec, glm::vec3 veloc
 
 	glm::vec3 newPos = CollideEllipsoidWithTriPlaneRec(&ci, esBasePos, esVelocity, tris.data(), tris.size(), 0, 5);
 
-	glm::vec3 gravity = glm::vec3(0.0f, 0.0f, -3.0f);
 	glm::vec3 esGravity = ec.toESpace * gravity;
 	ci.velocity = esGravity;
 	ci.basePos = newPos;
