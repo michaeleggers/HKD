@@ -13,8 +13,6 @@
 
 #include "imgui.h"
 
-#define NUM_BALLS 2
-
 
 #define MAP_PARSER_IMPLEMENTATION
 #include "map_parser.h"
